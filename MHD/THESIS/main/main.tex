@@ -1,0 +1,393 @@
+
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesFile{ubcsample.tex}[2012/04/07 v1.70 ^^J
+ University of British Columbia Sample Thesis]
+
+\documentclass[msc,oneside]{ubcthesis}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+\usepackage{mathrsfs}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+% \usepackage[normalem]{ulem}
+% \usepackage{cite}
+% \usepackage{nicefrac}
+% % \usepackage{algpseudocode}
+\usepackage{varwidth}
+\usepackage[linewidth=1pt]{mdframed}
+\usepackage{lipsum}
+\usepackage[toc,page]{appendix}
+
+% \usepackage{hyperref}
+
+\usepackage[unicode=true,
+  linktocpage,
+  linkbordercolor={0.5 0.5 1},
+  citebordercolor={0.5 1 0.5},
+  linkcolor=blue]{hyperref}
+
+\institution{The University Of British Columbia}
+
+\faculty{The Faculty of Graduate and Postdoctoral Studies}
+\institutionaddress{Vancouver}
+
+\previousdegree{M.Sci., The University of Birmingham, 2012}
+
+\title{Iterative Solution of a Mixed Finite Element Discretisation of
+an Incompressible Magnetohydrodynamics Problem}
+% \title{title}
+% \subtitle{With a Subtitle}
+\author{Michael Wathen}
+\copyrightyear{2014}
+\submitdate{\monthname\ \number\year} % The "\ " is required after
+                                      % \monthname to prevent the
+                                      % command from eating the space.
+\program{Computer Science}
+
+\renewcommand\thepart         {\Roman{part}}
+\renewcommand\thechapter      {\arabic{chapter}}
+\renewcommand\thesection      {\thechapter.\arabic{section}}
+\renewcommand\thesubsection   {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection.\arabic{subsubsection}}
+\renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+
+\floatstyle{ruled}
+\newfloat{Program}{htbp}{lop}[chapter]
+
+% Here is the start of the document.
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{chapter}    % add the section number to the equation label
+\usepackage{amsthm}
+
+\newtheorem{mydef}{Definition}
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+% -- COLORS --
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkyellow}{rgb}{.8,.6,.04}
+\newcommand{\gr}[1]{\textcolor{darkgreen} {#1}}
+\newcommand{\wh}[1]{\textcolor{white}     {#1}}
+\newcommand{\dy}[1]{\textcolor{darkyellow}{#1}}
+\newcommand{\yb}[1]{\colorbox {yellow}    {#1}}
+\newcommand{\re}[1]{{\textcolor{red}       {#1}}}
+\newcommand{\RE}[1]{{      {#1}}}
+\newcommand{\GR}[1]{{\bf\textcolor{darkgreen} {#1}}}
+\newcommand{\DY}[1]{{\bf\textcolor{darkyellow}{#1}}}
+\newcommand{\BL}[1]{{\bf\textcolor{blue}{#1}}}
+\newcommand{\ssec}[1]{{\bf #1}}
+\newcommand{\rsec}[1]{{\bf\color{red}       #1}}
+\newcommand{\bsec}[1]{{\bf\color{blue}      #1}}
+\newcommand{\gsec}[1]{{\bf\color{darkgreen} #1}}
+\newcommand{\dom}{\mbox{\sf dom}}
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+\newcommand{\F}{\vec{F}}
+% \newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+% \newcommand{\U}{\vec u}
+\newcommand{\V}{\vec v}
+\newcommand{\Bt}{B^{\mbox{\tiny{T}}}}
+\newcommand{\me}{Maxwell's equations }
+\newcommand{\ns}{Navier-Stokes Equations }
+\renewcommand{\s}{Stokes Equations }
+\newcommand{\Fs}{\vec{f}_{\mbox{\tiny s}}}
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+\renewcommand{\R}{\mathbb{R}}
+\renewcommand{\C}{\mathbb{C}}
+\newcommand{\lstPython}[1]{\lstinline[language=Python,breaklines=true,mathescape,literate={\-}{}{0\discretionary{-}{}{}}]§#1§}
+\newcommand{\code}[1]{{\ttfamily{#1}}}
+\newcommand{\fenics}{{\tt FEniCS} }
+\newcommand{\uu}[1]{\boldsymbol #1}
+\renewcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{zref-xr}
+% \AtBeginEnvironment{minted}{\singlespacing}
+% \AfterEndEnvironment{minted}{\doublespacing}
+% \BeforeBeginEnvironment{minted}{\begin{singlespacing*}}
+% \AfterEndEnvironment{minted}{\end{singlespacing*}}
+\doublespacing
+% \onehalfspacing
+\usepackage{listings}
+\begin{document}
+\lstset{language=Python}
+% \definecolor{champagne}{rgb}{0.97, 0.91, 0.81}
+\newminted{python}{frame=single,mathescape=true,numbersep=11pt,linenos=true}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+
+
+
+
+%% This starts numbering in Roman numerals as required for the thesis
+%% style and is mandatory.
+\frontmatter
+
+
+\maketitle                      %% Mandatory
+\begin{abstract}                %% Mandatory -  maximum 350 words
+The aim of this thesis is to develop and numerically test a large scale preconditioned finite element implementation of an incompressible magnetohydrodynamics (MHD) model. To accomplish this, a broad-scope code has been generated using the finite element software package \fenics and the linear algebra software {\tt PETSc}. The code is modular, extremely flexible, and allows for implementing and testing different discretisations and linear algebra solvers with relatively modest effort. It can handle two- and three-dimensional problems in excess of 20 million degrees of freedom.
+
+Incompressible MHD describes the interaction between an incompressible electrically charged fluid governed by the incompressible Navier-Stokes equations coupled with electromagnetic effects from  Maxwell's equations in mixed form. We introduce a model problem and a mixed finite element discretisation based on using Taylor-Hood elements for the fluid variables and on a mixed \nedelec pair for the magnetic unknowns. We introduce three iteration strategies to handle the non-linearities present in the model, ranging from Picard iterations to completely decoupled schemes.
+
+
+Adapting and extending ideas introduced in [Dan Li, {\em Numerical Solution of the Time-Harmonic Maxwell Equations and Incompressible Magnetohydrodynamics Problems}, Ph.D. Dissertation, The University of British Columbia, 2010], we implement a preconditioning approach motivated by the block structure of the underlying linear systems in conjunction with state of the art preconditioners for the mixed Maxwell and Navier-Stokes subproblems. For the Picard iteration scheme we implement an inner-outer preconditioner.
+
+% We propose preconditioning ideas motivated by the block structure of the underlying linear systems in conjunction with state of the art preconditioners for the mixed Maxwell and Navier-Stokes subproblems. For the Picard scheme we further propose an inner-outer preconditioner.
+
+
+% Using the finite element software package \fenics \cite{wells2012automated} and the linear algebra software {\tt PETSc} \cite{petsc-web-page,petsc-user-ref}, we numerically run several two- and three-dimensional tests using our large scale implementation of the model (with in excess of 20 million degrees of freedom).
+
+The numerical results presented in this thesis demonstrate the efficient performance of our preconditioned solution techniques and show good scalability with respect to the discretisation parameters.
+
+
+
+\end{abstract}
+\chapter{Preface}
+
+This dissertation is original, unpublished, independent work by the author, M. Wathen.
+
+
+\tableofcontents                %% Mandatory
+\listoftables                   %% Mandatory if thesis has tables
+\listoffigures                  %% Mandatory if thesis has figures
+
+% \chapter{Preface}
+\chapter{Acknowledgements}      %% Optional
+
+
+% To be completed
+First, and foremost, I would like to thank my supervisors Chen Greif and Dominik Sch{\"o}tzau for their help and guidance. I greatly appreciate their understanding and insights  throughout my graduate study and writing of this thesis. I thank Uri Ascher for reading this thesis and providing me with excellent feedback.
+
+I would like to thank UBC Computer Science for  their financial support over the last few year.
+
+Finally, I would like to thank my friends and family for there love and support throughout my studies.
+
+
+
+\mainmatter
+\input{../Intro/Intro}
+% \input{../FEniCS/FEniCS}
+\input{../FEM/FEM}
+% \input{../LinearSolver/LinearSolver}
+\input{../Preconditioning/Preconditioning}
+% \input{../Spectral/Spectral}
+\input{../Results/Results}
+\input{../Conclusion/Conclusion}
+\bibliographystyle{plain}
+\bibliography{../ref/ref}
+\begin{appendices}
+\chapter{Curl operators and cross products}
+\label{Curl}
+\RE{\section{2D curl}
+    % The curl operator is well defined in three-dimensions and the two-dimensional curl may be defined as follows:
+    Given 2D vector fields $\uu{b}(x,y) = (b_1,b_2)$, $\uu{u}(x,y) = (u_1,u_2)$ and the scalar function $r(x,y)$, the curl and cross products are
+\begin{subequations}
+\nonumber
+\begin{alignat}2
+\curl \uu{b} &=& \frac{\partial b_2}{\partial x} - \frac{\partial b_1}{\partial y}, \\
+\curl r &=& \Big(\frac{\partial r}{\partial y}, -\frac{\partial r}{\partial x}\Big),\\
+\uu{u} \times \uu{b} &=& u_1b_2-u_2b_1.
+\end{alignat}
+\end{subequations}
+Note that taking the curl of a 2D vector field results in a scalar function which is the component in the normal direction to the 2D field ($z$-component).
+\section{3D curl}
+Given 3D vector fields $\uu{b}(x,y,z) = (b_1,b_2,b_3)$ and $\uu{u}(x,y,z) = (u_1,u_2,u_3)$, the curl and cross products are
+\begin{subequations}
+\nonumber
+\begin{alignat}2
+\curl \uu{b} &=&
+\begin{pmatrix}
+    \frac{\partial b_3}{\partial y}  - \frac{\partial b_2}{\partial z} \\
+    \frac{\partial b_1}{\partial z} - \frac{\partial b_3}{\partial x} \\
+    \frac{\partial b_2}{\partial x} - \frac{\partial b_1}{\partial y}
+\end{pmatrix}, \\
+\uu{u} \times \uu{b} &=& \begin{pmatrix}u_2b_3-u_3b_2\\u_3b_1-u_1b_3\\u_1b_2-u_2b_1\end{pmatrix}.
+\end{alignat}
+\end{subequations}
+}
+
+\chapter{Krylov subspace methods}
+
+PDE discretisation usually leads to sparse linear systems. For problems of small dimension, a popular choice to solve such a system are sparse direct methods. However, for systems of large dimension, it is often not possible to use direct methods due to computational memory restrictions, time constraints, etc. Therefore an iterative solution method, based on matrix-vector products, is required. One state of the art  approach is to consider preconditioned Krylov subspace methods~\cite{saad2003iterative}.
+
+To review Krylov subspace methods, consider iteratively solving the linear system
+$$Ax = b,$$
+where $A$ is a real non-singular $n \times n$ matrix with vectors $x$ and $b$ of the same dimension. Suppose our initial guess is given by $x_0$. Then the initial residual is given by $r_0=b-Ax_0$. Usually in practice this is taken to be zero. Using the initial residual $r_0$,  the $m$-dimensional Krylov subspace is defined as:
+$$\mathscr{K}_m(A;r_0) = {\rm span}\{r_0,Ar_0,A^2r_0, \cdots ,A^{m-1}r_0\}.$$
+A Krylov subspace method is based on finding a solution, $x_m$,  in the Krylov subspace:
+$$A^{-1}b  \approx x_m = x_0+y_m,$$
+where $y_m\in\mathscr{K}_m(A;r_0)$ satisfies some optimality criteria. One could characterise the three main components to  Krylov subspace methods by:
+\begin{itemize}
+    \item[1.] Computing an orthogonal or bi-orthogonal basis to the Krylov subspace;
+    \item[2.] Defining an optimality criterion within the Krylov subspace;
+    \item[3.] Preconditioning approaches.
+\end{itemize}
+
+\paragraph{Basis computations} ~\\
+
+\vspace{-5mm}
+
+
+\noindent{\emph{Orthogonal basis:}}
+
+Consider a general real unsymmetric matrix $A$. Then the process in which it is possible to construct an orthogonal basis to the Krylov subspace $\mathscr{K}_m(A;r_0)$ is known as the Arnoldi process. The Arnoldi process is essentially the modified Gram-Schmidt process applied to the Krylov subspace. This process is done iteratively, so at each iteration a new orthogonal vector is added to the basis. The Arnoldi process is written as:
+\begin{equation} \label{eq:Arnoldi}
+    AQ_m = Q_{m+1}H_{m+1,m},
+\end{equation}
+where $Q_{m+1}$ is the matrix whose $m+1$ columns form an orthogonal basis for the subspace $\mathscr{K}_m(A;r_0)$. $Q_m$ has the same leading $m$  columns as in $Q_{m+1}$ and $H_{m+1,m}~\in~\mathbb{R}^{(m+1)\times m}$ is an upper Hessenberg matrix. From \eqref{eq:Arnoldi} one can deduce the following form:
+\begin{equation}
+    \label{eq:Lanzcos}
+    Q_{m}^TAQ_m = H_{{m,m}},
+\end{equation}
+where $H_{m,m}$ is the matrix containing the first $m$ rows of $H_{m+1,m}$. If $A$ is symmetric then from  \eqref{eq:Lanzcos}  $H_{m,m}$ must also be symmetric. This leads to the Lanzcos method where $H_{m,m}$ is tridiagonal and hence, we denote it as $T_{m,m}$ in this case. Then the Lanzcos process is as follows
+\begin{equation} \label{eq:tridiag}
+    AQ_m = Q_{m+1}T_{m+1,m},
+\end{equation}
+where $T_{m+1,m}$ has one more extra row than $T_{m,m}$. See \cite{saad2003iterative} for more details about both the Arnoldi and Lanczos processes.
+
+\vspace{5mm}
+\noindent{\emph{Bi-Orthogonal basis:}}
+
+For non-symmetric matrices we cannot expect short term recurrences (resulting from the orthogonal basis construction) as well as retain optimality in the same way that symmetric solvers do. For example, GMRES minimises the residual but entails long recurrences. The class of biconjugate methods preserve the short term recurrences property and hence, have less memory requirements and are very popular as a result.
+
+To introduce the bi-orthogonal basis construction, we define a second Krylov subspace:
+$$\mathscr{K}_m(A^T;r_0) = {\rm span}\{r_0,A^Tr_0,(A^T)^2r_0, \cdots ,(A^T)^{m-1}r_0\}.$$
+Let $V_m$ and $W_m$ be biorthogonal basis matrices with respect to the subspaces $\mathscr{K}_m(A;r_0)$ and $\mathscr{K}_m(A^T;r_0)$, that is $W_m^TV_m = I$.
+Then the idea is to perform two ``Lanzcos-type'' processes for $A$ and $A^T$. This leads to the procedure:
+\begin{subequations}
+\label{eq:biothog}
+\begin{alignat}2
+AV_m &= V_{m+1}\hat{T}_{m+1,m},\\
+A^TW_m &= W_{m+1}S_{m+1,m},
+\end{alignat}
+\end{subequations}
+where $\hat{T}_{m+1,m}$ and $S_{m+1,m}$ are tridiagonal matrices of the same structure as $T_{m+1,m}$ as in \eqref{eq:tridiag}. Pre-multiplying (\ref{eq:biothog}a) by $W_m^T$ gives
+$$W_m^TAV_m = W_m^TV_{m+1}\hat{T}_{m,m} = T_{m,m},$$
+as $W_m^TV_m = I$ by construction. This is known as  (non-symmetric) Lanzcos biorthogonalisation and leads to such methods as BiCG \cite{MR0461857}, BiCGstab \cite{MR1149111} and QMR \cite{MR1137197}.
+
+
+\paragraph{Optimality criteria} ~\\
+
+\vspace{-5mm}
+
+There are two popular choices for how to define the optimality criterion for a Krylov solver. These are minimising the $L^2$-norm within the Krylov subspace (minimum residual approach) and ensuring that the residual is orthogonal to the Krylov subspace (Galerkin approach).
+
+For the three Krylov subspace methods that will be used within this thesis, namely  GMRES \cite{saad1986gmres} for unsymmetric systems, MINRES \cite{paige1975solution} for symmetric and Conjugate Gradients \cite{hestenes1952methods} (CG) for symmetric positive definite systems, the optimality criteria are as follows:
+\begin{itemize}
+    \item GMRES: $\min \| b-Ax_m\|_2$, i.e., minimum residual approach
+    \item MINRES: $\min \| b-Ax_m\|_2$, i.e., minimum residual approach
+    \item CG:  $\min \| x_m-x\|_A$, the energy norm of the error which is equivalent to orthogonalising with respect to the search space, i.e., Galerkin approach
+\end{itemize}
+For more details about these methods and other Krylov subspace methods we refer the reader to \cite{saad2003iterative}.
+
+\paragraph{Preconditioning} ~\\
+
+\vspace{-5mm}
+
+Preconditioning is an integral part of using any Krylov subspace method. The convergence of CG as well as other methods primarily depend on the spread of the eigenvalues. Preconditioning the linear system $Ax=b$ amounts to solving the system $M^{-1}Ax = M^{-1}b$, where $M$ is a {\em preconditioner}. There are certain properties that  are required to create a good preconditioner:
+\begin{itemize}
+    \item[1.] the preconditioner ${M}$ must approximate ${A}$ so that the eigenvalues of $M^{-1}A$ are clustered;
+    \item[2.] systems associated with ${M}$ should be much easier to solve than systems with ${A}$.
+\end{itemize}
+Loosely speaking, one could classify preconditioners into two types. The first type is an operator-based preconditioner. By this we mean that given a certain problem, usually based on a PDE discretisation, it may be possible to design certain operators that lead to an optimal or nearly optimal preconditioner. These operators are derived from an understanding of the physical problem and its discretisation. Often these operators are based on spectral equivalence: the eigenvalues of $M^{-1}A$ are independent of discretisation parameters. Weak dependency is sometimes sufficient.
+
+The second type is more of a ``black-box"  method, where the preconditioner is purely based on the matrix coefficients. The preconditioning strategies employed in this thesis are mainly based on the first type.
+
+\end{appendices}
+\end{document}
+\endinput

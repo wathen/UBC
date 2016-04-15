@@ -1,0 +1,559 @@
+\chapter{Preconditioning}
+\label{chap:precond}
+
+The linear system \eqref{eq:mhd_saddle} is typically sparse and of large dimensions, hence to efficiently solve for it we use a preconditioned iterative approach as proposed in \cite{li2010numerical}. We start by reviewing some preconditioning strategies for the incompressible Navier-Stokes and Maxwell subproblems in isolation. From these techniques we will then introduce and  numerically test  preconditioners for the full MHD system in linearised form as in \eqref{eq:mhd_saddle}.
+
+Let us introduce a number of matrices in addition to the ones already defined in Chapter~2: the velocity mass matrix $Q$, the pressure mass matrix $Q_p$, the pressure convection diffusion matrix  $F_p$, the pressure Laplacian matrix $A_p$, the scalar Laplacian matrix $L$ and the mass matrix~$X$ by
+\begin{subequations}
+\label{eq:PrecondMatrices}
+\begin{eqnarray}
+Q_{i,j}&=&\int_\Omega\, \uu{\psi_j}\cdot \uu{\psi_i} \,d\uu{x}, \quad 1\leq i,j \leq n_u,\\
+(Q_p)_{i,j}&=& \int_\Omega\, \alpha_j \alpha_i \,dx, \ \ 1\leq i,j \leq m_u, \\
+(F_{p})_{i,j}&=& \nu \int_\Omega\, \grad \alpha_j \cdot \grad \alpha_i +(\uu{w} \cdot \grad \alpha_j)\alpha_i\,dx,\ \ 1\leq i,j \leq m_u, \\
+(A_{p})_{i,j}&=&  \int_\Omega\, \grad \alpha_j \cdot \grad \alpha_i \,dx, \ \ 1\leq i,j \leq m_u, \\
+L_{i,j}&=&\int_\Omega\,\nabla\beta_j\cdot\nabla\beta_i\,d\uu{x},  \ \ 1\leq i,j \leq m_b\\
+X_{i,j}&=&\int_\Omega\, \uu{\phi}_j\cdot\uu{\phi}_i\,d\uu{x},  \ \ 1\leq i,j \leq n_b,
+\end{eqnarray}
+\end{subequations}
+where $\uu{w}$ is the finite element velocity from the current iteration. The matrices $F_p$ and $A_p$ are well defined as we use continuous elements for the pressure finite element space $Q_h$. The matrices incorporate homogeneous Neumann boundary conditions.
+
+\section{Preconditioning the incompressible Navier-Stokes equations}
+\label{sec:NSprecond}
+
+
+Consider the steady state incompressible Navier-Stokes equations in isolation. Let
+\begin{equation}
+\label{eq:ns_coeff}
+\mathcal{K}_{\rm NS}=
+\begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix},
+\end{equation}
+be the discretised and linearised Navier-Stokes (or Oseen) subproblem where $F~=~A~+~O$ has been defined in \eqref{eq:forms}. Due to the convection term, $O$, this  system is non-symmetric and we will use GMRES to iteratively solve this subproblem; \cite{saad1986gmres}. A common approach for solving a saddle point system, as in \eqref{eq:ns_coeff}, is to use a block diagonal or block triangular preconditioner of the form
+\begin{equation}
+\label{eq:ns_pc_upper}
+\mathcal{M}_{\rm tNS} =
+\begin{pmatrix}
+F & B^T \\
+0 & -S
+\end{pmatrix} \quad \mbox{or} \quad
+\mathcal{M}_{\rm dNS} =
+\begin{pmatrix}
+F & 0 \\
+0 & S
+\end{pmatrix},
+\end{equation}
+where $S\approx B F^{-1} B^T$ is an approximation to the Schur complement. If $S = B F^{-1} B^T$ is {\em precisely} the Schur complement, then it has been proved in~\cite{murphy2000note} that the preconditioned matrix has exactly $2$ eigenvalues when using the block triangular preconditioner  (i.e., $\mathcal{M}_{\rm tNS}^{-1}\mathcal{K}_{\rm NS}$) or $3$ distinct eigenvalues in the block diagonal case  (i.e., $\mathcal{M}_{\rm dNS}^{-1}\mathcal{K}_{\rm NS}$). Both are diagonalisable and hence GMRES will converge in exactly 2 or 3 iterations in the absence of round-off errors.
+
+In practice it is often too expensive to form and solve for the exact Schur complement $B F^{-1} B^T$, hence, a good approximation is needed. Two well-known preconditioners for the incompressible Navier-Stokes equations are the Least Squares Commutator (LSC) and the Pressure Convection-Diffusion (PCD) preconditioners. A description of both can be found in \cite{elman2005finite} and we will just outline the procedure how these can be applied on the discrete level. For the Navier-Stokes preconditioner we will consider block triangular preconditioners of the same form as $\mathcal{M}_{\rm tNS}$.
+
+% Both methods (LSC and PCD)  start with the convection-diffusion operator associated with the velocity space $\uu{V}_h$ given by
+% $$\mathcal{L} = -\nu \Delta +\uu{w} \cdot \nabla\, .$$
+% As before $\uu{w}$ is the discrete velocity calculated at the previous non-linear iteration. Suppose that there is a corresponding operator defined in the pressure space
+% $$\mathcal{L}_p = (-\nu \Delta +\uu{w} \cdot \nabla)_p\, .$$
+% Consider the commutator of the convection-diffusion operator associated with the gradient operator
+% \begin{equation} \label{eq:ContCommutator}
+% \epsilon = (-\nu \Delta +\uu{w} \cdot \nabla)\nabla - \nabla (-\nu \Delta +\uu{w} \cdot \nabla)_p
+% \end{equation}
+% to be small. In fact, if $\uu{w}$ was constant then $\epsilon = 0$. We will be using \eqref{eq:ContCommutator} to derive both LSC and PCD.
+
+
+
+\subsection{Pressure Convection-Diffusion (PCD)}
+\label{sec:PCD_outline}
+
+
+In \cite[Chap. 8]{elman2005finite} the discrete commutator of the convection-diffusion operator associated with the gradient operation is introduced and given by
+\begin{equation} \label{eq:DisCommutator}
+    \epsilon_h = (Q^{-1}F)(Q^{-1}B^T)-(Q^{-1}B^T)(Q_p^{-1}F_p).
+\end{equation}
+where the matrices $Q$, $Q_p$ and $F_p$ are defined in  \eqref{eq:PrecondMatrices}. Assuming that the commutator is small then pre- and post-multiplying \eqref{eq:DisCommutator} by $B F^{-1} Q$ and $F_p^{-1}Q_p$, respectively, let us separate out the Schur complement to give
+\begin{equation} \label{eq:SchurApprox}
+    BF^{-1}B^T \approx B Q^{-1}B^T F_p^{-1} Q_p.
+\end{equation}
+
+Our discretisation is inf-sup stable which implies that there is spectral equivalence between $BQ^{-1}B^T$ and the pressure Laplacian matrix, $A_p$; see \cite[Section 5.5.1]{elman2005finite}. Hence, the Schur complement can be approximated by:
+$$S_{\rm PCD} =A_p F_p^{-1}Q_p.$$
+Applying the PCD preconditioner (i.e., taking $S = S_{\rm PCD}$) to the linearised Navier-Stokes system involves solving the system
+\begin{equation} \nonumber
+% \label{eq:matrix-system}
+\left(
+\begin{array}{cc}
+F & B^T \\
+0 & -A_p F_p^{-1}Q_p
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+x \\
+y
+\end{array}
+\right) =
+\left(
+\begin{array}{c}a\\b
+\end{array}
+\right)
+\end{equation}
+at each Krylov iteration. This can be solved  efficiently by splitting it into the following two steps
+\begin{itemize} \label{it:PCDsolve}
+    \item[1.] Solve for $y$: $y = -Q_p^{-1}F_p A_p^{-1}b;$
+    \item[2.] Solve for $x$: $x = F^{-1}(a-B^Ty).$
+\end{itemize}
+This means that we have one pressure Poisson solve ($A_p^{-1}$), one mass matrix solve ($Q_p^{-1}$), one convection-diffusion solve ($F^{-1}$) and multiplications with $F_p$ and $B^T$ at each Krylov iteration. It is possible to solve these iteratively using multigrid and/or iterative methods. However, to test the preconditioner we will use direct solver in this thesis.
+
+\subsection{Least-Squares Commutator (LSC)}
+\label{sec:LSC_outline}
+
+One disadvantage with using the PCD preconditioner is that it requires the construction of the matrices $A_p$, $Q_p$ and $F_p$ in \eqref{eq:PrecondMatrices}. A second approach to approximate the Schur complement is the LSC preconditioner \cite[Chap. 8]{elman2005finite} which primarily uses the available matrix coefficients in \eqref{eq:ns_coeff} and the construction of $Q$ to form the preconditioner (without explicitly forming $A_p$, $Q_p$ and $F_p$).
+
+As for the derivation of the PCD preconditioner we start off with the discrete commutator of the convection-diffusion operator
+\begin{equation} \nonumber
+    \epsilon_h = (Q^{-1}F)(Q^{-1}B^T)-(Q^{-1}B^T)(Q_p^{-1}F_p).
+\end{equation}
+Suppose that the $Q$-norm is defined by $\|v\|_{Q} = (Qv,v)^{\nicefrac{1}{2}}$. Then this time we minimise $\epsilon_h$ over the $j$th column of $F_p$ (that is $[F_p]_j$) in the $Q$-norm to try to find an approximation for $F_p$. As shown in \cite{elman2005finite}, the minimisation is given by
+$$\min \|[Q^{-1}FQ^{-1}B^T]_j-Q^{-1}B^TQ_p^{-1}[F_p]_j) \|_Q.$$
+Solving this optimisation problem, as shown in \cite{elman2005finite}, is done by solving the  normal equations
+$$Q_p^{-1}BQ^{-1}B^TQ_p^{-1}F_p = Q_p^{-1}BQ^{-1} FQ^{-1}B^T.$$
+This yields the an approximation to $F_p$ as
+$$F_p \approx Q_p(BQ^{-1}B^T)^{-1}(BQ^{-1} FQ^{-1}B^T).$$
+By substituting this into expression \eqref{eq:SchurApprox} we obtain the LSC approximation to the Schur complement:
+\begin{equation} \nonumber
+    S \approx BF^{-1}B^T \approx S_{\rm LSC} = (B Q^{-1} B^T)(BQ^{-1}FQ^{-1}B^T)^{-1}(B Q^{-1} B^T).
+\end{equation}
+Therefore, applying the LSC preconditioner to the Oseen system $\mathcal{K}_{\rm NS}$ in \eqref{eq:ns_coeff} involves solving for the matrix
+\begin{equation} \nonumber
+\left(
+\begin{array}{cc}
+F & B^T \\
+0 & -S_{\rm LSC}
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+x \\
+y
+\end{array}
+\right) =
+\left(
+\begin{array}{c}a\\b
+\end{array}
+\right)
+\end{equation}
+at each Krylov iteration. Again, this can be efficiently split up into the following two steps:
+\begin{itemize}
+    \item[1.] Solve for $y$: $y = -(B Q^{-1} B^T)^{-1}(BQ^{-1}FQ^{-1}B^T)(B Q^{-1} B^T)^{-1}b;$
+    \item[2.] Solve for $x$: $x = F^{-1}(a-B^Ty).$
+\end{itemize}
+Hence, we have two pressure Poisson solves ($(B Q^{-1} B^T)^{-1}$) and one convection-diffusion solve ($F^{-1}$) at each Krylov iteration as well as matrix multiplications. In practice, we take the diagonal or lumped diagonal of $Q$ to form $B Q^{-1} B^T$. These solves, as  with the PCD preconditioner, will be done directly in this thesis.
+
+\subsection{PCD versus LSC}
+
+The main advantage of solving the commutator using the least-squares approach is that the matrices that define the preconditioner are available from the original system $\mathcal{K}_{\rm NS}$ in \eqref{eq:ns_coeff} and the construction of $Q$ . However, for PCD we require the construction of the matrices $A_p$, $Q_p$ and $F_p$. Therefore, LSC is slightly more computationally efficient to form. On the other hand, to apply the LSC preconditioner we require two pressure Poisson solves, whereas PCD only requires one.
+
+We will consider experiments with both preconditioners for the incompressible Navier-Stokes problem in isolation to determine which seems more effective. This preconditioner  will then be applied within the solver for the linearised MHD system.
+
+\section{Preconditioning Maxwell's equations}
+\label{sec:MaxwellPrecond}
+
+Next, consider the Maxwell subproblem
+\begin{equation}
+\label{eq:m_coeff}
+\mathcal{K}_{\rm MX}=
+\begin{pmatrix}
+M & D^T \\
+D & 0
+\end{pmatrix},
+\end{equation}
+appearing in a linearised MHD system \eqref{eq:mhd_saddle}.
+% , but without coupling terms.
+As we did for the Navier-Stokes subproblem in Section \ref{sec:NSprecond}, we apply a block preconditioning strategy for $\mathcal{K}_{\rm MX}$ in  \eqref{eq:m_coeff}. Notice that, $\mathcal{K}_{\rm MX}$ in \eqref{eq:m_coeff} is symmetric and hence we will focus on SPD block diagonal preconditioners.
+
+\subsection{An ideal preconditioner}
+
+The $(1,1)$ block of $\mathcal{K}_{\rm MX}$ is the curl-curl operator, hence, the matrix $M$ is singular, where the null space is of dimension $m_b$ and consists of the discrete gradients. Therefore the usual Schur complement does not exist as the matrix $M$ cannot be inverted. To overcome this difficulty, we employ the approach in  \cite{golub2003solving,greif2006preconditioners} based on  augmentation and use preconditioners of the form:
+\begin{equation} \nonumber
+% \label{eq:maxwell_pc_ideal}
+\begin{pmatrix}
+M+D^T W^{-1} D & 0 \\
+0 & W
+\end{pmatrix},
+\end{equation}
+where $W$ is a symmetric positive definite matrix.
+
+% . More precisely, we consider replacing $M$ by $M+D^T\mathcal{W}^{-1}D$ where $\mathcal{W}\in {\mathbb R}^{m_b\times m_b}$ is a symmetric positive definite matrix just to form the preconditioner, see \cite{golub2003solving,greif2006preconditioners} for more details. The addition of the matrix ($D^T\mathcal{W}^{-1}D$) removes the singularity of the $(1,1)$ block of $\mathcal{K}_{\rm MX}$ without changing the solution (since $Db = 0$).  In practice, we don't actually replace $M$ by $M+D^T\mathcal{W}^{-1}D$ but just consider preconditioners with $M+D^T\mathcal{W}^{-1}D$ in the $(1,1)$ block which then are applied to $\mathcal{K}_{\rm MX}$. For the Maxwell subproblem the appropriate choice of $\mathcal{W}$ is the scalar Laplacian on $S_h$ defined as $L=(L_{i,j})_{i,j=1}^{m_b} \in{\mathbb R}^{m_b \times m_b}$ with
+% \begin{equation}
+% \label{eq:scalar_laplace}
+% L_{i,j}=\int_\Omega\,\nabla\beta_j\cdot\nabla\beta_i\,d\uu{x},
+% \end{equation}
+% see  \cite{greif2007preconditioners}. Therefore, the augmented system is given by:
+% \begin{equation}
+% \label{eq:AugmentMaxwell}
+% \bar{\mathcal{K}}_{\rm MX}=
+% \begin{pmatrix}
+% M + D^TL^{-1}D & D^T \\
+% D & 0
+% \end{pmatrix}.
+% \end{equation}
+
+
+
+It has been shown in \cite{greif2007preconditioners} that an appropriate choice of $W$ is the scalar Laplacian, $L$, defined in \eqref{eq:PrecondMatrices}. This leads to the ideal preconditioner:
+\begin{equation}
+\label{eq:maxwell_pc_ideal}
+\mathcal{M}_{\rm iMX} =
+\begin{pmatrix}
+M+D^T L^{-1} D & 0 \\
+0 & L
+\end{pmatrix}.
+\end{equation}
+Applying \eqref{eq:maxwell_pc_ideal} as the preconditioner yields exactly two eigenvalues, $1$ and $-1$ of algebraic multiplicities of $n_b$ and $m_b$, respectively. Therefore using this matrix as a preconditioner means that MINRES will converge in two iterations, in the absence of roundoff errors  \cite{paige1975solution}. However, forming the matrix $M+D^T L^{-1} D$ is costly, hence, $\mathcal{M}_{\rm iMX}$  is  impractical  for large systems.
+
+
+\subsection{A practical preconditioner}
+
+A good approximation for $M+D^T L^{-1} D$ is required to make the ideal preconditioner, $\mathcal{M}_{\rm iMX}$, suitable in practice. It has been shown in \cite{greif2007preconditioners}  that $M+D^T L^{-1} D$ is spectrally equivalent to $M+X$  where $X$ is the vector mass matrix on the magnetic space defined in \eqref{eq:PrecondMatrices}. Using this approximation yields the practical preconditioner
+\begin{equation}
+\label{eq:maxwell_pc_X}
+\mathcal{M}_{\rm MX} =
+\begin{pmatrix}
+N& 0 \\
+0 & L
+\end{pmatrix},
+\end{equation}
+where $N = M+X$ is a shifted curl-curl operator. A scalable multigrid solver for $N$ has been developed in \cite{hiptmair2007nodal} which involves one shifted Laplacian solves on the vector space and one scalar Laplacian solve. However, the construction of this multigrid solver is involved and hence we will consider direct solves for this preconditioner and leave the multigrid implementation as a possible area of future work.
+
+\section{Preconditioning the MHD equations}
+\label{sec:MHDp}
+In Section \ref{sec:nonlinear} and \ref{sec:FEMdecouple} we introduced three iteration schemes, namely Picard iteration (P), Magnetic Decoupling (MD) and Complete Decoupling (CD). Using the results from Sections \ref{sec:MaxwellPrecond} and \ref{sec:NSprecond} we will discuss the preconditioning approaches that we apply for these non-linear iteration schemes.
+
+
+\subsection{Picard iteration}
+\label{sec:MHDprecond}
+
+% In Sections \ref{sec:NSprecond} and \ref{sec:MaxwellPrecond} we looked briefly at the preconditioning strategies for the Navier-Stokes and Maxwell's equations.
+
+Using the techniques of Sections \ref{sec:NSprecond} and \ref{sec:MaxwellPrecond} for the incompressible Navier-Stokes and Maxwell problems, respectively, we will look at possible scalable preconditioners for the linearised MHD problem
+\begin{equation} \label{eq:K}
+    {\mathcal K}_{\rm MH} = \left(
+\begin{array}{cccc}
+A+O & B^T & C^T & 0\\
+B & 0 & 0 & 0\\
+-C & 0 & M & D^T \\
+0 & 0 & D & 0
+\end{array}
+\right).
+\end{equation}
+% Using the Navier-Stokes and Maxwell subproblem preconditioners \eqref{eq:ns_pc_upper} and \eqref{eq:maxwell_pc_X} respectively, then w
+We propose the following preconditioner for ${\mathcal K}_{\rm MH}$
+\begin{equation}
+\label{eq:mhd_pc_ls}
+\mathcal{M}_{\rm MH} =
+\left(
+\begin{array}{cccc}
+F & B^T & C^T & 0\\
+0 & -{S} & 0 & 0 \\
+-C & 0 & N & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right),
+\end{equation}
+where ${S}$ is now either the LSC or PCD approximation to the fluid flow Schur complement. The preconditioned matrix, $\mathcal{M}_{\rm MH}^{-1}{\mathcal K}_{\rm MH}$, has eigenvalues $\lambda = 1$ with algebraic multiplicity of at least $n_u + n_b$ and the eigenvalue $\lambda = -1$ with algebraic multiplicity of at least $m_b$ see \cite[Theorem~8]{li2010numerical}. Due to the coupling terms, $C$, the application of this preconditioner is computationally expensive. To overcome this, we propose to invert  $\mathcal{M}_{\rm MH}$ by means of an inner preconditioner. The inner preconditioner is taken as
+\begin{equation}
+\label{eq:mhd_pc_inner}
+\mathcal{M}_{\rm innerMH} =
+\left(
+\begin{array}{cccc}
+F & B^T & 0 & 0\\
+0 & -{S} & 0 & 0 \\
+0 & 0 & N & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right).
+\end{equation}
+Here the preconditioned matrix, $\mathcal{M}_{\rm innerMH}^{-1}{\mathcal M}_{\rm MH}$,  has an eigenvalue $\lambda = −1$ with algebraic multiplicity of at least $m_u +n_u+3m_b -n_b$, see \cite[Theorem~10]{li2010numerical}.
+
+
+
+
+\subsection{Magnetic Decoupling}
+\label{sec:MDprecond}
+
+From Section \ref{sec:FEMmd} the  matrix to be preconditioned for (MD) is
+\begin{equation}
+\label{eq:Kmd}
+   \mathcal{K}_{\rm MD} =
+    \left(
+    \begin{array}{cc|cc}
+    F& B^T & 0 & 0\\
+    B & 0 & 0 & 0 \\
+    \hline
+    0 & 0 & M & D^T\\
+    0 & 0 & D & 0
+    \end{array}
+    \right).
+\end{equation}
+Recall that removing the coupling terms completely decouples the system. This therefore enables us to use the preconditioners for each of the subproblems separately and in parallel. Using the subproblem preconditioners \eqref{eq:ns_pc_upper} and \eqref{eq:maxwell_pc_X} then we propose the following preconditioner for $\mathcal{K}_{\rm MD}$:
+\begin{equation}
+\label{eq:mhd_pc_explicit}
+\mathcal{M}_{\rm MD} =
+\left(
+\begin{array}{cc|cc}
+F & B^T & 0 & 0\\
+0 & -{S} & 0 & 0 \\
+\hline
+0 & 0 & N & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right),
+\end{equation}
+where $S$ is the LSC or PCD approximation and $N$ is the shifted curl-curl matrix.
+
+\subsection{Complete Decoupling}
+\label{sec:CDprecond}
+
+From Section \ref{sec:FEMcd} the matrix to be preconditioned for (CD) is
+\begin{equation}
+\label{eq:Kcd}
+%\mathcal{K} x \equiv
+ \mathcal{K}_{\rm CD} = \left(
+\begin{array}{cc|cc}
+A & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+\hline
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right).
+\end{equation}
+Note that the matrix $\mathcal{K}_{\rm CD}$ is now symmetric. First we consider how to deal with the upper $(2,2)$ block matrix which corresponds to the discrete Stokes equations
+\begin{equation}\nonumber
+   \mathcal{K}_{\rm S} =
+    \left(
+    \begin{array}{cc}
+    A& B^T \\
+    B & 0
+    \end{array}
+    \right).
+\end{equation}
+As with the incompressible Navier-Stokes subproblem the idea for the Stokes preconditioner is again to approximate the Schur complement
+$$S_{\rm S} =  BA^{-1}B^T.$$
+Recall that the matrix $A$ is defined with the viscosity $\nu$ in Section \ref{sec:variation}. It was shown in \cite{silvester1993fast,silvester1994fast} that the scaled pressure mass matrix, $\mbox{\small \(\frac{1}{\nu}\)} W$ defined in \eqref{eq:PrecondMatrices}, is spectrally equivalent to the Schur complement $S_S$ (which is also a consequence of the inf-sup stability from our mixed discretisation). Therefore a possible scalable Stokes preconditioner is
+\begin{equation}
+\label{eq:mhd_pc_explicit2_1}
+\begin{pmatrix}
+A & 0 \\
+0 & \mbox{\small \(\frac{1}{\nu}\)} W
+\end{pmatrix}.
+\end{equation}
+Using \eqref{eq:mhd_pc_explicit2_1} together with the Maxwell subproblem preconditioner  \eqref{eq:maxwell_pc_X} gives the preconditioner
+\begin{equation}
+\label{eq:mhd_pc_explicit2}
+\mathcal{M}_{\rm CD} =
+\left(
+\begin{array}{cc|cc}
+A & 0 & 0 & 0\\
+0 & \mbox{\small \(\frac{1}{\nu}\)} W & 0 & 0 \\
+\hline
+0 & 0 & N & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right).
+\end{equation}
+
+As the matrix system $\mathcal{K}_{\rm CD}$ is symmetric, then the appropriate choice for the Krylov subspace method is MINRES for each subproblem. The main advantage of using MINRES over GMRES is that we do not need to store a new vector at each iteration. Therefore, in terms of computational memory MINRES is more efficient.
+
+
+\subsection{Summary}
+
+In summary, we outlined the three preconditioning approaches for the linearised systems arising in the non-linear iteration schemes proposed in Chapter \ref{sec:discretization}. Table \ref{tab:SummaryTable} references the coefficient matrices together the associated preconditioner.
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+  Iteration & Coefficient & (Outer) \\
+  scheme & matrix & preconditioner\\
+\hline
+\rule{0pt}{12pt}(P) & $\mathcal{K}_{\rm MH}$ in \eqref{eq:K}& $\mathcal{M}_{\rm MH}$ in \eqref{eq:mhd_pc_ls}  \\[0.1cm]
+\hline
+\rule{0pt}{12pt}(MD) & $\mathcal{K}_{\rm MD}$ in \eqref{eq:Kmd}& $\mathcal{M}_{\rm MD}$ in \eqref{eq:mhd_pc_explicit}  \\[0.1cm]
+\hline
+\rule{0pt}{12pt}(CD) & $\mathcal{K}_{\rm CD}$ in \eqref{eq:Kcd}&$\mathcal{M}_{\rm CD}$ in \eqref{eq:mhd_pc_explicit2}\\[0.1cm]
+\hline
+\end{tabular}
+\caption{Summary of coefficient matrices and corresponding preconditioners for each iteration scheme}
+\label{tab:SummaryTable}
+\end{center}
+\end{table}
+
+\noindent Note that for the Picard iteration (P), we employ the inner preconditioner $\mathcal{M}_{\rm innerMH}$ in \eqref{eq:mhd_pc_inner} to solve systems corresponding to \eqref{eq:mhd_pc_ls}.
+
+% \begin{table}[h!] \small
+% \begin{center}
+% \begin{tabular}{|c|c|c|}
+% \hline
+%   Iteration & Coefficient & (Outer) \\
+%   scheme & matrix & preconditioner\\
+% \hline
+% (P) & $\left(
+% \begin{array}{cccc}
+% A+O & B^T & C^T & 0\\
+% B & 0 & 0 & 0\\
+% -C & 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right)$&$\left(
+% \begin{array}{cccc}
+% F & B^T & C^T & 0\\
+% 0 & -{S} & 0 & 0 \\
+% -C & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right)$  \\
+% \hline
+% (MD) & $\left(
+%     \begin{array}{cccc}
+%     F& B^T & 0 & 0\\
+%     B & 0 & 0 & 0 \\
+%     0 & 0 & M & D^T\\
+%     0 & 0 & D & 0
+%     \end{array}
+%     \right)$&$\left(
+% \begin{array}{cccc}
+% F & B^T & 0 & 0\\
+% 0 & -{S} & 0 & 0 \\
+% 0 & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right)$  \\
+% \hline
+% (CD) & $\left(
+% \begin{array}{cccc}
+% A & B^T & 0 & 0\\
+% B & 0 & 0 & 0 \\
+% 0 & 0 & M & D^T\\
+% 0 & 0 & D & 0
+% \end{array}
+% \right)$& $\left(
+% \begin{array}{cccc}
+% A & 0 & 0 & 0\\
+% 0 & \mbox{\small \(\frac{1}{\nu}\)} W & 0 & 0 \\
+% 0 & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right)$\\
+% \hline
+% \end{tabular}
+% \caption{Summary of coefficient and corresponding preconditioners for each iteration scheme}
+% \label{tab:SummaryTable}
+% \end{center}
+% \end{table}
+
+
+
+
+
+
+% \textit{Generate a new subSection that lays out a summary of the systems and the preconditioners. This generates a redundancy, but it will be very helpful for the reader, who at this point may be lost trying to track all preconditioners and systems. This section should also include a summary of multiplicities (briefly, no need to state theorems), as per Dan's thesis and/or the paper that is currently being written.}
+
+
+% \paragraph{Picard iteration (P)} ~\\
+
+% The coefficient matrix corresponding to the Picard iteration is
+% \begin{equation}\nonumber
+% {\mathcal K}_{\rm MH} = \left(
+% \begin{array}{cccc}
+% A+O & B^T & C^T & 0\\
+% B & 0 & 0 & 0\\
+% -C & 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right).
+% \end{equation}
+% We consider the  preconditioner
+% \begin{equation} \nonumber
+% \mathcal{M}_{\rm MH} =
+% \left(
+% \begin{array}{cccc}
+% F & B^T & C^T & 0\\
+% 0 & -{S} & 0 & 0 \\
+% -C & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right),
+% \end{equation}
+% The preconditionered matrix, $\mathcal{M}_{\rm MH}^{-1}{\mathcal K}_{\rm MH}$, has eigenvalues $\lambda = 1$ with algebraic multiplicity of at least $n_u + n_b$ and and an eigenvalue $\lambda = −1$ with algebraic multiplicity of at least $m_b$ see \cite{li2010numerical}. To apply this preconditioner, we solve linear systems associated with $\mathcal{M}_{\rm MH}$. The proposed way of doing this is to use GMRES with the inner preconditioner:
+% \begin{equation} \nonumber
+% \mathcal{M}_{\rm innerMH} =
+% \left(
+% \begin{array}{cccc}
+% F & B^T & 0 & 0\\
+% 0 & -S & 0 & 0 \\
+% 0 & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right).
+% \end{equation}
+% Here the preconditioner matrix, $\mathcal{M}_{\rm innerMH}^{-1}{\mathcal M}_{\rm MH}$,  has an eigenvalue $\lambda = −1$ with algebraic multiplicity of at least $m_u +n_u+3m_b -n_b$ see \cite{li2010numerical}.
+
+
+% \paragraph{Magnetic Decoupling (MD)} ~\\
+% The coefficient matrix corresponding to the (MD) iteration is
+% \begin{equation}\nonumber
+% {\mathcal K}_{\rm MH} = \left(
+% \begin{array}{cc|cc}
+% F& B^T & 0 & 0\\
+% B & 0 & 0 & 0\\
+% \hline
+% 0& 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right).
+% \end{equation}
+% This complete decouples the system to enable use to use the individual Navier-Stokes and Maxwell's equation preconditioners seperately. The proposed preconditioner is:
+% \begin{equation}
+% \nonumber
+% \mathcal{M}_{\rm MD} =
+% \left(
+% \begin{array}{cc|cc}
+% F & B^T & 0 & 0\\
+% 0 & -{S} & 0 & 0 \\
+% \hline
+% 0 & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right).
+% \end{equation}
+
+
+% \paragraph{Complete Decoupling (CD)} ~\\
+
+% The coefficient matrix corresponding to the (CD) iteration is
+% \begin{equation} \nonumber
+%  {\mathcal K}_{\rm MH} = \left(
+% \begin{array}{cc|cc}
+% A & B^T & 0 & 0\\
+% B & 0 & 0 & 0\\
+% \hline
+% 0& 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right).
+% \end{equation}
+% This complete decouples the system to enable use to use the individual Stokes and Maxwell's equation preconditioners seperately. The proposed preconditioner is:
+% \begin{equation}
+% \nonumber
+% \mathcal{M}_{\rm CD} =
+% \left(
+% \begin{array}{cc|cc}
+% A & 0 & 0 & 0\\
+% 0 & \mbox{\small \(\frac{1}{\nu}\)} W & 0 & 0 \\
+% \hline
+% 0 & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right).
+% \end{equation}
+

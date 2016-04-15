@@ -1,0 +1,357 @@
+\chapter{Finite element discretisation}
+\label{sec:discretization}
+
+In this chapter we introduce a mixed finite element discretisation for a steady-state incompressible MHD problem that model electrically conductive fluids. Following the setting in \cite{schotzau2004mixed}, using curl-conforming elements for the magnetic field and conforming continuous elements for the velocity field. The resulting discretisation is verified though a series of numerical experiments which appear later in Chapter \ref{chap:results}. For simplicity, we only discuss in detail homogeneous Dirichlet boundary conditions, that is
+\begin{equation} \label{eq:homogeneousBC}
+    \uu{u} = \uu{0} \quad \mbox{and} \quad \uu{n}\times \uu{b} = \uu{0}.
+\end{equation}
+Inhomogeneous conditions as in \eqref{eq:bc} can be incorporated in a straightforward fashion.
+
+
+\section{Variational formulation}
+\label{sec:variation}
+
+To express \eqref{eq:mhd}, \eqref{eq:bc} in weak form we follow \cite{schotzau2004mixed} and denote the $L^2$ inner product on $L^2(\Omega)^d$ by $(\cdot,\cdot)_\Omega$, for $d = 2,3$. We introduce the standard Sobolev spaces
+\begin{equation} \label{eq:FuncSpace} \nonumber
+ \left. \begin{aligned}
+\uu{V}&=H_0^1(\Omega)^d=\left\{\,\uu{u}\in H^1(\Omega)^d\,:\,\text{$\uu{u}=\uu{0}$ on $\partial\Omega$}\,\right\},\\
+Q&=L^2_0(\Omega)=\{\,p\in L^2(\Omega)\,:\,(p\,,1)_\Omega=0\,\},\\
+\uu{C}&=H_0({\rm curl};\Omega) = \left\{\,\uu{b}\in L^2(\Omega)^d\,:\,\nabla\times\uu{b}\in L^2(\Omega)^{2d-3}, \
+\text{$\uu{n}\times\uu{b}=\uu{0}$ on $\partial\Omega$}\,\right\},\\
+S&=H^1_0(\Omega)=\{\,r\in H^1(\Omega)\,:\,r=0\ \mbox{on $\partial\Omega$}\,\},
+ \end{aligned}
+ \right.
+ \qquad \text{}
+\end{equation}
+We write $\|\cdot\|_{L^2(\Omega)}$, $\|\cdot\|_{H^1(\Omega)}$ and $\|\cdot\|_{H(\rm{curl};\Omega)}$ for the associated natural norms. More precisely, for a vector fields $\uu{u},\uu{b}$ and a scalar functions $r$ the norms are defined as follows:
+\begin{equation} \nonumber
+ \left. \begin{aligned}
+    \|\uu{u}\|_{L^2 (\Omega)} &= \left({\int_{\Omega} \uu{u}\cdot\uu{u}\;dx}\right)^{\frac{1}{2}},\\
+   \|\uu{u}\|_{H^1(\Omega)} &=  \left(\|\uu{u}\|_{L^2(\Omega)}^2 + \|\nabla  \uu{u}\|_{L^2(\Omega)}^2 \right)^{\frac{1}{2}},\\
+   \|\uu{b}\|_{H(\rm{curl},\Omega)} &=  \left(\|\uu{b}\|_{L^2(\Omega)}^2 + \|\nabla \times \uu{b}\|_{L^2(\Omega)}^2 \right)^{\frac{1}{2}}, \\
+    \|r\|_{L^2 (\Omega)} &= \left({\int_{\Omega} r^2\;dx}\right)^{\frac{1}{2}},\\
+    \|r\|_{H^1(\Omega)} &=  \left(\|r\|_{L^2(\Omega)}^2 + \|\nabla  r\|_{L^2(\Omega)}^2 \right)^{\frac{1}{2}},\\
+ \end{aligned}
+ \right.
+ \qquad \text{}
+\end{equation}
+where $\|\nabla  \uu{u}\|_{L^2(\Omega)}^2$ is the $L^2$-norm of the gradient tensor $\nabla \uu{u}$. The weak formulation of the incompressible MHD system (\ref{eq:mhd}) and the boundary conditions (\ref{eq:bc}) consists in finding~$(\uu{u},p,\uu{b},r)\in \uu{V} \times Q\times \uu{C} \times S$ such that
+\begin{subequations}
+\label{eq:weak}
+\begin{eqnarray}
+\label{eq:weak1} A(\uu{u},\uu{v}) + O(\uu{u};\uu{u},\uu{v})
++C(\uu{b};\uu{v},\uu{b})
++B(\uu{v}, p) & =& (\uu{f}, \uu{v})_{\Omega},\\[.1cm]
+\label{eq:weak2}
+B(\uu{u},q)&=&0, \\[.1cm]
+\label{eq:weak3}
+M(\uu{b},\uu{c})-C(\uu{b};\uu{u},\uu{c})+D(\uu{c},r)&=& (\uu{g},\uu{c})_\Omega, \\[.1cm]
+\label{eq:weak4} D(\uu{b},s)&=&0,
+\end{eqnarray}
+\end{subequations}
+for all $(\uu{v},q,\uu{c},s)\in \uu{V} \times Q\times \uu{C}\times
+S$. The individual variational forms are given by
+\begin{alignat*}2\nonumber
+&A(\uu{u},\uu{v})=  \int_\Omega \nu \, \nabla\uu{u}:
+\nabla\uu{v}\,d\uu{x},&\qquad  & O(\uu{w};\uu{u},\uu{v}) = \int_\Omega
+(\uu{w}\cdot\nabla)\uu{u} \cdot\uu{v} \, d\uu{x},
+\\[.1cm]
+&  B(\uu{u},q) = -\int_\Omega\,(\nabla\cdot\uu{u}) \,q \,d\uu{x},
+&\qquad  &
+ M(\uu{b},\uu{c})= \int_\Omega\, \kappa\nu_m
+(\nabla\times\uu{b})\cdot(\nabla\times\uu{c})\,d\uu{x},\\[0.1cm]
+& D(\uu{b},s) = \int_\Omega\, \uu{b} \cdot \nabla s\,
+d\uu{x}, & \qquad &
+C(\uu{d};\uu{v},\uu{b}) =  \int_\Omega \kappa\, (\uu{v}\times\uu{d})\cdot
+(\nabla\times\uu{b})\, d\uu{x},
+\end{alignat*}
+where  $\nabla \uu{u}:\nabla \uu{u}$ is  defined as
+$$\nabla \uu{u}:\nabla \uu{u} = \sum^d_{i,j=1}(\nabla \uu{u})_{ij}(\nabla \uu{u})_{ij}.$$ In \cite{schotzau2004mixed} it has been shown that this formulation of a the problem is discrete energy-stable and has a unique solution for small data.
+
+\section{Mixed finite element discretisation}
+
+Consider the domain $\Omega$ to be divided up into a regular and quasi-uniform mesh ${\mathcal T}_h=\{K\}$ consisting of triangles ($d = 2$) or tetrahedra ($d = 3$)  with mesh size $h$. Based on the function spaces defined in \eqref{eq:FuncSpace}, our finite element approximation will be sought in the finite spaces given by:
+\begin{equation}
+\label{eq:FiniteSpace}
+\begin{split}
+\uu{V}_h &=  \{\, \uu{u}\in H^1( \Omega)\, :\, \uu{u}|_K \in {\mathcal P}_{k}(K)^d, \, K \in{\mathcal T}_h \, \},\\[.1cm]
+Q_h&=  \{\, p\in L^2(\Omega) \cap H^1(\Omega)\,:\, p|_K \in {\mathcal P}_{k-1}(K), \, K \in{\mathcal T}_h \,\},\\[.1cm]
+\uu{C}_h &=  \{\, \uu{b}\in H_0({\rm curl}; \Omega) \,:\, \uu{b}|_K \in {\mathcal P}_{k-1}(K)^d \oplus \uu{R}_k(K), \, K \in{\mathcal T}_h \,\},\\[.1cm]
+S_h&=  \{\, r\in H_0^1(\Omega) \,:\, r|_K \in {\mathcal P}_{k}(K), \, K \in {\mathcal T}_h \, \},
+\end{split}
+\end{equation}
+for $k\geq 2$. Here we note that we are using ${\mathcal P_k}/{\mathcal P_{k-1}}$ Taylor-Hood elements for the fluid unknowns $(\uu{u},p)$ \cite{taylor1973numerical}. For the magnetic variables $(\uu{b},r)$ we use the curl-conforming \nedelec elements of the first kind \cite{nedelec1980mixed}. These choices of finite elements spaces $\uu{V}_h, \, \uu{C}_h, \, Q_h$ and $S_h$ imply that  we have conforming subspaces to our Sobolev spaces $\uu{V}, \, \uu{C}, \,Q$ and $S$, respectively. Then the finite element solution consists in finding $(\uu{u}_h,p_h,\uu{b}_h,r_h)\in \uu{V}_h\times Q_h\times \uu{C}_h\times S_h$ such that
+\begin{subequations}
+\label{eq:VariationForm}
+\begin{eqnarray}
+\label{eq:bn1} \hspace{-15mm} A(\uu{u}_h,\uu{v}) + \tilde{O}(\uu{u}_h;\uu{u}_h,\uu{v}) +C(\uu{b}_h;\uu{v},\uu{b}_h) +B(\uu{v}, p_h) & = & ( \uu{f},\uu{v}),\\[.1cm]
+\label{eq:bn2}
+B(\uu{u}_h,q)&=& 0, \\[.1cm]
+\label{eq:bn3} M(\uu{b}_h,\uu{c})-C(\uu{b}_h;\uu{u}_h,\uu{c})+ D(\uu{c},r_h)&=& (\uu{g},\uu{c}),\\[.1cm]
+\label{eq:bn4} D(\uu{b}_h,s)&=&0,
+\end{eqnarray}
+\end{subequations}
+for all $(\uu{v},q,\uu{c},s)\in \uu{V}_h\times Q_h \times \uu{C}_h\times S_h$.
+
+The forms $A, M, B, D$ and $C$ stay the same as on the continuous level. However, for the convection term $\tilde{O}(\cdot;\cdot,\cdot)$ we to modify the form $O(\uu{w};\uu{u},\uu{v})$ in a standard fashion to ensure the energy-stability property
+\begin{equation} \label{eq:convection}
+    \tilde{O}(\uu{w};\uu{u},\uu{u}) = 0, \quad \forall \uu{w},\uu{u} \in  \uu{V}_h.
+\end{equation}
+To ensure this property we integrate by parts the convection form $O(\uu{w};\uu{u},\uu{u})$  to obtain
+\begin{equation} \nonumber
+ \left. \begin{aligned}
+     \int_\Omega (\uu{w}\cdot\nabla)\uu{u} \cdot\uu{u} \, d\uu{x} =& -\frac{1}{2}\int_{\Omega} \nabla \cdot \uu{w} \uu{u} \cdot \uu{u} \, d\uu{x}
+     +\frac{1}{2}\int_{\partial \Omega} \uu{w}\cdot \uu{n} |\uu{u}|^2\, ds,
+ \end{aligned}
+ \right.
+ \qquad \text{}
+\end{equation}
+recalling that $\uu{n}$ is the unit outward normal on $\partial \Omega$. Therefore, we choose the modified convection form $\tilde{O}(\uu{w};\uu{u},\uu{v})$ as
+$$\tilde{O}(\uu{w};\uu{u},\uu{v}) =  \int_\Omega (\uu{w}\cdot\nabla)\uu{u} \cdot\uu{v} \, d\uu{x} +\frac{1}{2}\int_{\Omega} \nabla \cdot \uu{w} \uu{u} \cdot \uu{v}\, d\uu{x}-\frac{1}{2}\int_{\partial \Omega} \uu{w}\cdot \uu{n} \uu{u} \cdot \uu{v}\, ds.$$
+By construction, the property \eqref{eq:convection} is now satisfied. Note also that for homogeneous boundary conditions as assumed in \eqref{eq:homogeneousBC}, the boundary integral term in $\tilde{O}$ can be omitted.
+
+Again in \cite{schotzau2004mixed} it has been shown that this formulation of a MHD is discrete energy-stable and has a unique solution for small data. Also, optimal order error estimates in the mesh size $h$ have been derived for small data using the stability property \eqref{eq:convection}. Namely, for sufficiently smooth solutions, we have that
+$$\|\uu{u}-\uu{u}_h\|_{H^1(\Omega)}+\|\uu{b}-\uu{b}_h\|_{H(\rm{curl};\Omega)}+\|p-p_h\|_{L^2(\Omega)}+\|r-r_h\|_{H^1(\Omega)} \leq C h^k,$$
+for a constant $C>0$ independent of the mesh size. However, the $L^2$-norm error for the velocity field is of order $\mathcal{O}(h^{k+1})$ (as $\uu{V}_h$ consists of a full polynomial space on each element). In contrast, we cannot expect $L^2$-norm errors of  order $\mathcal{O}(h^{k+1})$ for the magnetic field (as $\uu{C}_h$ does not consists of a full polynomial space on each element).
+
+
+\subsection{Matrix representation}
+
+This variational formulation \eqref{eq:VariationForm} now can be converted into a matrix representation. To do this, we introduce the basis function for the finite elements spaces in \eqref{eq:FiniteSpace}:
+\begin{alignat}2
+\label{eq:bases1}
+\uu{V}_h & = \mbox{span}\langle  \uu{\psi}_j \rangle _{j=1}^{n_u}, & \qquad &
+Q_h  = \mbox{span} \langle  \alpha_i \rangle _{i=1}^{m_u},\\[0.1cm]
+ \uu{C}_h& =\mbox{span}\langle \uu{\phi}_j \rangle _{j=1}^{n_b}, & \qquad & S_h = \mbox{span} \langle \beta_i
+\rangle_{i=1}^{m_b}.
+\end{alignat}
+The aim now is to find the coefficient vectors $u = (u_1, \ldots , u_{n_u}) \in \mathbb{R}^{n_u}$, $p = (p_1, \ldots , p_{m_u}) \in \mathbb{R}^{m_u}$, $b = (b_1, \ldots , b_{n_b}) \in \mathbb{R}^{n_b}$, and $r = (r_1, \ldots , r_{m_b}) \in \mathbb{R}^{m_b}$ of the finite element functions $(\uu{u}_h, p_h,\uu{b}_h, r_h)$. As usual, this is done by writing the bilinear forms in \eqref{eq:VariationForm} in terms of the following stiffness matrices and load vectors:
+\begin{alignat*}2
+A_{i,j} &= A(\uu{\psi}_j,\uu{\psi}_i), &\quad  &1 \leq i,j \leq n_u,\\[0.1cm]
+B_{i,j} &= B(\uu{\psi}_j,\alpha_i), &\quad &1 \leq i \leq m_u, \ 1 \leq j \leq n_u,\\[.1cm]
+D_{i,j} &= D(\uu{\phi}_j,\beta_i),  & & 1 \leq i \leq m_b,\ 1 \leq j \leq n_b,\\[.1cm]
+M_{i,j}&= M(\uu{\phi}_j,\uu{\phi}_i), &\qquad & 1 \leq i,j \leq n_b,\\[.1cm]
+f_i &= (\uu{f},\uu{\psi}_i)_\Omega, & & 1\leq i\leq n_u,\\[.1cm]
+g_i &= (\uu{g},\uu{\phi}_i)_\Omega, & & 1\leq i \leq n_b.
+\end{alignat*}
+For the two non-linear forms, $\tilde{O}$ and $C$, we define the corresponding stiffness matrices with respect to given finite element functions $\uu{w} \in \uu{V}_h$ and $\uu{d}_h\in \uu{C}_h$ in the first argument and their associated coefficient vectors $w$ and $d$ as
+\begin{alignat*}2
+O(w)_{i,j} &=\tilde{O}(\uu{w};\uu{\psi}_j,\uu{\psi}_i), &\quad  &1 \leq i,j \leq n_u,\\[.1cm]
+C(d)_{i,j} &= C(\uu{d};\uu{\psi}_j,\uu{\phi}_i), & & 1\leq i \leq n_b,\ 1 \leq j \leq n_u.
+\end{alignat*}
+
+Thus, the numerical solution to \eqref{eq:mhd} consists in solving the non-linear system
+\begin{equation}
+\label{eq:matrix-system}
+\left(
+\begin{array}{cccc}
+A+O(u) & B^T & C^T(b) & 0\\
+B & 0 & 0 & 0\\
+-C(b) & 0 & M & D^T \\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+u\\
+p\\
+b\\
+r
+\end{array}
+\right) =
+\left(
+\begin{array}{c} f\\0\\g\\0
+\end{array}
+\right).
+\end{equation}
+where the vectors  $u\in\mathbb{R}^{n_u}$, $p\in\mathbb{R}^{m_u}$,  $b\in\mathbb{R}^{n_b}$, and $r\in\mathbb{R}^{m_b}$ are the unknown coefficients of the finite element functions. We shall omit the dependence of $O$ and $C$ on $b$ and $u$, respectively, and simply  write $O$ and $C$.
+
+\section{Picard iteration (P)}
+\label{sec:nonlinear}
+The discrete system \eqref{eq:matrix-system} is non-linear, and therefore appling a non-linear solver to this problem is necessary. A common choice to deal with the non-linearity within the incompressible Navier-Stokes equations in isolation is to perform Oseen or Picard iterations \cite{elman2005finite}. This involves linearising around the current velocity and solving for updates.
+
+We adapt this approach for the full MHD system as well. Given a current iterate $(\uu{u}_h,p_h,\uu{b}_h,r_h)$  we solve for updates $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h)$ and introduce the next iterate by setting:
+\begin{equation}\nonumber
+\begin{array}{cc}
+% \label{eq:updates}
+\uu{u}_h& \hspace{-3mm} \rightarrow \uu{u}_h +\delta \uu{u}_h, \quad p_h \rightarrow p_h +\delta p_h,\\
+\uu{b}_h& \hspace{-3mm}  \rightarrow \uu{b}_h +\delta \uu{b}_h, \quad r_h \rightarrow r_h +\delta r_h.
+\end{array}
+\end{equation}
+In variational form, the updates $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h)\in \uu{V}_h\times Q_h \times \uu{C}_h\times S_h$ are found by solving the Picard system (P):
+\begin{equation} \nonumber
+% \label{eq:picard}
+\begin{split}
+A(\delta\uu{u}_h, \uu{v}) +\tilde{O}(\uu{u};\delta\uu{u}_h,\uu{v})+ C(\uu{b}_h;\uu{v},\delta \uu{u}_h) + B(\uu{v}, \delta p_h) & = R_u(\uu{u}_h,\uu{b}_h,p_h;\uu{v}),\\[.1cm]
+B(\delta\uu{u}_h,q)&= R_p(\uu{u}_h;q), \\[.1cm]
+M(\delta \uu{b}_h,\uu{c})+
+D(\uu{c},\delta r_h)-C(\uu{b}_h;\delta \uu{u}_h,\uu{v})&= R_b(\uu{u}_h,\uu{b}_h,r_h;\uu{c}),\\[.1cm]
+D(\delta \uu{b}_h,s)&= R_r(\uu{b}_h;s),
+\end{split}
+\end{equation}
+for all $(\uu{v},q,\uu{c},s)\in \uu{V}_h\times Q_h \times \uu{C}_h\times S_h$. The right hand side linear forms correspond to the residual at the current iteration $(\uu{u}_h,p_h,\uu{b}_h,r_h)$ defined by:
+\begin{align*}
+ R_u(\uu{u}_h,\uu{b}_h,p_h;\uu{v})&=(\uu{f}, \uu{v})_\Omega-A(\uu{u}_h,\uu{v})
+-  \tilde{O}(\uu{u}_h;\uu{u}_h,\uu{v})  - C(\uu{b}_h;\uu{v},\uu{b}_h)-B(\uu{v},p_h),\\[.1cm]
+R_p(\uu{u}_h;q)&=-B(\uu{u}_h,q),\\[.1cm]
+ R_b(\uu{u}_h,\uu{b}_h,r_h;\uu{c})&=(\uu{g,c})_\Omega -M(\uu{b}_h,\uu{c})
++ C(\uu{b}_h;\uu{u}_h,\uu{c})-D(\uu{c},r_h),\\[.1cm]
+R_r(\uu{b}_h;s)&=-D(\uu{b}_h,s),
+\end{align*}
+for all $(\uu{v},q,\uu{c},s)\in \uu{V}_h\times Q_h \times \uu{C}_h\times S_h$.
+
+In \cite{schotzau2004mixed} it is shown that for small data the Picard iteration (P) will converge to the exact solution given any initial guess.
+
+To formulate the variational form of the Picard iteration (P) in matrix form, let $({u},p,{b},r)$ be the coefficient vectors associated with $(\uu{u}_h,p_h,\uu{b}_h,r_h)$ and $(\delta{u},\delta p,\delta{b},\delta r)$ be the coefficient vectors of $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h)$, then it can readily seen that the Picard iteration (P) amounts to solving the matrix system
+\begin{equation}
+\label{eq:mhd_saddle}
+%\mathcal{K} x \equiv
+\left(
+\begin{array}{cccc}
+A+O & B^T & C^T & 0\\
+B & 0 & 0 & 0 \\
+-C & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},
+\end{equation}
+with
+\begin{align*}
+r_u &= f- Au -O(u) u - C(b)^T b- B^T p,\\[0.1cm]
+r_p &=-B u,\\[0.1cm]
+r_b &=g-Mu+C(b)b-D^T r,\\[0.1cm]
+r_r &=-D b.
+\end{align*}
+Here, the matrix $A$  is symmetric positive-definite (SPD), $O$ is non-symmetric and $-C,C^T$ appear in a skew symmetric fashion. We also note that $M$ is symmetric positive-semidefinite (SPSD) with nullity $m_b$ corresponding to the discrete gradients.
+
+
+\section{Decoupled iterations}
+\label{sec:FEMdecouple}
+
+
+The full MHD system \eqref{eq:mhd}, \eqref{eq:bc} is a coupled system consisting of the incompressible Navier-Stokes and Maxwell's equations, coupled through the non-linear skew symmetric coupling term $C$. In addition, the convection term $O$ is non-linear as well. These two terms make the numerical solution challenging. Therefore, if one or both of these terms is small then it may be possible to iterate explicitly. In particular if the coupling term, $C$, is small then we may completely decouple the system into a Navier-Stokes problem and a Maxwell problem. The two resulting decoupling schemes are what we call Magnetic and Complete Decoupling and are both described below.
+
+
+\subsection{Magnetic decoupling (MD)}
+\label{sec:FEMmd}
+
+Consider the first situation where there is  weak coupling within the system, that is when $C$ is small. Then it may be possible to drop these terms to completely decouple the system into the two subproblems, the Navier-Stokes and Maxwell's equations. We will call this Magnetic decoupling.
+% For a given solution $(\uu{u}_h,p_h,\uu{b}_h,r_h)$, neglecting the coupling terms in \eqref{eq:picard} results in solving for the updates $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h) \in \uu{V}_h \times Q_h \times \uu{C}_h \times S_h$  such that
+% \begin{equation}
+% \label{eq:picard_explicit_MD}
+% \begin{split}
+% A(\delta\uu{u}_h, \uu{v}) +O(\uu{u};\delta\uu{u}_h,\uu{v})+ B(\uu{v}, \delta p_h) & = R_u(\uu{u}_h,\uu{b}_h,p_h;\uu{v})\\[.1cm]
+% B(\delta\uu{u}_h,q)&= R_p(\uu{u}_h;q), \\[.1cm]
+% M(\delta \uu{b}_h,\uu{c})+
+% D(\uu{c},\delta r_h)&= R_b(\uu{u}_h,\uu{b}_h,r_h;\uu{c}),\\[.1cm]
+% D(\delta \uu{b}_h,s)&=R_r(\uu{b}_h;s),
+% \end{split}
+% \end{equation}
+% where again $(\uu{v},q,\uu{c},s)\in\uu{V}_h\times Q_h\times\uu{C}_h\times S_h$ and $R_u$, $R_p$, $R_b$ and $R_r$ which are defined in section \ref{sec:nonlinear}. Again, let $({u},p,{b},r)$ be the coefficient vectors of $(\uu{u}_h,p_h,\uu{b}_h,r_h)$ and $(\delta{u},\delta p,\delta{b},\delta r)$ be the coefficient vectors of $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h)$, then this amounts to solving the linear system:
+Then \eqref{eq:mhd_saddle} amounts
+\begin{equation}
+\label{eq:matrix_MD}
+%\mathcal{K} x \equiv
+\left(
+\begin{array}{cccc}
+A+O(u) & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},
+\end{equation}
+with
+\begin{align*}
+r_u &= f- Au -O u - C^T b- B^T p,\\[0.1cm]
+r_p &=-B u,\\[0.1cm]
+r_b &=g-Mu+Cb-D^T r,\\[0.1cm]
+r_r &=-D b.
+\end{align*}
+From \eqref{eq:matrix_MD} we can see that the system is now completely decoupled. This enable us to apply solve each individual subproblem separately and possibly in parallel.
+
+\subsection{Complete decoupling}
+
+
+For the second decoupling scheme, we again consider there to be weak coupling of the system but we also consider that the fluid equations are diffusion dominated and hence can exclude the convection terms.
+% This is the simplest technique as it removes all non-linear terms. Again, for a given solution $(\uu{u}_h,p_h,\uu{b}_h,r_h)$, removing the coupling and convection terms in \eqref{eq:picard} results in solving for the updates $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h) \in \uu{V}_h \times Q_h \times \uu{C}_h \times S_h$  such that
+% \begin{equation}
+% \label{eq:picard_explicit_CD}
+% \begin{split}
+% A_h(\delta\uu{u}_h, \uu{v}) + B(\uu{v}, \delta p_h) & = R_u(\uu{u}_h,\uu{b}_h.p_h;\uu{v})\\[.1cm]
+% B(\delta\uu{u}_h,q)&= R_p(\uu{u}_h;q), \\[.1cm]
+% M(\delta \uu{b}_h,\uu{c})+
+% D(\uu{c},\delta r_h)&= R_b(\uu{u}_h,\uu{b}_h,r_h;\uu{c}),\\[.1cm]
+% D(\delta \uu{b}_h,s)&=R_r(\uu{b}_h;s),
+% \end{split}
+% \end{equation}
+% where $(\uu{v},q,\uu{c},s)\in\uu{V}_h\times Q_h\times\uu{C}_h\times S_h$.  Taking $({u},p,{b},r)$ as the coefficient vectors of $(\uu{u}_h,p_h,\uu{b}_h,r_h)$ and $(\delta{u},\delta p,\delta{b},\delta r)$ be the coefficient vectors of $(\delta \uu{u}_h,\delta p_h,\delta \uu{b}_h,\delta r_h)$, then the proposed decoupled linear system is
+This amounts to
+\begin{equation}
+\label{eq:matrix_CD}
+%\mathcal{K} x \equiv
+\left(
+\begin{array}{cccc}
+A & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},
+\end{equation}
+with
+\begin{align*}
+r_u &= f- Au -O u - C^T b- B^T p,\\[0.1cm]
+r_p &=-B u,\\[0.1cm]
+r_b &=g-Mu+Cb-D^T r,\\[0.1cm]
+r_r &=-D b.
+\end{align*}
+This is the simplest technique as it removes all non-linear terms and hence leaves the linear Stokes problem in the upper $(1,1)$ block matrix.
+
+In this chapter we have introduced a mixed finite element approximation to the full MHD system given in \eqref{eq:mhd} and \eqref{eq:bc}. We followed the mixed approach outlined in \cite{schotzau2004mixed} and expressed the MHD system in the matrix form \eqref{eq:mhd_saddle}. Using the Picard iteration  \eqref{eq:mhd_saddle} we introduced two possible decoupling schemes which maybe simpler to solve for depending on the parameters ($\kappa$, $\nu$ and $\nu_m$). The next chapter will discuss possible preconditioning approaches to these systems.

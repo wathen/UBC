@@ -1,0 +1,79 @@
+\contentsline {chapter}{{Abstract}}{ii}{chapter*.1}
+\contentsline {chapter}{{Preface}}{iv}{chapter*.2}
+\contentsline {chapter}{{Table of Contents}}{v}{chapter*.3}
+\contentsline {chapter}{{List of Tables}}{ix}{chapter*.4}
+\contentsline {chapter}{{List of Figures}}{xiii}{chapter*.5}
+\contentsline {chapter}{{Acknowledgements}}{xiv}{chapter*.6}
+\contentsline {chapter}{\numberline {1}{Introduction}}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}{A model problem in incompressible magnetohydrodynamics}}{1}{section.1.1}
+\contentsline {section}{\numberline {1.2}{Numerical solution}}{6}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}{Finite element methods for incompressible MHD problems}}{7}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}{Preconditioning incompressible MHD problems}}{9}{subsection.1.2.2}
+\contentsline {section}{\numberline {1.3}{Objectives and contributions}}{10}{section.1.3}
+\contentsline {section}{\numberline {1.4}{Outline}}{11}{section.1.4}
+\contentsline {chapter}{\numberline {2}{Finite element discretisation}}{13}{chapter.2}
+\contentsline {section}{\numberline {2.1}{Variational formulation}}{13}{section.2.1}
+\contentsline {section}{\numberline {2.2}{Mixed finite element discretisation}}{16}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}{Matrix representation}}{18}{subsection.2.2.1}
+\contentsline {section}{\numberline {2.3}{Picard iteration (P)}}{20}{section.2.3}
+\contentsline {section}{\numberline {2.4}{Decoupled iterations}}{23}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}{Magnetic Decoupling (MD)}}{24}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}{Complete Decoupling (CD)}}{25}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}{Inhomogeneous Dirichlet boundary conditions and initial guess}}{26}{section.2.5}
+\contentsline {section}{\numberline {2.6}{Summary}}{27}{section.2.6}
+\contentsline {chapter}{\numberline {3}{Preconditioning}}{28}{chapter.3}
+\contentsline {section}{\numberline {3.1}{Preconditioning the incompressible Navier-Stokes equations}}{29}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}{Pressure Convection-Diffusion (PCD)}}{30}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}{Least-Squares Commutator (LSC)}}{31}{subsection.3.1.2}
+\contentsline {subsection}{\numberline {3.1.3}{PCD versus LSC}}{33}{subsection.3.1.3}
+\contentsline {section}{\numberline {3.2}{Preconditioning Maxwell's equations}}{34}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}{An ideal preconditioner}}{34}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}{A practical preconditioner}}{35}{subsection.3.2.2}
+\contentsline {section}{\numberline {3.3}{Preconditioning the MHD equations}}{36}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}{Picard iteration}}{36}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}{Magnetic Decoupling}}{38}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}{Complete Decoupling}}{39}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}{Summary}}{40}{subsection.3.3.4}
+\contentsline {chapter}{\numberline {4}{Numerical results}}{42}{chapter.4}
+\contentsline {section}{\numberline {4.1}{Software}}{42}{section.4.1}
+\contentsline {section}{\numberline {4.2}{Problem setup}}{43}{section.4.2}
+\contentsline {paragraph}{{Mesh sequences}}{43}{section*.8}
+\contentsline {paragraph}{{Stopping criteria}}{44}{section*.10}
+\contentsline {paragraph}{{Initial guess tolerance}}{45}{section*.11}
+\contentsline {section}{\numberline {4.3}{Numerical results: Navier-Stokes equations}}{45}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}{Convergence results for a 2D smooth solution}}{46}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}{Convergence results for a 3D smooth solution}}{47}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}{Preconditioning with LSC and PCD}}{48}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}{Numerical results: Maxwell's equations}}{49}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}{Convergence results for a 2D smooth solution}}{50}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}{Convergence results for a 3D smooth solution}}{51}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}{Preconditioning}}{52}{subsection.4.4.3}
+\contentsline {subsubsection}{{2D example}}{52}{section*.22}
+\contentsline {subsubsection}{{3D example}}{53}{section*.24}
+\contentsline {section}{\numberline {4.5}{Numerical results: MHD problem}}{54}{section.4.5}
+\contentsline {subsection}{\numberline {4.5.1}{Convergence results for a 2D smooth solution}}{54}{subsection.4.5.1}
+\contentsline {subsection}{\numberline {4.5.2}{Convergence results for a 3D smooth solution}}{56}{subsection.4.5.2}
+\contentsline {subsection}{\numberline {4.5.3}{Parameter tests}}{58}{subsection.4.5.3}
+\contentsline {subsubsection}{{Viscosity test}}{58}{section*.34}
+\contentsline {subsubsection}{{Coupling number test}}{59}{section*.36}
+\contentsline {section}{\numberline {4.6}{Preconditioned MHD problem}}{60}{section.4.6}
+\contentsline {subsection}{\numberline {4.6.1}{Picard iteration}}{61}{subsection.4.6.1}
+\contentsline {subsubsection}{{Preconditioned parameter tests}}{61}{section*.38}
+\contentsline {subsection}{\numberline {4.6.2}{Magnetic Decoupling}}{63}{subsection.4.6.2}
+\contentsline {subsubsection}{{Preconditioned parameter tests}}{63}{section*.41}
+\contentsline {subsubsection}{{Preconditioned 3D results}}{65}{section*.45}
+\contentsline {subsection}{\numberline {4.6.3}{Complete Decoupling}}{65}{subsection.4.6.3}
+\contentsline {subsubsection}{{Preconditioned parameter tests}}{66}{section*.47}
+\contentsline {subsubsection}{{Preconditioned 3D results}}{68}{section*.51}
+\contentsline {chapter}{\numberline {5}{Conclusions and future work}}{69}{chapter.5}
+\contentsline {section}{\numberline {5.1}{Conclusions}}{69}{section.5.1}
+\contentsline {section}{\numberline {5.2}{Future work}}{72}{section.5.2}
+\contentsline {chapter}{{Bibliography}}{76}{chapter*.53}
+\contentsline {chapter}{Appendices}{86}{section*.54}
+\contentsline {chapter}{\numberline {A}{Curl operators and cross products}}{87}{Appendix.a.A}
+\contentsline {section}{\numberline {A.1}{2D curl}}{87}{section.a.A.1}
+\contentsline {section}{\numberline {A.2}{3D curl}}{88}{section.a.A.2}
+\contentsline {chapter}{\numberline {B}{Krylov subspace methods}}{89}{Appendix.a.B}
+\contentsline {paragraph}{{Basis computations}}{90}{section*.55}
+\contentsline {paragraph}{{Optimality criteria}}{92}{section*.56}
+\contentsline {paragraph}{{Preconditioning}}{93}{section*.57}

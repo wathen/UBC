@@ -1,0 +1,210 @@
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+%
+\begin{document}
+\section*{FULL: $\kappa = 1,\nu = 10, \nu_m = 1e4$}
+
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+  l &      DoF &    Soln Time &  picard iterations &  Outer its &  Inner its \\
+\hline
+           4 &     6,180 &     1.192500 &                  4 &         17 &         13 \\
+           5 &    24,132 &     3.582500 &                  4 &         6 &         14 \\
+           6 &    95,364 &    13.290000 &                  5 &         12 &         13 \\
+           7 &   379,140 &    96.188000 &                  5 &         15 &         16 \\
+           8 &  1,511,940 &   552.698000 &                  5 &         17 &         17 \\
+           9 &  6,038,532 &  1389.535455 &                 11 &          8 &         18 \\
+    \hline
+\end{tabular}
+\caption{Outer Tol:   1e-06,       Inner Tol:    1e-06}
+
+\end{center}
+\end{table}
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6,180 &     0.7375 &                  4 &         15 &         11 \\
+5 &    24,132 &     3.1250 &                  4 &         16 &         10 \\
+6 &    95,364 &    17.6350 &                  4 &         17 &         10 \\
+7 &   379,140 &   102.9075 &                  4 &         17 &         15 \\
+8 &  1,511,940 &   482.0720 &                  5 &         15 &         16 \\
+9 &  6,038,532 &  1502.8700 &                  6 &         11 &         13 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06,       Inner Tol:    1e-05}
+
+\end{center}
+\end{table}
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6,180 &     0.752500 &                  4 &         17 &          8 \\
+ 5 &    24,132 &     2.667500 &                  4 &         16 &         10 \\
+ 6 &    95,364 &    11.072000 &                  5 &         13 &         10 \\
+ 7 &   379,140 &    73.170000 &                  4 &         17 &         10 \\
+ 8 &  1,511,940 &   225.831667 &                 12 &         10 &         11 \\
+ 9 &  6,038,532 &  2282.706250 &                  8 &         17 &         10 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06,       Inner Tol:    1e-04}
+
+\end{center}
+\end{table}
+
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6,180 &     0.560000 &                  4 &         19 &          7 \\
+5 &    24,132 &     2.147500 &                  4 &         21 &          5 \\
+6 &    95,364 &    10.520000 &                  4 &         22 &          4 \\
+7 &   379,140 &    55.115000 &                  4 &         21 &          7 \\
+8 &  1,511,940 &   432.436000 &                  5 &         29 &          7 \\
+9 &  6,038,532 &  1453.753333 &                  6 &         19 &          8 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06,       Inner Tol:    1e-03}
+
+\end{center}
+\end{table}
+
+
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6180 &     5.460000 &                  4 &         28 &         11 \\
+5 &    24132 &     3.570000 &                  4 &         18 &          9 \\
+6 &    95364 &    14.880000 &                  4 &         16 &         10 \\
+7 &   379140 &   111.387500 &                  4 &         20 &         14 \\
+8 &  1511940 &   401.640000 &                  5 &         16 &         13 \\
+9 &  6038532 &  1291.731429 &                  7 &          9 &         16 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06, Inner Tol:    [1e-05, 2e-05,3e-05,4e-05,5e-05,6e-05,7e-05]}
+
+\end{center}
+\end{table}
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6180 &     0.977500 &                  4 &         18 &          7 \\
+5 &    24132 &  1589.292500 &                  4 &        391 &         24 \\
+6 &    95364 &    12.462000 &                  5 &         15 &          7 \\
+7 &   379140 &    95.385000 &                  4 &         18 &         12 \\
+8 &  1511940 &   333.484000 &                  5 &         15 &          9 \\
+9 &  6038532 &  1215.762222 &                  9 &         11 &         11 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06 Inner Tol:    [5e-05,0.0001,0.00015,0.0002,0.00025,0.0003,0.00035,0.0004,0.00045]}
+
+\end{center}
+\end{table}
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+4 &     6180 &     0.655000 &                  4 &         17 &          8 \\
+5 &    24132 &     2.575000 &                  4 &         18 &          7 \\
+6 &    95364 &    11.270000 &                  5 &         15 &          8 \\
+7 &   379140 &    68.420000 &                  4 &         17 &          8 \\
+8 &  1511940 &   379.842000 &                  5 &         20 &          9 \\
+9 &  6038532 &  1940.783846 &                 13 &         16 &          6 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06 Inner Tol:    [0.0001,0.0002,0.0003,0.0004,0.0005,0.0006,0.0007,0.0008,0.0009,0.001,0.0011,0.0012,0.0013]}
+
+\end{center}
+\end{table}
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$l$ &    Dofs & Soln Time & Picard Its & Outer Its & Inner Its \\
+\hline
+ 4 &     6180 &      1.364 &                  5 &         32 &         12 \\
+ 5 &    24,132 &      5.602 &                  5 &         32 &         14 \\
+ 6 &    95,364 &     35.694 &                  5 &         42 &         13 \\
+ 7 &   379,140 &     62.528 &                  5 &         27 &         10 \\
+ 8 &  1,511,940 &    329.054 &                  5 &         32 &         13 \\
+\hline
+\end{tabular}
+\caption{Outer Tol:   1e-06 Inner Tol:    [1e-06, 9.999999999999999e-06, 9.999999999999999e-05, 0.001, 0.001]}
+
+\end{center}
+\end{table}
+
+
+
+% \newpage
+\section*{CD: $\kappa = 1,\nu = 10, \nu_m = 1e4$}
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{lrrrrrr}
+\hline
+{} &  l &      DoF &  Soln Time &  picard iterations &  S iters &  M iters \\
+\hline
+ 4 &     6180 &   0.031555 &                  5 &        30 &        3 \\
+ 5 &    24,132 &   0.140316 &                  5 &        29 &        3 \\
+ 6 &    95,364 &   0.783560 &                  5 &        29 &        3 \\
+ 7 &   379,140 &   4.841309 &                  5 &        29 &        3 \\
+ 8 &  1,511,940 &  35.834068 &                  5 &        40 &        4 \\
+\hline
+\end{tabular}
+\caption{S Tol:   1e-06, M Tol:    1e-06]}
+
+\end{center}
+\end{table}
+
+
+
+
+\end{document}

@@ -1,0 +1,9 @@
+\beamer@endinputifotherversion {3.33pt}
+\beamer@sectionintoc {1}{Problem background}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{Navier-Stokes Equations}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Maxwell's Equations}{5}{0}{1}
+\beamer@sectionintoc {2}{MHD}{7}{0}{2}
+\beamer@sectionintoc {3}{Discretisation}{8}{0}{3}
+\beamer@sectionintoc {4}{Preconditioning}{11}{0}{4}
+\beamer@sectionintoc {5}{Numerical results}{18}{0}{5}
+\beamer@sectionintoc {6}{Future work}{19}{0}{6}

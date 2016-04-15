@@ -1,0 +1,128 @@
+
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+%
+\newcommand{\uu}[1]{\boldsymbol #1}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+\begin{document}
+\subsection{Schur complement preconditioner}
+
+We start our analysis with an ideal version of~\eqref{eq:mhd_pc_ls}, $\mathcal{M}_{\rm schurMH}$, which corresponds
+to combining ${\mathcal M}_{\rm NS}$ in \eqref{eq:NS_precond} with $F$ replacing $\widehat{F}$, together with ${\mathcal M}_{\rm idealMX}$ in~\eqref{eq:maxwell_pc_ideal}, along with a Schur complement based on the coupling terms: % to precondition the Maxwell sub-system:
+\begin{equation} 
+\label{eq:mhd_pc_schur}
+\mathcal{M}_{\rm schurMH} =
+\left(
+\begin{array}{cccc}
+  F + C^T ( M + D^T L^{-1} D)^{-1} C  & B^T & C^T & 0\\
+0 & -\widehat{S} & 0 & 0 \\
+0 & 0 & M + D^T L^{-1} D & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right).
+\end{equation}
+
+
+\begin{theorem}
+\label{thm:mhd_outer_schur}
+The matrix $\mathcal{M}_{\rm schurMH}^{-1} \mathcal{K}_{\rm MH} $ has an eigenvalue $\lambda = 1$ with algebraic multiplicity of at least $n_b+n_c$ where $n_c$ is the dimension of the nullspace of $C$ and an eigenvalue $\lambda = -1$ with  algebraic multiplicity of at least $m_b$. The eigenvector corresponding to $\lambda=1$ is: $(u_c, -\widehat{S}^{-1}B u_c, b, L^{-1} D b)$ with $u_c$ in the nullspace of $C$ and $b$ anything.
+\end{theorem}
+
+\begin{proof}
+The corresponding eigenvalue problem is
+ \begin{equation*}
+ \hspace{-3mm}   % Chen: a small manipulation to avoid black thick vertical line; remove later
+\left(
+\begin{array}{cccc}
+F & B^T & C^T & 0\\
+B & 0 & 0& 0\\
+-C & 0& M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+u\\
+p\\
+b\\
+r
+\end{array}
+\right)
+=
+\lambda 
+\left(
+\begin{array}{cccc}
+  F + C^T ( M + D^T L^{-1} D)^{-1} C  & B^T & C^T & 0\\
+0 & -\widehat{S} & 0 & 0 \\
+0 & 0 & M + D^T L^{-1} D & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right)
+\left(
+\begin{array}{c}
+u\\
+p\\
+b\\
+r
+\end{array}
+\right).
+\end{equation*}
+The four block rows can be written as
+\begin{eqnarray}
+    \label{eq:outer_row1_schur} (1-\lambda) (Fu + B^T p+ C^T b) - \lambda C^T(M+D^TL^{-1} D)^{-1}Cu   &=& 0,\\
+    \label{eq:outer_row2_schur} B u &=& -\lambda \widehat{S}\, p,\\
+    \label{eq:outer_row3_schur} (\lambda -1) C u + (1 - \lambda) M b - \lambda D^T L^{-1} D b + D^T r &=& 0,\\
+    \label{eq:outer_row4_schur} D b &=& \lambda L r.
+\end{eqnarray}
+
+If $\lambda = 1$, \eqref{eq:outer_row1_schur} is satisfied if
+$$C^T(M+D^TL^{-1} D)^{-1}Cu = 0.$$ This only happens when $u = 0$ or $u \in
+\mbox{Null}(C)$. Using $u_c$ to denote the nullspace vector of $C$ then \eqref{eq:outer_row2_schur} simplifies to:
+$$p = -\widehat{S}^{-1}B u_c.$$
+Equation~\eqref{eq:outer_row4_schur} leads to $r = L^{-1} D b.$
+If this holds, \eqref{eq:outer_row3_schur} is readily satisfied.
+Therefore, $(u_c, -\widehat{S}^{-1} B u_c, b, L^{-1} D b)$ is an eigenvector corresponding to $\lambda=1$. There exist $n_c$ linearly independent such $u$'s and $n_b$ linearly independent such $b$'s. There are at least $n_c+n_b$ linearly independent nonzero vectors satisfying the eigenvalue problem when $\lambda = 1$. It follows that $\lambda = 1$ is an eigenvalue with algebraic multiplicity of at least $n_c + n_b$.
+
+If $\lambda = -1$, \eqref{eq:outer_row4_schur} leads to $r = -L^{-1} D b.$
+Substituting it into~\eqref{eq:outer_row3_schur}, we obtain $Cu = Mb.$ If $b=Gs$ is a discrete gradient, with the gradient matrix~$G$ defined in~\eqref{eq:gradient}, then $Mb = 0$ and $C^T b = 0$. If we take $u=0$, then $Cu = 0$ and the requirement $Cu = Mb$ is satisfied.
+If $u=0$ and $b=Gs$ is a discrete gradient, equation~\eqref{eq:outer_row1_schur} becomes $B^Tp = 0$. Since $B$ has full row rank, this implies $p=0$.
+
+Therefore, if $b=Gs$ is a discrete gradient, then $(0, 0, Gs, -L^{-1}D Gs)$ is an eigenvector corresponding to $\lambda = -1$. According to the discrete Helmholtz decomposition~\eqref{eq:helmholtz}, there are $m_b$ discrete gradients. Therefore $\lambda = -1$ is an eigenvalue with algebraic multiplicity at least  $m_b$.
+\end{proof}
+
+\begin{remark}
+In our experiments, we have observed the eigenvalue $\lambda = 1$ has algebraic multiplicity of exactly $n_u+n_b$ and the eigenvalue $\lambda = -1$ has algebraic multiplicity of exactly $m_b$. Proving this may be difficult, though, due to complicated generalized eigenvalue problems that arise in the calculation.
+\end{remark}
+
+Theorem~\ref{thm:mhd_outer_schur} shows that $\mathcal{M}_{\rm idealMH}^{-1} \mathcal{K}_{\rm MH}$ has tightly clustered eigenvalues $\lambda=\pm 1$.  Since we have provided explicit expressions for the eigenvectors associated with $\lambda= \pm 1$, we know that the geometric multiplicities of these two eigenvalues are equal to their algebraic multiplicity.
+We thus expect a good convergence behavior for  $\mathcal{M}_{\rm schurMH}^{-1} \mathcal{K}_{\rm MH}$.
+
+
+
+\end{document}

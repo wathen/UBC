@@ -1,0 +1,82 @@
+
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+%\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage{setspace}
+\newcommand{\uu}[1]{\boldsymbol #1}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{fullpage}
+\lstset{language=C++,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+\doublespace
+\begin{document}
+
+
+Using scalar mass matrix for the (4,4) block. Inexact inner solves with
+tolerance 1e-3
+
+
+
+\begin{tabular}{lrrrrrll}
+\hline
+l &     DoF &  AV solve Time & picard iterations & Av its\\
+\hline
+ 1 &      51 &       0.008811 &                     5 &         13.0  \\
+ 2 &     163 &       0.035556 &                     5 &         28.2  \\
+ 3 &     579 &       0.072274 &                     5 &         39.4  \\
+ 4 &    2179 &       0.164192 &                     5 &         42.6  \\
+ 5 &    8451 &       0.591390 &                     5 &         49.8  \\
+ 6 &   33283 &       2.381965 &                     5 &         53.6  \\
+ 7 &  132099 &       9.377693 &                     5 &         54.0  \\
+ 8 &  526339 &      42.330504 &                     5 &         55.4  \\
+9 &  2101251 &     269.247755 &                     5 &         57.8 \\  
+10 &  8396803 &   11231.974669 &                 5 &         62.6 \\
+\hline
+\end{tabular}
+
+
+
+Using scalar mass matrix for the (4,4) block. Inexact inner solves with
+tolerance 1e-4
+
+\begin{tabular}{lrrrrrll}
+\toprule
+l &     DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its\\
+\midrule
+ 1 &      51 &       0.008231 &           0.231961 &                  5 &         12.4  \\
+ 2 &     163 &       0.041581 &           0.319948 &                  5 &         27.2  \\
+ 3 &     579 &       0.081598 &           0.557203 &                  5 &         38.2  \\
+ 4 &    2179 &       0.199670 &           1.302839 &                  5 &         42.0  \\
+ 5 &    8451 &       0.771288 &           4.806323 &                  5 &         49.2  \\
+ 6 &   33283 &       3.099162 &          18.810675 &                  5 &         53.0  \\
+ 7 &  132099 &      12.105493 &          74.148543 &                  5 &         54.0  \\
+ 8 &  526339 &      55.004821 &         327.650720 &                  5 &         54.8  \\
+ 9 &  2101251 &     259.521469 &        1509.033579 &                  5 &         57.8 & 
+\bottomrule
+\end{tabular}
+
+\end{document}

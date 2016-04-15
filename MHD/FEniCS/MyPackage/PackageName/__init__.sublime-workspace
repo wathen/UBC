@@ -1,0 +1,997 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"As",
+				"Assemble	(PETScMatOps.py)"
+			],
+			[
+				"asembl",
+				"Assembly"
+			],
+			[
+				"Print",
+				"PrintFuncs"
+			],
+			[
+				"yes",
+				"Yes"
+			],
+			[
+				"Vec",
+				"VecLagrange"
+			],
+			[
+				"arra",
+				"arrayToVec	(MHDmatrixSetup.py)"
+			],
+			[
+				"Fma",
+				"Fmag"
+			],
+			[
+				"Fmag",
+				"FmagP"
+			],
+			[
+				"bcr",
+				"bcrVec"
+			],
+			[
+				"pro",
+				"projection"
+			],
+			[
+				"Ex",
+				"Expression"
+			],
+			[
+				"Vector",
+				"VectorFunctionSpace"
+			],
+			[
+				"Hipt",
+				"HiptmairMatrices"
+			],
+			[
+				"Hip",
+				"HiptmairMatrices"
+			],
+			[
+				"Trial",
+				"TrialFunction"
+			],
+			[
+				"Bubb",
+				"BubbleDOF"
+			],
+			[
+				"geom",
+				"geometry	(MHDmatrixSetup.py)"
+			],
+			[
+				"end",
+				"end{pmatrix}	presentation.tex"
+			],
+			[
+				"to",
+				"toarray"
+			],
+			[
+				"csr",
+				"csr_matrix"
+			],
+			[
+				"Hi",
+				"HiptmairMatrices"
+			],
+			[
+				"linear",
+				"MatrixLinearFluids"
+			],
+			[
+				"get",
+				"getSubMatrix"
+			],
+			[
+				"ks",
+				"kspMX"
+			],
+			[
+				"Sa",
+				"Saddle_is"
+			],
+			[
+				"Dir",
+				"DirichletBC"
+			],
+			[
+				"ksp",
+				"kspScalar"
+			],
+			[
+				"dat",
+				"dataZ"
+			],
+			[
+				"std",
+				"std::endl"
+			],
+			[
+				"data",
+				"dataX"
+			],
+			[
+				"edge",
+				"edgeVERTICES"
+			],
+			[
+				"Curl",
+				"CurlMass"
+			],
+			[
+				"col",
+				"column"
+			],
+			[
+				"st",
+				"std::endl"
+			],
+			[
+				"dol",
+				"dolfin_edge"
+			],
+			[
+				"ef",
+				"edge2dof"
+			],
+			[
+				"edg",
+				"edgeVALUES"
+			],
+			[
+				"cell",
+				"cellDOF"
+			],
+			[
+				"d_",
+				"dolfin_cell"
+			],
+			[
+				"dolf",
+				"dolfin_cell"
+			],
+			[
+				"if",
+				"ife	Ifelse"
+			],
+			[
+				"U",
+				"uNS"
+			],
+			[
+				"full",
+				"Full"
+			],
+			[
+				"SOl",
+				"SolTime"
+			],
+			[
+				"FUll",
+				"Full"
+			],
+			[
+				"ITE",
+				"IterType"
+			],
+			[
+				"F",
+				"Fspace"
+			],
+			[
+				"Exa",
+				"ExactP"
+			],
+			[
+				"arr",
+				"arrayToVec"
+			],
+			[
+				"reshit",
+				"reshistfor"
+			],
+			[
+				"It",
+				"IterType"
+			],
+			[
+				"ITe",
+				"IterType"
+			],
+			[
+				"Co",
+				"CoupleTerm"
+			],
+			[
+				"eli",
+				"eliminate_zeros"
+			],
+			[
+				"Opt",
+				"OptDB"
+			],
+			[
+				"Pre",
+				"Pressure"
+			],
+			[
+				"Mu",
+				"MUsave"
+			],
+			[
+				"ge",
+				"getSubVector"
+			],
+			[
+				"Exac",
+				"ExactSol"
+			],
+			[
+				"vect",
+				"vector"
+			],
+			[
+				"Lapc",
+				"LabJackPython"
+			],
+			[
+				"degr",
+				"degree_rise=8"
+			],
+			[
+				"nor",
+				"norm_type"
+			],
+			[
+				"mul",
+				"multiplicative"
+			],
+			[
+				"NS",
+				"NS_couple"
+			],
+			[
+				"iter",
+				"iterations"
+			],
+			[
+				"DOl",
+				"DOLFIN_EPS"
+			],
+			[
+				"DOLFI",
+				"DOLFIN_EPS"
+			],
+			[
+				"Veco",
+				"VectorFunctionSpace"
+			],
+			[
+				"bc",
+				"bcu2"
+			],
+			[
+				"boun",
+				"boundaries"
+			],
+			[
+				"solve",
+				"solver"
+			],
+			[
+				"en",
+				"endpython	FEniCS.tex"
+			],
+			[
+				"la",
+				"kspLapl"
+			],
+			[
+				"curcr",
+				"kspCurlCurl"
+			],
+			[
+				"set",
+				"setType"
+			],
+			[
+				"ass",
+				"assemble_system"
+			],
+			[
+				"PCD",
+				"PCD	class"
+			],
+			[
+				"uB",
+				"uBLAS"
+			],
+			[
+				"RHS",
+				"RHSform"
+			],
+			[
+				"PE",
+				"PETSc"
+			],
+			[
+				"Pe",
+				"PETScOption"
+			],
+			[
+				"pl",
+				"plot	function"
+			],
+			[
+				"p",
+				"pylab	import"
+			],
+			[
+				"impo",
+				"import	keyword"
+			],
+			[
+				"V",
+				"vecToArray	function"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/LaTeXTools/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/SublimeREPL/sublimerepl_build_system_hack.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/LaTeXing/LaTeX.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					"Clean up Files"
+				],
+				[
+					"Packages/LaTeXTools/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/SublimeREPL/sublimerepl_build_system_hack.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/LaTeXing/LaTeX.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					"Primary Quick Build"
+				],
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					"Choose Quick Build"
+				],
+				[
+					"Packages/LaTeXing/LaTeX.sublime-build",
+					"Clean up Files"
+				],
+				[
+					"Packages/LaTeXTools/LaTeX.sublime-build",
+					""
+				],
+				[
+					"Packages/SublimeREPL/sublimerepl_build_system_hack.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/LaTeXing/LaTeX.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				],
+				[
+					"Packages/SublimeREPL/sublimerepl_build_system_hack.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 375.0,
+		"last_filter": ":w",
+		"selected_items":
+		[
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				":s",
+				":w - Save"
+			],
+			[
+				"plain",
+				"Set Syntax: Plain Text"
+			],
+			[
+				"txt",
+				"Set Syntax: Plain Text"
+			],
+			[
+				"la",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"lat",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"relp",
+				"SublimeREPL: R"
+			],
+			[
+				"relp r",
+				"SublimeREPL: R"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"r",
+				"R Application Switch"
+			],
+			[
+				"R",
+				"R Application Switch"
+			],
+			[
+				"enhance",
+				"Set Syntax: Enhanced-R"
+			],
+			[
+				"enhan",
+				"Set Syntax: Enhanced-R"
+			],
+			[
+				"RELP",
+				"Set Syntax: Io Repl"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"side",
+				"View: Toggle Side Bar"
+			],
+			[
+				"late",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"bash",
+				"Set Syntax: Shell Script (Bash)"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"set",
+				"Set Syntax: R"
+			],
+			[
+				"LATEX",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"syntax la",
+				"Set Syntax: LaTeXing"
+			],
+			[
+				"intsall",
+				"Package Control: Install Package"
+			],
+			[
+				"syan late",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"latex",
+				"LaTeXTools: View PDF"
+			],
+			[
+				"LaTeXTools: Reconfigure and migrate settings",
+				"LaTeXTools: Reconfigure and migrate settings"
+			],
+			[
+				"instal ",
+				"Package Control: Install Package"
+			],
+			[
+				"matl",
+				"Set Syntax: MATLAB"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 453.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MyPackage/PackageName/GeneralFunc/__init__.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/Maxwell.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Laplacian/Laplacian.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/CG/common/common.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/CG/common/BiLinear.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/MHDmatrixSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/StabNS/NSpreconditioner.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/StabNS/NSprecondSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/StabNS/Stab3D.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/StabNS/mini3d.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/StabNS/Stab.py",
+		"/Users/michaelwathen/Dropbox/MichaelWathenPhD/Paper/gsw2015.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Solver.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/MHDmulti.py",
+		"/opt/local/share/texmf-texlive/tex/latex/caption/caption.sty",
+		"/Users/michaelwathen/Dropbox/MichaelWathenPhD/Dominik/Questions.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/THESIS/Results/Results.tex",
+		"/Users/michaelwathen/Dropbox/MichaelWathenPhD/Dominik/ref.bib",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/MHDfluid.py",
+		"/Users/michaelwathen/Dropbox/MichaelWathenPhD/Paper/latex/paper6.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/CG/common/BiForms.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/MHDmatrixPrecondSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/MHDmatrixSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/GradMatrixGenerator.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/PETSc.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/PETScTest.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/CurlCurl.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/CurlCurlSecondOrder.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/HiptmairPrecond.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/HiptmairSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/CheckPetsc4py.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/MatrixOperations.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/test1.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/MHDfluid3d.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/PETSCtest.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/2d_nu=1.0_nu_m=10.0_kappa=10.0Table1.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/PaperStab/Draft7/paper.tex",
+		"/Users/michaelwathen/Dropbox/Mike/Pano.tex",
+		"/Users/michaelwathen/Dropbox/Mike/try.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/Maxwell/precond/Maxwell.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/Maxwell/Maxwell.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/MatrixOperations (lime's conflicted copy 2014-04-15).py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/FullMaxwell.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/Maxwell/MaxwellPrecond.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/Maxwell/Hiptmair/MaxwellMixed.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/HiptmairTests/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/test1.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/FieldSplit/MaxwellNoPetsc.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MaxwellTest/Maxwells_test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MaxwellTest/test.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MaxwellTest/test2.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MaxwellClass/FullMaxwell.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/PaperStab/paper.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/TH/MHDfluid.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/MHDfluid.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/MHDmulti.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/large/MHDfluid3d.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/large/Solver.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/MatrixMulti.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/Classes/StokesPrecond.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/MHDmatrixSetup.py",
+		"/Users/michaelwathen/Dropbox/PHDResearch/Eindhoven/Presentation/presentation.tex",
+		"/Users/michaelwathen/Dropbox/PHDResearch/Eindhoven/Abstract/abstract.tex",
+		"/Users/michaelwathen/Downloads/hugin-2015.0.0/README",
+		"/Users/michaelwathen/Downloads/hugin-2015.0.0/README_JP",
+		"/Users/michaelwathen/Downloads/hugin-2015.0.0/TODO",
+		"/Users/michaelwathen/Library/Application Support/Sublime Text 3/Packages/User/LaTeX.sublime-settings",
+		"/Users/michaelwathen/.zshrc",
+		"/Users/michaelwathen/Documents/ToDoList.t",
+		"/Users/michaelwathen/Documents/Abs.t",
+		"/Users/michaelwathen/Dropbox/t.t",
+		"/Users/michaelwathen/Dropbox/MastersResearch/PaperStab/ref.bib",
+		"/Users/michaelwathen/Dropbox/project/Project1.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/Eindhoven/Presentation/presentation.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/THESIS/ref/ref.bib",
+		"/Users/michaelwathen/Dropbox/MastersResearch/RPE/ref.bib",
+		"/Users/michaelwathen/Dropbox/MastersResearch/PaperStab/ref_michael.bib",
+		"/Users/michaelwathen/Dropbox/MastersResearch/RPE/proposal.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/THESISpresentation/presentation.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/CG/common/common.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/PaperStab/paper.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/CG/common/BiLinear.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/P1P1/Solver.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/P1P1/MHDfluid3d.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/P1P1/MHDfluid.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/P1P1/3d_nu=1.0_nu_m=10.0_kappa=1.0.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/MHDfluid3d.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/MHDfluid3d.py",
+		"/Users/michaelwathen/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/michaelwathen/Dropbox/MichaelWathenPhD/Presentation/presentation.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/bubble/2d_nu=1.0_nu_m=10.0_kappa=1.012.tex",
+		"/Users/michaelwathen/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/ParamTests/Tables/IterType=Combined_n=7_mu=0.01_kappa=1.0_mu_m=10.0.tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/PaperStab/paper (Michael’s iMac's conflicted copy 2015-04-07).tex",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/Classes/MatrixOperations.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/GeneralisedEigen/MHDfluid.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/GeneralisedEigen/MHDmatrixPrecondSetup.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/GeneralisedEigen/GeneralisedEigenvalues.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/ShiftedMassApprox/MHDfluid.py",
+		"/Users/michaelwathen/Downloads/P.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/PaperStab/diff.t",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/GeneralisedEigen/MHDallatonce.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDpreconditioner.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/StabNS/NSprecondSetup.py",
+		"/Users/michaelwathen/Dropbox/mastersresearch/mhd/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDstabtest.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/Classes/HiptmairSetup.py",
+		"/Users/michaelwathen/Dropbox/mastersresearch/mhd/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDmatrixPrecondSetup.py",
+		"/Users/michaelwathen/Dropbox/mastersresearch/mhd/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDpreconditioner.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/ElmanMHD/elman.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/Classes/test.py",
+		"/Users/michaelwathen/Dropbox/mastersresearch/mhd/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDpreconditioner.pyc",
+		"/Users/michaelwathen/Dropbox/mastersresearch/mhd/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHDmatrixPrecondSetup.pyc",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/MHDstabtest.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/MHD.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/CG/common/Forms.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/Efficient/CurlCurl.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/ShiftCurlCurl/CppGradient/DiscreteGradient.cpp",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/StabNS/PCDsetup.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/PETSc.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/Precond/MHDstabtest.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/Classes/StokesPrecond.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/FieldSplit/Maxwell/MaxwellPrecond.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/Classes/HiptmairPrecond.py",
+		"/Users/michaelwathen/Dropbox/MastersResearch/MHD/FEniCS/MHD/Stabilised/Precond/MHDmatrixPrecondSetup.py"
+	],
+	"find":
+	{
+		"height": 29.0
+	},
+	"find_in_files":
+	{
+		"height": 110.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"'\\n\\n'",
+			",4",
+			"def M",
+			"f M",
+			"f NS",
+			"NS",
+			"MO",
+			"appearing",
+			"table ",
+			"table~",
+			"Solver",
+			"0.2",
+			"Magnetic",
+			"first",
+			"Second",
+			"|",
+			"(\\Omega)",
+			"{r}-{r}_h",
+			"(\\Omega)",
+			"\\uu{b}-\\uu{b}_h",
+			"\\uu{u}-\\uu{u}_h",
+			"Parallel",
+			"Greif",
+			"@",
+			"Maxwell",
+			"evaluation",
+			"Our pro",
+			"our propose",
+			"sec:discretization",
+			"stab",
+			"Split",
+			"split",
+			"[b]",
+			"10",
+			"20mm",
+			"sparse",
+			"wathen",
+			"figure",
+			"mhd_eigenvalue",
+			"N_C",
+			"L",
+			"A",
+			"self",
+			"lf",
+			"self.M",
+			"M",
+			"approx",
+			"MastersResearch",
+			"masters",
+			"2007",
+			"2006",
+			"2005",
+			"Golub",
+			"2014",
+			"Philip",
+			"Philips",
+			"philips",
+			"2004",
+			"hiptmair",
+			"elman",
+			"z",
+			"Maxwell",
+			"(2014",
+			"\\\\",
+			"Nede",
+			"Nedelec",
+			"convection",
+			"Maxwell sub",
+			"Related",
+			"related",
+			"&",
+			"ne",
+			"nedelec",
+			"width",
+			"0.1",
+			"scale",
+			"caption",
+			"figure",
+			"\\\\",
+			"n_u",
+			"\\item",
+			"preconditioning",
+			"MSc presentation",
+			"todo",
+			"\\\\",
+			"\\\\\n",
+			"\\\\",
+			"cannyFindLocalMaxima",
+			"bwmorph",
+			"cannyFindLocalMaxima",
+			"thinAndThreshold",
+			"selectThresholds",
+			"edgeStrengthNew = edgeStrength(i,j);",
+			"real",
+			"none",
+			"L",
+			"plot",
+			"F",
+			"di",
+			"sub",
+			"  ",
+			"cis",
+			"view",
+			"print",
+			"kspMX",
+			"A.getSubMatrix(self.u_is,self.u_is)",
+			"F",
+			"setPCSide",
+			"setFromOptions()",
+			"hypre",
+			"kspFp",
+			"kspA",
+			"kspF",
+			"<",
+			"platform",
+			"pcF",
+			"bc",
+			"# ",
+			"ScalarLaplacian",
+			"grad",
+			"W.sub(3)",
+			"W.sub(3).dim()",
+			"W.sub(2)",
+			"dim",
+			"mpi",
+			"boost",
+			"\\\\",
+			"&"
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 29.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 138.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "__init__.sublime-project",
+	"replace":
+	{
+		"height": 54.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Desktop/PetscConfigure"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 27.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 678.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 66.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

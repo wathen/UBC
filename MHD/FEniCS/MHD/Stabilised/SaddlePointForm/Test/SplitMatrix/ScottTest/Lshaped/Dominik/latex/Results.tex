@@ -1,0 +1,104 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{bm}
+%\usepackage[notref,notcite]{showkeys}
+%\usepackage[dvipdfm]{hyperref}
+%\usepackage{hyperref}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+%\usepackage{epsfig,psfig}
+\usepackage{amsfonts,amsmath,latexsym}
+\usepackage{amsbsy}
+\usepackage{nicefrac}
+\usepackage{subcaption}
+% \usepackage{slashbox}
+\usepackage{color}
+\usepackage[usenames,dvipsnames]{xcolor}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%s
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% PROOF
+%
+%\newenvironment{rproof}{\addvspace{\medskipamount}\par\noindent{\it Proof:\/}}
+%{\unskip\nobreak\hfill$\Box$\par\addvspace{\medskipamount}}
+%
+% ROMENUM
+%
+
+% special SYMBOLS
+%
+\newcommand{\uu}[1]{\boldsymbol #1}                     % vector fields
+\newcommand{\uuu}[1]{\underline{#1}}                 % tensor fields
+\newcommand{\jmp}[1]{[\![#1]\!]}                     % jump
+\newcommand{\mvl}[1]{\{\!\!\{#1\}\!\!\}}             % mean value
+%
+% NORMS
+%
+\newcommand{\N}[1]{\|#1\|}                            % norm
+\newcommand{\tn}[1]{|\!|\!|#1|\!|\!|}             % triple norm
+%
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\curl}{\rm curl}
+\newcommand{\dvr}{\rm div}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+\newcommand{\fenics}{{\tt FEniCS} }
+
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\RE}[1]{{\bf\textcolor{red}       {#1}}}
+\newcommand{\re}[1]{{\textcolor{red}       {#1}}}
+\newcommand{\orange}[1]{{\textcolor{Orange}       {#1}}}
+
+\begin{document}
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccc}
+\hline
+$\ell$ &    Dofs $\uu{u}_h/p_h$ & $\|\uu{u}-\uu{u}_h\|_{L^2(\Omega)}$ & order & $\|\uu{u}-\uu{u}_h\|_{H^1(\Omega)}$ & order &$\|{p}-{p}_h\|_{L^2(\Omega)}$ & order  \\
+\hline
+  1 &     42/8 &  2.9742e-01 & - & 2.1371e+00 & - &  3.1095e+00 &      - \\
+  2 &    130/21 &  1.3831e-01 & 1.36 & 1.6315e+00 & 0.48 &  1.9048e+00 &      1.02 \\
+  3 &    450/65 &  5.1320e-02 & 1.60 & 1.1344e+00 & 0.59 &  1.2689e+00 &      0.72 \\
+  4 &   1,666/225 &  1.9262e-02 & 1.50 & 7.8207e-01 & 0.57 &  8.5963e-01 &      0.63 \\
+  5 &   6,402/833 &  7.4933e-03 & 1.40 & 5.3755e-01 & 0.56 &  5.8594e-01 &      0.59 \\
+  6 &  25,090/3,201 &  3.0492e-03 & 1.32 & 3.6899e-01 & 0.55 &  4.0057e-01 &      0.57 \\
+  7 &  99,330/12,545 &  1.2976e-03 & 1.24 & 2.5313e-01 & 0.55 &  2.7424e-01 &      0.55 \\
+  8 &  395,266/49,665 &  5.7285e-04 &     1.18 &  1.7360e-01 &     0.55 &  1.8790e-01 &      0.55 \\
+
+\hline
+\end{tabular}
+\caption{Convergence for 2D MHD singular solution}
+\label{tab:MHD_2D_smooth_fluids_velocity}
+\end{center}
+\end{table}
+
+
+
+\begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{cccccccccc}
+\hline
+$\ell$ &    Dofs $\uu{b}_h/r_h$ & $\|\uu{b}-\uu{b}_h\|_{L^2(\Omega)}$ & order & $\|\uu{b}-\uu{b}_h\|_{H({\rm curl},\Omega)}$ & order &$\|\uu{r}_h\|_{L^2(\Omega)}$ \\
+\hline
+  1 &     13/8 &  2.0522e-01 &     - &  2.0522e-01 &        - &  0.0000e+00 \\
+ 2 &     44/21 &  1.2596e-01 &     0.80 &  1.2596e-01 &        0.80 &  8.4489e-14 \\
+ 3 &    160/65 &  7.8280e-02 &     0.74 &  7.8280e-02 &        0.74 &  6.6627e-13 \\
+ 4 &    608/225 &  4.9022e-02 &     0.70 &  4.9022e-02 &        0.70 &  3.8403e-13 \\
+ 5 &   2,368/833 &  3.0809e-02 &     0.68 &  3.0809e-02 &        0.68 &  5.7991e-13 \\
+ 6 &   9,344/3,201 &  1.9390e-02 &     0.67 &  1.9390e-02 &        0.67 &  1.5252e-12 \\
+ 7 &  37,120/12,545 &  1.2211e-02 &     0.67 &  1.2211e-02 &        0.67 &  2.4183e-12 \\
+ 8 &  147,968/49,665 &  7.6912e-03 &     0.67 &  7.6912e-03 &        0.67 &  1.5161e-11 \\
+\hline
+\end{tabular}
+\caption{Convergence for 2D MHD singular solution (magnetic field)}
+\label{tab:MHD_2D_smooth_magnetic}
+\end{center}
+\end{table}
+
+\end{document}

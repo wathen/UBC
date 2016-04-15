@@ -1,0 +1,47 @@
+
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+%\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage{setspace}
+\newcommand{\uu}[1]{\boldsymbol #1}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{fullpage}
+\lstset{language=C++,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+\doublespace
+\begin{document}
+$$b_1 = \frac{2x}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \sin{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} - \frac{2y}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )}$$
+$$b_2 = \frac{2x}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} + \frac{2y}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \sin{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )}
+$$
+
+\begin{align*} \nonumber
+\frac{\partial b_2}{\partial x}=&- \frac{8 x^{2}}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} - \frac{ 4x y}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \sin{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} \\ &- \frac{ 4y^{2}}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} + \frac{2}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )}\\
+\frac{\partial b_1}{\partial y}=&\frac{ 4x^{2}}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} - \frac{ 4x y}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \sin{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} \\&+ \frac{8 y^{2}}{9\left(x^{2} + y^{2}\right)^{\frac{5}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )} - \frac{2}{3\left(x^{2} + y^{2}\right)^{\frac{2}{3}}} \cos{\left (\frac{2}{3} \operatorname{atan_{2}}{\left (y,x \right )} \right )}
+\end{align*}
+
+
+\end{document}

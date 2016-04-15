@@ -1,0 +1,782 @@
+\documentclass[12pt]{beamer}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphics, subfigure}
+%\pagestyle{empty}
+\usepackage{slashbox}
+\usepackage{colortbl}
+\usepackage{color}
+\newcommand{\hilight}[1]{\colorbox{yellow}{#1}}
+%\usepackage{soul}
+
+
+\usetheme[secheader]{Madrid}
+\usefonttheme[stillsansserifsmall]{serif}
+\usefonttheme[onlylarge]{structurebold}
+\usecolortheme[RGB={10,120,100}]{structure}
+\setbeamertemplate{navigation symbols}{}
+
+%\input{defs}
+
+
+\author[]{%
+  \underline{Michael Wathen}, Chen Greif, Dominik Sch\"{o}tzau \\
+  The University of British Columbia, Vancouver, Canada
+  }
+\title[]{Block Preconditioners for an Incompressible Magnetohydrodynamics Problem}
+\date[]{30\textsuperscript{th} October 2015 \\ SIAM ALA 2015 \\ Atlanta, GA
+}
+
+
+%\institute[]{University of British Columbia, Vancouver, Canada}
+
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkyellow}{rgb}{.8,.6,.04}
+\newcommand{\gr}[1]{\textcolor{darkgreen} {#1}}
+\newcommand{\wh}[1]{\textcolor{white}     {#1}}
+\newcommand{\dy}[1]{\textcolor{darkyellow}{#1}}
+\newcommand{\yb}[1]{\colorbox {yellow}    {#1}}
+\newcommand{\re}[1]{{\textcolor{red}       {#1}}}
+\newcommand{\bl}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\w}[1]{{\textcolor{white}{#1}}}
+
+\newcommand{\RE}[1]{{\bf\textcolor{red}       {#1}}}
+\newcommand{\GR}[1]{{\bf\textcolor{darkgreen} {#1}}}
+\newcommand{\DY}[1]{{\bf\textcolor{darkyellow}{#1}}}
+\newcommand{\BL}[1]{{\bf\textcolor{blue}{#1}}}
+\newcommand{\ssec}[1]{{\bf #1}}
+\newcommand{\rsec}[1]{{\bf\color{red}       #1}}
+\newcommand{\bsec}[1]{{\bf\color{blue}      #1}}
+\newcommand{\gsec}[1]{{\bf\color{darkgreen} #1}}
+\newcommand{\dom}{\mbox{\sf dom}}
+
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\minim}{\mathop{\mathrm{minimize}}}
+\newcommand{\minimize}[1]{\displaystyle\minim_{#1}}
+\newcommand{\maxim}{\mathop{\mathrm{maximize}}}
+\newcommand{\maximize}[1]{\displaystyle\maxim_{#1}}
+\newcommand{\st}{\mathop{\mathrm{subject\ to}}}
+\newcommand{\Null}{\mathop{\mathrm{Null}}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\I}{\mathcal{I}}
+
+
+\newcommand{\aheader}[2]{\action{#2}}
+% first argument: slide number to appear from, second argument: content of header
+\newcommand{\hiddencell}[2]{\action<#1->{#2}}
+% first argument: slide number to appear from, second argument: content of cell
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+
+\title{MHD}
+% \section{Introduction}
+
+% \begin{frame}
+
+% \frametitle{Continuous and Discrete Maxwell's equations}
+% \begin{tabular}{lrrrr}
+% \hline
+% {} &  Grid size &      DoF &  $\#$ iters &  Soln Time \\
+% \hline
+% 0 &       $   2^3$ &       81 &        1 &   4.25e-04 \\
+% 1 &       $   4^3$ &      375 &        3 &   6.03e-04 \\
+% 2 &       $   8^3$ &     2187 &        5 &   2.53e-03 \\
+% 3 &      $  16^3$ &    14739 &        5 &   1.96e-02 \\
+% 4 &      $  32^3$ &   107811 &        6 &   2.24e-01 \\
+% 5 &      $  64^3$ &   823875 &        6 &   2.28e+00 \\
+% 6 &     $ 128^3$ &  6440067 &        6 &   2.09e+01 \\
+% \hline
+% \end{tabular}
+
+% \end{frame}
+
+
+% \section{Overview}
+% \begin{frame}
+% \begin{center}
+%   Overview
+% \end{center}
+
+% \begin{itemize}
+%   \item Problem background: Setup, ...
+%   \item
+% \end{itemize}
+
+% \end{frame}
+
+\section{Problem background}
+\begin{frame}{Problem background}
+
+\begin{itemize}
+  \item MHD models electrically conductive fluids (such as liquid metals, plasma, salt water, etc) in an electic field
+  \pause
+  \item Applications: electromagnetic pumping, aluminium electrolysis, the Earth's molten core and solar flares
+  \pause
+  \item MHD couples electromagnetism (governed by Maxwell's equations) and fluid dynamics (governed by the Navier-Stokes equations)
+  % \pause
+  % \begin{itemize}
+  %   \item Movement of the conductive material that induces and modifies any existing electromagnetic field
+  %   \pause
+  %   \item Magnetic and electric fields generate a mechanical force on the fluid
+  % \end{itemize}
+\end{itemize}
+
+\end{frame}
+\section{MHD}
+\begin{frame}{MHD model: coupled Navier-Stokes and Maxwell's equations}
+
+\begin{subequations} \nonumber
+% \label{eq:mhd}
+\re{\begin{alignat}2
+% \label{eq:mhd1}
+ - \nu  \, \Delta{u} + ({u} \cdot \nabla)
+{u}+\nabla p  {\only<2>{\color{blue}}- \kappa\,
+(\nabla\times{b})\times{b}} &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd2}
+\nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd3}
+\kappa\nu_m  \, \nabla\times( \nabla\times {b})
++ \nabla r
+{\only<2>{\color{blue}}- \kappa \, \nabla\times({u}\times {b})}  &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd4}
+ \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},
+\end{alignat}}
+\end{subequations}
+with appropriate boundary conditions
+\pause
+\begin{itemize}
+  \item ${\color{blue}(\nabla\times{b})\times{b}}$:  Lorentz force accelerates the fluid particles in the direction normal to
+ the electric and magnetic fields
+
+  \item ${\color{blue} \nabla\times({u}\times {b})}$: electromotive force modifying the magnetic field
+\end{itemize}
+\end{frame}
+
+
+
+
+% \subsection{Navier-Stokes equations} % (fold)
+
+% \begin{frame}
+% \frametitle{Steady-state Navier-Stokes equations}
+% Incompressible Navier-Stokes Equations:
+
+% \begin{subequations}\nonumber
+%   \re{\begin{alignat}2
+%     - \nu  \, \Delta{u}+({u} \cdot \nabla){u} +\nabla p &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+%     \nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+%     u &= u_D & \qquad &\mbox{on $\partial \Omega$}
+%     \end{alignat}}
+% \end{subequations}%
+
+% \noindent where $\re{u}$ is the fluids velocity; $\re{p}$ is the fluids pressure; $\re{f}$ is the body force acting on the fluid and $\re{\nu}$ the kinematic viscosity
+
+
+% \end{frame}
+
+
+% \begin{frame}{Steady-state Navier-Stokes equations}
+
+% Corresponding linear system:
+% $$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+% A+0 & B^T \\
+% B & 0
+% \end{pmatrix}
+% \begin{pmatrix}
+% u\\p
+% \end{pmatrix}=
+% \begin{pmatrix}
+% f \\ 0
+% \end{pmatrix}
+% }$$
+% where $\re{A\in\mathbb{R}^{n_u\times n_u}}$ is the discrete Laplacian; $\re{O\in\mathbb{R}^{n_u\times n_u}}$ is the discrete convection operator and $\re{B\in\mathbb{R}^{m_u\times n_u}}$ is a discrete divergence operator with full row rank.
+
+% \vspace{2mm}
+
+% \bl{Note}: due to convection term the linear system is non-symmetric
+
+% \vspace{2mm}
+
+% For an extensive discussion of preconditioners we refer to \gr{Elman, Silvester and Wathen 2014}.
+
+% \end{frame}
+
+
+
+% \subsection{Maxwell's Equations} % (fold)
+% \begin{frame}{Time-Harmonic Maxwell in mixed form}
+% Maxwell operator in mixed form:
+% \begin{subequations}\nonumber
+%   \re{\begin{alignat}2
+%     \nabla\times( \nabla\times {b}) -k^2 b +\grad r &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+%     \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+%     b \times n &= b_D & \qquad &\mbox{on $\partial \Omega$},\\[.1cm]
+%     r &= 0& \qquad &\mbox{on $\partial \Omega$},
+%     \end{alignat}}\\[.1cm]
+% \end{subequations}
+% where $\re{b}$ is the magnetic vector field, $\re{r}$ is a scalar multiplier and $\re{k}$ is the wave number
+
+% \vspace{2mm}
+
+% \bl{Note:} for the MHD system $\re{k = 0}$
+
+% \end{frame}
+
+% \begin{frame}{Time-Harmonic Maxwell in mixed form}
+% Corresponding linear system:
+% \begin{equation}
+% \nonumber
+% \re{\begin{pmatrix}
+% M-k^2X & D^T \\
+% D & 0
+% \end{pmatrix}
+% \begin{pmatrix}
+% b \\
+% r
+% \end{pmatrix}
+% =
+% \begin{pmatrix}
+% g \\
+% 0
+% \end{pmatrix}},
+% \end{equation}
+% where $\re{M\in\mathbb{R}^{n_b\times n_b}}$ is the discrete curl-curl operator; $\re{X\in\mathbb{R}^{n_b\times n_b}}$ the discrete mass matrix; $\re{D\in\mathbb{R}^{m_b\times n_b}}$ the discrete divergence operator
+
+% \vspace{2mm}
+
+% \bl{Note:} $\re{M}$ is semidefinite with nullity $\re{m_b}$
+
+% \vspace{2mm}
+
+% A significant amount of literature on time-harmonic Maxwell: notably for us, work of \gr{Hiptmair \& Xu 2007} for solving shifted curl-curl equations in a fully scalable fashion
+
+
+
+% \end{frame}
+
+
+
+\section{Discretisation}
+\begin{frame}{Discretisation}
+
+\begin{itemize}
+  \item Finite element discretisation based on the formulation in \gr{Sch{\"o}tzau 2004}
+  \item Fluid variables: Taylor-Hood P2/P1
+  \item Magnetic variables: mixed {N\'{e}d\'{e}lec} element approximation N1/P1
+  \item {N\'{e}d\'{e}lec} elements capture solutions correctly on non-convex domains
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+Discretised and linearised MHD model:
+\begin{equation}
+\nonumber %\mathcal{K} x \equiv
+\re{\left(
+\begin{array}{cccc}
+A+O(u) & B^T & C(b)^T & 0\\
+B & 0 & 0 & 0 \\
+-C(b) & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},}
+\end{equation}
+with
+\begin{equation}\nonumber
+\re{\begin{array}{rl}
+r_u &= f- Au -O(u) u - C(b)^T b- B^T p,\\
+r_p &=-B u,\\
+r_b &=g-Mu+C(b)b-D^T r,\\
+r_r &=-D b
+\end{array}}
+\end{equation}
+% {\footnotesize$\re{C}$:~coupling terms; $\re{A}$~Laplacian operator; $\re{O}$~convection term; $\re{B}$~divergence operator; $\re{M}$:~curl-curl operator; $\re{D}$:~divergence operator}
+
+\vspace{2mm}
+\pause
+In some cases, it is possible to decouple
+\begin{itemize}
+\item Magnetic Decoupling (MD): if the coupling term is not large, just dump it and solve a block diagonal system
+\item Complete Decoupling (CD): if convection is small, then dump convective term and obtain symmetry
+\end{itemize}
+
+  \end{frame}
+
+\begin{frame}{A Few Comments}
+\begin{itemize}
+    \item Little has been done with respect to a preconditioned iterative solution method
+    \item   \gr{Phillips, Elman, Cyr, Shadid, and Pawlowski 2014}: block preconditioners for an exact penalty formulation, using nodal elements; resulting system is block 3-by-3
+    \item Results show good scalability with respect to the mesh
+    \item Our formulation: {N\'{e}d\'{e}lec} (edge) elements, giving rise to a richer finite element space, 4-by-4 system, but with a different set of challenges
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\section{Preconditioning}
+
+
+\begin{frame}{Ideal preconditioning}
+
+Non-singular $(1,1)$ block (as in Navier-Stokes)
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F & B^T\\
+0 & B F^{-1} B^T
+\end{pmatrix}}
+\end{equation}
+\gr{Murphy, Golub \& Wathen 2000} showed exactly two eigenvalues:~$\pm 1$ %and $\nicefrac{1}{2}\pm \nicefrac{\sqrt{5}}{2}$
+
+\vspace{5mm}
+\pause
+$\re{F}$ singular with nullity $\re{m}$ (as in time-harmonic Maxwell)
+
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F+B^T W^{-1} B & 0 \\
+0 & W
+\end{pmatrix}}, \ \mbox{where $\re{W}$ is SPD}
+\end{equation}
+\gr{Greif \& Sch{\"o}tzau 2006} showed exactly two eigenvalues: $\pm 1$
+
+\end{frame}
+
+\begin{frame}{Subproblem preconditioning}
+
+
+
+{\large Navier-Stokes:}
+
+\noindent Using PCD from \gr{Elman, Silvester \& Wathen 2014}
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}},\quad \re{\mathcal{P}_{\rm NS}=\left(\begin{array}{cc}
+F & B^T \\
+0 & S
+\end{array}\right)}, \quad \re{S =A_p F_p^{-1}Q_p}$$
+% where $\re{F=A+O}$ is the discrete convection diffusion operator. Shown in \gr{Elman, Silvester \& Wathen 2014} that
+% $$\re{\mathcal{P}_{\rm NS}=\left(\begin{array}{cc}
+% F & B^T \\
+% 0 & S
+% \end{array}\right)}, \quad \re{S =A_p F_p^{-1}Q_p}$$
+
+\vspace{5mm}
+
+{\large Mixed-Maxwell:}
+
+\noindent Using augmentation technique from \gr{Greif \& Sch{\"o}tzau 2007}
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+M & B^T \\
+B & 0
+\end{pmatrix}}, \quad \re{\mathcal{P}_{\rm M}=\left(\begin{array}{cc}
+M+X & 0 \\
+0 & L
+\end{array}\right)}$$
+
+\end{frame}
+% \begin{frame}{Navier-Stokes subproblem}
+
+% $$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+% F & B^T \\
+% B & 0
+% \end{pmatrix}}$$
+% where $\re{F=A+O}$ is the discrete convection diffusion operator. Shown in \gr{Elman, Silvester \& Wathen 2014} that
+% $$\re{\mathcal{P}_{\rm NS}=\left(\begin{array}{cc}
+% F & B^T \\
+% 0 & S
+% \end{array}\right)}, \quad \re{S =A_p F_p^{-1}Q_p}$$
+% is a good approximation to the Schur complement preconditioner. $\re{A_p}$:~pressure space Laplacian, $\re{F_p}$:~pressure space convection-diffusion operator, $\re{Q_p}$:~pressure space mass matrix
+% \end{frame}
+
+
+% \begin{frame}{Maxwell subproblem}
+% $$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+% M & B^T \\
+% B & 0
+% \end{pmatrix}}$$
+% \bl{Note:} M is highly rank deficient.
+
+% \gr{Greif \& Sch{\"o}tzau 2007} show that $\re{L}$ (scalar Laplacian) is the appropriate choice (from an inf-sup stability point of view)
+% $$\re{\mathcal{P}_{\rm iM}=\left(\begin{array}{cc}
+% M+B^T L^{-1} B & 0 \\
+% 0 & L
+% \end{array}\right)}$$
+% \pause
+% Practical preconditioner:
+% $$\re{\mathcal{P}_{\rm M}=\left(\begin{array}{cc}
+% M+X & 0 \\
+% 0 & L
+% \end{array}\right)}$$
+% where $\re{X}$ vector mass matrix is spectrally equivalent to $\re{B^T L^{-1} B}$
+% \end{frame}
+
+
+\begin{frame}{MHD problem}
+  Combining the Navier-Stokes and Maxwell preconditioners
+  $$\re{\mathcal{P}_{\rm MH} =
+  \left(
+  \begin{array}{cccc}
+F & C^T & B^T & 0\\
+-C & M+X & 0 & 0 \\
+0 & 0 & -S & 0\\
+0 & 0 & 0 & L
+  \end{array}
+  \right)}$$
+
+\vspace{2mm}
+
+\bl{Note:} $\re{{\mathcal{P}_{\rm MH}}}$ remains challenging to solve due to coupling terms. Schur complement approximation for velocity-magnetic unknowns
+
+$$\re{\mathcal{P}_{\rm schurMH} =
+\left(
+\begin{array}{cccc}
+F  + M_C & B^T & C^T & 0\\
+0 & M+X & 0 & 0 \\
+0 & 0 & S & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right)}$$
+where $\re{M_C = C^T (M + X)^{-1}C}$
+\end{frame}
+
+
+\begin{frame}{Spectral analysis (ideal preconditioner)}
+
+\bl{Note:} using $\re{X = B^T L^{-1} B}$ for eigenvalue analysis
+
+\begin{theorem}
+\label{thm:mhd_outer_ideal}
+The matrix $\re{\mathcal{P}_{\rm MH}^{-1} \mathcal{K}_{\rm MH} }$ has an eigenvalue $\re{\lambda = 1}$ with algebraic multiplicity of (at least) $\re{n_u + n_b}$ and an eigenvalue $\re{\lambda = -1}$ with  algebraic multiplicity of (at least) $\re{m_b}$.
+\end{theorem}
+
+\begin{theorem}
+\label{thm:mhd_outer_schur}
+The matrix $\re{\mathcal{P}_{\rm schurMH}^{-1} \mathcal{K}_{\rm MH}} $ has an eigenvalue $\re{\lambda = 1}$ with algebraic multiplicity of (at least) $\re{n_b+n_c}$ where $\re{n_c}$ is the dimension of the nullspace of $\re{C}$ and an eigenvalue $\re{\lambda = -1}$ with  algebraic multiplicity of (at least) $\re{m_b}$.
+\end{theorem}
+\end{frame}
+
+\begin{frame}{Eigenvalue distribution}
+
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[width=80mm]{figures/Eigen}
+
+    \caption{Real part of eigenvalues of preconditioned matrix~$\re{\mathcal{P}_{\rm schurMH}^{-1} \mathcal{K}_{\rm MH}}$ }
+    \end{center}
+\end{figure}
+
+
+
+
+\end{frame}
+
+
+\begin{frame}{Approximation for $\re{M_C}$}
+
+\begin{itemize}
+  \item Want to use identity
+$$\re{  \nabla \times \Delta^{-1} \nabla \times {g} = -{g}
+}$$
+proved in \gr{Phillips, Elman, Cyr, Shadid \& Pawlowski 2014}
+
+\item Challenge with our formulation is the shifted curl-curl operator
+
+\item We approximate the Laplacian for by a shifted curl-curl to yield
+$$\re{{M_C}\approx Q_s = {\kappa}{\nu_m}^{-1} {b} \times ({u}\times{b})}$$
+
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Approximation for $\re{M_C}$}
+
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[width=80mm]{figures/mass}
+    \end{center}
+    \caption{Eigenvalues of preconditioned matrix $\re{(F+Q_S)^{-1}(F+M_C)}$ }
+    \label{pics:blablabla}
+\end{figure}
+\end{frame}
+
+\section{Numerical results}
+
+\begin{frame}{Numerical Setup}
+
+{\large Software:}
+\begin{itemize}
+  \item Finite element software \re{\tt FEniCS}:
+  % \begin{itemize}
+  %   \item \re{\tt DOLFIN} problem-solving interface
+  %   \item \re{\tt FFC} compiler for finite element variational forms
+  %   \item \re{\tt FIAT}  finite element  tabulator
+  %   \item \re{\tt Instant} just-in-time compiler
+  %   \item \re{\tt UFC}  the code generator
+  %   \item \re{\tt UFL} form language
+  % \end{itemize}
+  \item Linear algebra software:
+  \begin{itemize}
+    \item \re{\tt PETSc} linear algebra wrapper features
+    \item \re{\tt HYPRE} as a multigrid solver
+    \item \re{\tt MUMPS} sparse direct solver
+  \end{itemize}
+\end{itemize}
+
+\vspace{3mm}
+
+{\large Scalable inner solvers:}
+  \begin{itemize}
+    \item Fluid matrices: AMG from \re{\tt HYPRE}
+    \item Magnetic matrices: Auxiliary Space Precondioner from \gr{Hiptmair \& Xu 2007}
+  \end{itemize}
+
+
+
+
+\end{frame}
+
+
+
+
+
+\begin{frame}{2D: smooth solution}
+
+
+\begin{table}
+\centering
+\begin{tabular}{cccccccccc}
+
+\hline
+\hline\\[-0.35cm]
+
+  $\ell$ & DoF &  time$_{\rm solve}$ &  time$_{\rm NL}$ &  it$_{\rm NL}$  & it$_{\rm av}^{\mbox \footnotesize D}$ & \only<1>{\w{it$_{\rm av}^{\rm I}$}}\only<2>{it$_{\rm av}^{\rm I}$} \\[0.05cm]
+\hline
+\hline
+ % 1 &     84 &  0.01 &    0.2 & 6 &    17.0 & \only<2>{17.0}  \\
+ % 2 &    268 &  0.05 &    0.4 & 6 &    18.3 & \only<2>{19.0}   \\
+ % 3 &    948 &  0.14 &    1.2 & 7 &    20.0 & \only<2>{23.3}  \\
+ 4 &   3,556 &  0.33 &    2.7 & 7 &   20.1 &  \only<1>{\w{24.4}}\only<2>{24.4}  \\
+ 5 &  13,764 &  1.11 &    9.2 & 7 &   20.4 & \only<2>{25.9}  \\
+ 6 &  54,148 &  4.48 &   37.2 & 7 &   20.9 & \only<2>{27.1}  \\
+ 7 & 214,788 & 20.32 &  166.4 & 7 &    21.4 & \only<2>{28.4}  \\
+ 8 & 855,556 & 94.29 &  762.0 & 7 &    21.8 & \only<2>{31.3}  \\
+ 9 &  3,415,044 & 486.53 & 3835.0 & 7 &  - & \only<2>{34.3}  \\
+ 10 &  13,645,828 &    2231.71 &  17944.6 & 7 &  - & \only<2>{34.0}  \\
+ \hline
+\hline
+
+\end{tabular}
+\caption{2D smooth: Number of nonlinear iterations and number of iterations to solve the MHD system with Tol = 1e-4, $\kappa$ = 1, $\nu$ = 1 and $\nu_m$ = 10}
+\label{tab:2Dsmoothbubble}
+\end{table}
+
+\end{frame}
+
+
+
+
+\begin{frame}{2D: smooth solution on L-shaped domain}
+\begin{table}
+\centering
+\begin{tabular}{ccccccccccc}
+\hline
+\hline\\[-0.35cm]
+  $\ell$ & DoF &  it$_{\rm NL}$ &  it$_{\rm av}^{\mbox \footnotesize D}$ \\[0.05cm]
+\hline
+\hline
+ 5 &   12,880 & 5 & 24.4 \\
+ 6 &   51,678 & 5  & 26.0 \\
+ 7 &  203,712 & 5  & 27.4 \\
+ 8 &  809,705 & 5  & 29.6 \\
+9 &  3,219,082 & -  & - \\
+\hline
+\end{tabular}
+\caption{2D unstructured L-shaped: Number of nonlinear iterations and number of iterations to solve the MHD system with Tol~=~1e-4, $\kappa$ = 1, $\nu$ = 1 and $\nu_m$ = 10. The iteration was terminated before completion for $\ell=9$ due to the computation reaching the prescribed time limit}
+\label{tab:2DsmoothLshape}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{2D: singular solution on L-shaped domain}
+
+\begin{table}
+\centering
+\begin{tabular}{ccccccccccc}
+\hline
+\hline\\[-0.35cm]
+  $\ell$ & DoF &  it$_{\rm NL}$ &  it$_{\rm av}^{\mbox \footnotesize D}$ \\[0.05cm]
+\hline
+\hline
+ % 1 &     , 71 & 4 &         10.5\\
+ % 2 &     ,216 & 4 &         14.0\\
+ % 3 &     ,740 & 4 &         13.8\\
+ 4 &    2,724 & 4 &         14.5\\
+ 5 &   10,436 & 4 &         15.8\\
+ 6 &   40,836 & 4 &         17.5\\
+ 7 &  161,540 & 4 &         18.5\\
+ 8 &  642,564 & 4 &         20.0\\
+ 9 &2,563,076 & 4 &         21.8\\
+
+\hline
+\end{tabular}
+\caption{2D singular solution on L-shaped: Number of nonlinear iterations and number of iterations to solve the MHD system with Tol~=~1e-4, $\kappa$ = 1, $\nu$ = 1 and $\nu_m$ = 10}
+\label{tab:2DLshape}
+\end{table}
+
+
+
+
+
+\end{frame}
+
+\begin{frame}{3D: smooth solution}
+% \begin{itemize}
+% \item Current goal: construct a high order (Taylor-Hood/{N\'{e}d\'{e}lec}) FE discretisation
+% \item This provides an accurate scheme and avoids stabilisation issues that are prevalent in lower order formulations.
+% \item Work in progress: implement with direct solvers, working on implementing the Hiptmair-Xu AMG preconditioning scheme.
+% \end{itemize}
+
+
+\begin{table}
+\centering
+\begin{tabular}{ccccccccccc}
+\hline
+\hline\\[-0.35cm]
+  $\ell$ & DoF &  time$_{\rm solve}$ &  time$_{\rm NL}$ &  it$_{\rm NL}$ & it$_{\rm av}^{\rm D}$ & \only<1>{\w{it$_{\rm av}^{\mbox \footnotesize I}$}}\only<2>{it$_{\rm av}^{\mbox \footnotesize I}$} \\[0.05cm]
+\hline
+\hline
+1 &     527 &  0.03 &     0.9 & 4 &  18.0 & \only<1>{\w{18.8}}\only<2>{18.8} \\
+2 &    3,041 &  0.22 &     3.5 & 3 &  22.3 & \only<2>{26.7} \\
+3 &   20,381 &  1.77 &    26.6 & 3 &  24.7 & \only<2>{37.0} \\
+4 &  148,661 & 22.11 &   237.0 & 3 &  26.0 & \only<2>{40.7} \\
+5 & 1,134,437 &206.43 &  2032.7 & 3 &  - & \only<2>{44.3} \\
+6 &  8,861,381 & 2274.28 & 19662.0 & 3 & - & \only<2>{50.0} \\
+\hline
+
+\end{tabular}
+\caption{3D smooth: Number of nonlinear iterations and number of iterations to solve the MHD system with Tol~=~1e-4, $\kappa$ = 1, $\nu$ = 1 and $\nu_m$ = 10}
+\label{tab:3Dsmoothbubble}
+\end{table}
+
+\only<1>{\w{Note:  things  not quite as good in terms of scalability}}
+\only<2>{\bl{Note}:  things  not quite as good in terms of scalability}
+
+\end{frame}
+
+
+\section{Future Work}
+\begin{frame}{Future work}
+
+\begin{itemize}
+\item Further develop code and release on a public repository
+\item Robustness with respect to kinematic viscosity
+\item Other non-linear solvers
+\item Different mixed finite element discretisations
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}{References}
+
+\begin{thebibliography}{9}
+\tiny
+\bibitem{lax}
+\gr{H.~C.~Elman, D.~J.~Silvester and A.~J.~Wathen}
+\newblock \gr{\it Finite Elements and Fast Iterative Solvers: with Applications in Incompressible Fluid Dynamics.}
+\newblock \gr{Oxford University Press 2014}
+
+% \bibitem{hx}
+% \gr{}
+% \newblock \gr{\it }
+% \newblock \gr{}
+\bibitem{gg}
+\gr{C.~Greif and D.~Sch{\"o}tzau}
+\newblock \gr{\it Preconditioners for saddle point linear systems with highly singular (1, 1) blocks.}
+\newblock \gr{Electronic Transactions on Numerical Analysis, Special Volume on Saddle Point Problems 2006}
+
+\bibitem{g}
+\gr{C.~Greif and D.~Sch{\"o}tzau}
+\newblock \gr{\it Preconditioners for the discretized time-harmonic {M}axwell equations in mixed form.}
+\newblock \gr{Numerical Linear Algebra with Applications 2007}
+
+\bibitem{hx}
+\gr{R.~Hiptmair and J.~Xu}
+\newblock \gr{\it Nodal auxiliary space preconditioning in {$H$(curl) and $H$(div)} spaces.}
+\newblock \gr{SIAM Journal on Numerical Analysis 2007}
+
+\bibitem{m}
+\gr{M.~F.~Murphy, G.~H.~Golub and A.~J.~Wathen}
+\newblock \gr{\it A note on preconditioning for indefinite linear systems.}
+\newblock \gr{SIAM Journal on Scientific Computing 2000}
+
+
+\bibitem{p}
+\gr{E.~G.~Phillips, H.~C.~Elman, E.~C.~Cyr, J.~N.~Shadid and R.~P.~Pawlowski}
+\newblock \gr{\it A Block Preconditioner for an Exact Penalty Formulation for Stationary {MHD}.}
+\newblock \gr{University of Maryland, Computer Science 2014}
+
+
+\bibitem{s}
+\gr{D.~Sch{\"o}tzau}
+\newblock \gr{\it Mixed finite element methods for stationary incompressible magneto--hydrodynamics.}
+\newblock \gr{Numerische Mathematik 2004}
+
+
+
+
+
+
+% \bibitem{hx}
+% \gr{}
+% \newblock \gr{\it }
+% \newblock \gr{}
+
+
+
+\end{thebibliography}
+\end{frame}
+\end{document}

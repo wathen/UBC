@@ -1,0 +1,196 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AIJ	SYSTEM.h	/^	AIJ() {i=-1; j=-1; value=0.0;};$/;"	f	class:AIJ
+AIJ	SYSTEM.h	/^class AIJ{$/;"	c
+AIJCompare	SYSTEM.h	/^class AIJCompare {$/;"	c
+AK	stencil.h	/^	double AK[6][6][6];$/;"	m	class:STENCIL
+Amat	SYSTEM.h	/^	Mat	Amat;$/;"	m	class:SYSTEM
+Apply_BC	SYSTEM.cpp	/^void SYSTEM::Apply_BC()$/;"	f	class:SYSTEM
+Assemble	SYSTEM.cpp	/^void SYSTEM::Assemble()$/;"	f	class:SYSTEM
+BK	stencil.h	/^	double BK[6][4][6];$/;"	m	class:STENCIL
+Bmat	SYSTEM.h	/^	Mat	Bmat;$/;"	m	class:SYSTEM
+C	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+CFLAGS	makefile	/^CFLAGS	         = -c -g$/;"	m
+CPPFLAGS	makefile	/^CPPFLAGS         =  -c -g$/;"	m
+CPPLINKER	makefile	/^CPPLINKER = \/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/mpich2-1.2.1\/bin\/mpicxx$/;"	m
+CPPSRCS	makefile	/^CPPSRCS = \\$/;"	m
+Cmat	SYSTEM.h	/^	Mat Cmat;$/;"	m	class:SYSTEM
+Create	MESH.cpp	/^void MESH::Create(char *name)$/;"	f	class:MESH
+Create	MESH.cpp	/^void MESH::Create(int N)$/;"	f	class:MESH
+Create_coords	MESH.cpp	/^void MESH::Create_coords()$/;"	f	class:MESH
+Create_coords	MESH.cpp	/^void MESH::Create_coords(int N)$/;"	f	class:MESH
+Create_edges	MESH.cpp	/^void MESH::Create_edges()$/;"	f	class:MESH
+Create_edges	MESH.cpp	/^void MESH::Create_edges(int N)$/;"	f	class:MESH
+Create_elems	MESH.cpp	/^void MESH::Create_elems()$/;"	f	class:MESH
+Create_elems	MESH.cpp	/^void MESH::Create_elems(int N)$/;"	f	class:MESH
+Create_is	MESH.cpp	/^void MESH::Create_is(void)$/;"	f	class:MESH
+Create_neighs	MESH.cpp	/^void MESH::Create_neighs()$/;"	f	class:MESH
+Create_partition	MESH.cpp	/^void MESH::Create_partition(void)$/;"	f	class:MESH
+Create_pmvoutput	MESH.cpp	/^void MESH::Create_pmvoutput(int *epart)$/;"	f	class:MESH
+Create_sparsity	MESH.cpp	/^void MESH::Create_sparsity(void)$/;"	f	class:MESH
+Destroy	MESH.cpp	/^void MESH::Destroy(void)$/;"	f	class:MESH
+Destroy	SYSTEM.cpp	/^void SYSTEM::Destroy(void)$/;"	f	class:SYSTEM
+FFLAGS	makefile	/^FFLAGS	         = $/;"	m
+FPPFLAGS	makefile	/^FPPFLAGS         =$/;"	m
+Form_System	SYSTEM.cpp	/^void SYSTEM::Form_System()$/;"	f	class:SYSTEM
+Get_Exact_Sol	SYSTEM.cpp	/^void SYSTEM::Get_Exact_Sol()$/;"	f	class:SYSTEM
+Hiptmair	PetscCalls.h	/^class Hiptmair {$/;"	c
+INCLUDE	makefile	/^INCLUDE = ${PETSCEXT_INCLUDE} ${TETGEN_INCLUDE} ${METIS_INCLUDE}$/;"	m
+L	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+LIB	makefile	/^LIB = ${PETSC_KSP_LIB} ${PETSCEXT_LIB}  ${TETGEN_LIB} ${METIS_LIB}$/;"	m
+LK	stencil.h	/^	double LK[6][4][4];$/;"	m	class:STENCIL
+Lmat	SYSTEM.h	/^	Mat	Lmat;$/;"	m	class:SYSTEM
+MAT33	PetscCalls.h	/^typedef PetscScalar MAT33[3][3];$/;"	t
+MAT34	PetscCalls.h	/^typedef PetscScalar MAT34[3][4];$/;"	t
+MAT44	PetscCalls.h	/^typedef PetscScalar MAT44[4][4];$/;"	t
+MAT46	PetscCalls.h	/^typedef PetscScalar MAT46[4][6];$/;"	t
+MAT66	PetscCalls.h	/^typedef PetscScalar MAT66[6][6];$/;"	t
+MATH_LIB_H	math_lib.h	2;"	d
+MESH	MESH.cpp	/^MESH::MESH(void)$/;"	f	class:MESH
+MESH	MESH.h	/^class MESH$/;"	c
+METIS_INCLUDE	makefile	/^METIS_INCLUDE = -I\/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/metis-4.0\/include$/;"	m
+METIS_LIB	makefile	/^METIS_LIB = -L\/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/metis-4.0\/lib -lmetis$/;"	m
+MK	stencil.h	/^	double MK[6][6][6];$/;"	m	class:STENCIL
+MPI_GetCommPartition	PetscCalls.cpp	/^PetscInt MPI_GetCommPartition(PetscInt size, PetscInt i, PetscInt M)$/;"	f
+MPI_GetCommPartition	PetscCalls.cpp	/^void MPI_GetCommPartition(PetscInt size, PetscInt M, PetscInt *partition)$/;"	f
+MPI_MatGetValue	PetscCalls.cpp	/^void MPI_MatGetValue(PetscInt size, PetscInt rank, Mat& mat,  PetscInt proc, PetscInt indxm, PetscInt indxn, PetscScalar *val)$/;"	f
+MPI_MatGetValues	PetscCalls.cpp	/^void MPI_MatGetValues(PetscInt size, PetscInt rank, Mat& mat, PetscInt proc, PetscInt m, PetscInt *indxm, PetscInt n, PetscInt *indxn, PetscScalar *val)$/;"	f
+MPI_PATH	makefile	/^MPI_PATH = \/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/mpich2-1.2.1$/;"	m
+MYOBJS	makefile	/^MYOBJS = ${CPPSRCS:.cpp=.o} ${CSRCS:.c=.o}$/;"	m
+Mat_Assemble	PetscCalls.cpp	/^void Mat_Assemble(Mat& mat)$/;"	f
+Mat_Create	PetscCalls.cpp	/^void Mat_Create(Mat& mat, PetscInt m, PetscInt n, PetscInt M, PetscInt N)$/;"	f
+Mat_Create	PetscCalls.cpp	/^void Mat_Create(PetscInt size, PetscInt rank, Mat& mat, PetscInt M, PetscInt N)$/;"	f
+Mat_View	PetscCalls.cpp	/^void Mat_View(Mat& mat, char *obj, PetscInt N, PetscViewerFormat format)$/;"	f
+Mmat	SYSTEM.h	/^	Mat	Mmat;$/;"	m	class:SYSTEM
+MyShellPCApply	PetscCalls.cpp	/^PetscErrorCode MyShellPCApply(void *ctx,Vec x,Vec y)$/;"	f
+MyshellSetup	SYSTEM.cpp	/^void SYSTEM::MyshellSetup(Hiptmair *shell, Mat& LQ)$/;"	f	class:SYSTEM
+N	stencil.h	/^	double N[6][1][6][3];$/;"	m	class:STENCIL
+Nedge	MESH.h	/^	PetscInt Nedge, Nedge_i, Nedge_b;$/;"	m	class:MESH
+Nedge_b	MESH.h	/^	PetscInt Nedge, Nedge_i, Nedge_b;$/;"	m	class:MESH
+Nedge_i	MESH.h	/^	PetscInt Nedge, Nedge_i, Nedge_b;$/;"	m	class:MESH
+Nel	MESH.h	/^	PetscInt Nel;$/;"	m	class:MESH
+Nface	MESH.h	/^	int Nface;$/;"	m	class:MESH
+Nnod	MESH.h	/^	PetscInt Nnod, Nnod_i, Nnod_b;$/;"	m	class:MESH
+Nnod_b	MESH.h	/^	PetscInt Nnod, Nnod_i, Nnod_b;$/;"	m	class:MESH
+Nnod_i	MESH.h	/^	PetscInt Nnod, Nnod_i, Nnod_b;$/;"	m	class:MESH
+PROGRAM	makefile	/^PROGRAM = maxwell$/;"	m
+Petsc_End	PetscCalls.cpp	/^void Petsc_End()$/;"	f
+Petsc_Init	PetscCalls.cpp	/^void Petsc_Init(PetscInt argc, char **args, char *help)$/;"	f
+Q	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+QK	stencil.h	/^	double QK[6][4][4];$/;"	m	class:STENCIL
+Qmat	SYSTEM.h	/^	Mat Qmat;$/;"	m	class:SYSTEM
+RANK	main.cpp	/^PetscInt SIZE, RANK;	$/;"	v
+Rx	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+Rx	SYSTEM.h	/^	Mat Rx, Ry, Rz;$/;"	m	class:SYSTEM
+Ry	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+Ry	SYSTEM.h	/^	Mat Rx, Ry, Rz;$/;"	m	class:SYSTEM
+Rz	PetscCalls.h	/^	Mat L, Q, C, Rx, Ry, Rz;$/;"	m	class:Hiptmair
+Rz	SYSTEM.h	/^	Mat Rx, Ry, Rz;$/;"	m	class:SYSTEM
+SIZE	main.cpp	/^PetscInt SIZE, RANK;	$/;"	v
+STENCIL	stencil.h	/^	STENCIL(void) $/;"	f	class:STENCIL
+STENCIL	stencil.h	/^class STENCIL$/;"	c
+SYSTEM	SYSTEM.cpp	/^SYSTEM::SYSTEM(void)$/;"	f	class:SYSTEM
+SYSTEM	SYSTEM.h	/^class SYSTEM$/;"	c
+Solve	SYSTEM.cpp	/^void SYSTEM::Solve(void)$/;"	f	class:SYSTEM
+Stiffmat	SYSTEM.h	/^	Mat	Stiffmat;	\/\/linear system matrix$/;"	m	class:SYSTEM
+TETGEN_INCLUDE	makefile	/^TETGEN_INCLUDE = -I\/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/tetgen1.4.3\/include$/;"	m
+TETGEN_LIB	makefile	/^TETGEN_LIB = -L\/ubc\/cs\/research\/scl\/scv\/danli\/pkg\/tetgen1.4.3\/lib -ltet$/;"	m
+VEC3	PetscCalls.h	/^typedef PetscScalar VEC3[3];$/;"	t
+VEC6	PetscCalls.h	/^typedef PetscScalar VEC6[6];$/;"	t
+Vec_Assemble	PetscCalls.cpp	/^void Vec_Assemble(Vec& vec)$/;"	f
+Vec_Create	PetscCalls.cpp	/^void Vec_Create(PetscInt size, PetscInt rank, Vec& vec, PetscInt M)$/;"	f
+Vec_Create	PetscCalls.cpp	/^void Vec_Create(Vec& vec, PetscInt m, PetscInt M)$/;"	f
+Vec_View	PetscCalls.cpp	/^void Vec_View(Vec& vec, char *obj, PetscInt N, PetscViewerFormat format)$/;"	f
+View	MESH.cpp	/^void MESH::View(void)$/;"	f	class:MESH
+View	SYSTEM.cpp	/^void SYSTEM::View(void)$/;"	f	class:SYSTEM
+_PETSCCALLSH	PetscCalls.h	3;"	d
+__FUNCT__	PetscCalls.cpp	297;"	d	file:
+__FUNCT__	PetscCalls.cpp	298;"	d	file:
+array2CSR	SYSTEM.cpp	/^void SYSTEM::array2CSR(AIJ* a, int size, int nrows, int* is, int* js, double* vs)$/;"	f	class:SYSTEM
+coords	MESH.h	/^	double **coords; \/\/Nnod*4, coords[N][0..2] are the coordinates, coords[N][3] is the bdry marker, note it is a double, don't do coord[3]==0$/;"	m	class:MESH
+d_nnz_edge	MESH.h	/^	int *d_nnz_edge;	\/\/array of size local edges, d_nnz_edge[i] is the # of diagonal nnz of row i in matrices associated with edge DOFs $/;"	m	class:MESH
+d_nnz_edge_nod	MESH.h	/^	int *d_nnz_edge_nod; \/\/array of size local edges, diagonal nnz associated with matrix of size(Nedge, Nnod)$/;"	m	class:MESH
+d_nnz_nod	MESH.h	/^	int *d_nnz_nod;	\/\/array of size local nodes, diagonal nnz associated with node DOFs$/;"	m	class:MESH
+d_nnz_nod_edge	MESH.h	/^	int *d_nnz_nod_edge; \/\/array of size local nodes, diagonal nnz associated with matrix of size(Nnod, Nedge)$/;"	m	class:MESH
+diagAM	PetscCalls.h	/^	Vec diagAM; \/\/diag(A+(1-k)^2 M)^-1$/;"	m	class:Hiptmair
+diagL	PetscCalls.h	/^	Vec diagL; \/\/diag(L)^-1$/;"	m	class:Hiptmair
+diagLQ	PetscCalls.h	/^	Vec diagLQ; \/\/diag(L+(1-k)^2 Q)^-1$/;"	m	class:Hiptmair
+edge_count_b	MESH.h	/^	int *edge_count_b;	\/\/ditto$/;"	m	class:MESH
+edge_count_i	MESH.h	/^	int *edge_count_i;	\/\/ditto$/;"	m	class:MESH
+edges	MESH.h	/^	int **edges;	\/\/Nedge*3, edges[N][2] is the bdry marker, 0: iterior, 1: bdry $/;"	m	class:MESH
+edges_elem	MESH.h	/^	int **edges_elem; \/\/contains Nel rows, each row has 6 components: the indices of the six edges in a tet$/;"	m	class:MESH
+elem_count	MESH.h	/^	int *elem_count;	\/\/array of the comm size, containing the number of elements on the local processor$/;"	m	class:MESH
+elems	MESH.h	/^	int **elems;	\/\/Nel*5, elems[N][4] is the region marker$/;"	m	class:MESH
+exactsol	SYSTEM.h	/^	Vec exactsol;$/;"	m	class:SYSTEM
+f	SYSTEM.h	/^	Vec	f;$/;"	m	class:SYSTEM
+faces	MESH.h	/^	int **faces;	\/\/Nface*4, faces[N][0..2] are the indices of a surface triangle. faces[N][3] is boundary marker.$/;"	m	class:MESH
+filename	MESH.h	/^	char filename[100];$/;"	m	class:MESH
+func_eps	SYSTEM.cpp	/^double SYSTEM::func_eps(double *coord)$/;"	f	class:SYSTEM
+func_f	SYSTEM.cpp	/^void SYSTEM::func_f(PetscScalar *coord, PetscScalar *f)$/;"	f	class:SYSTEM
+func_mu	SYSTEM.cpp	/^double SYSTEM::func_mu(double *coord)$/;"	f	class:SYSTEM
+func_p	SYSTEM.cpp	/^void SYSTEM::func_p(PetscScalar *coord, PetscScalar *p)$/;"	f	class:SYSTEM
+func_u	SYSTEM.cpp	/^void SYSTEM::func_u(PetscScalar *coord, PetscScalar *u)$/;"	f	class:SYSTEM
+g	SYSTEM.h	/^	Vec g;$/;"	m	class:SYSTEM
+genpartition	MESH.h	/^	bool genpartition;$/;"	m	class:MESH
+help	main.cpp	/^static char help[] = "Solves Maxwell's Equations in parallel. \\n";$/;"	v	file:
+i	SYSTEM.h	/^	int i, j;$/;"	m	class:AIJ
+indx_edge_b	MESH.h	/^	int *indx_edge_b;	\/\/array of size Nedge_b, containing indices of bdry edges 	$/;"	m	class:MESH
+indx_edge_i	MESH.h	/^	int *indx_edge_i;	\/\/array of size Nedge_i, containing indices of interior edges$/;"	m	class:MESH
+indx_nod_b	MESH.h	/^	int *indx_nod_b;$/;"	m	class:MESH
+indx_nod_i	MESH.h	/^	int *indx_nod_i;$/;"	m	class:MESH
+innerksp1	PetscCalls.h	/^	KSP innerksp1, innerksp2;$/;"	m	class:Hiptmair
+innerksp2	PetscCalls.h	/^	KSP innerksp1, innerksp2;$/;"	m	class:Hiptmair
+is_edge_b	MESH.h	/^	IS is_edge_b;$/;"	m	class:MESH
+is_edge_i	MESH.h	/^	IS is_edge_i;$/;"	m	class:MESH
+is_nod_b	MESH.h	/^	IS is_nod_b;$/;"	m	class:MESH
+is_nod_i	MESH.h	/^	IS is_nod_i;$/;"	m	class:MESH
+j	SYSTEM.h	/^	int i, j;$/;"	m	class:AIJ
+k	PetscCalls.h	/^	double k;$/;"	m	class:Hiptmair
+lw	stencil.h	/^	int nel, lw;$/;"	m	class:STENCIL
+main	main.cpp	/^int main(int argc, char **args)$/;"	f
+mat_det	math_lib.cpp	/^double mat_det(int m, double *A)$/;"	f
+mat_iden	math_lib.cpp	/^void mat_iden(int m, double *A)$/;"	f
+mat_inv	math_lib.cpp	/^void mat_inv(int m, double *A, double *B)$/;"	f
+mat_mat_mult	math_lib.cpp	/^void mat_mat_mult(int m, int n, int l, double *A, double *B, double *C)$/;"	f
+mat_scale	math_lib.cpp	/^void mat_scale(int m, int n, double f, double *A, double *B)$/;"	f
+mat_scale	math_lib.cpp	/^void mat_scale(vector<vector<double> > &mat, double f)$/;"	f
+mat_sum	math_lib.cpp	/^void mat_sum(int m, int n, double f1, double f2, double *A, double *B, double *C)$/;"	f
+mat_trans	math_lib.cpp	/^void mat_trans(int m, int n, double *A, double *B)$/;"	f
+mat_vec_mult	math_lib.cpp	/^void mat_vec_mult(int m, int n, double *A, double *x, double *f)$/;"	f
+mesh	SYSTEM.h	/^	MESH mesh;$/;"	m	class:SYSTEM
+mycross	math_lib.cpp	/^void mycross(int m, double *a, double *b, double *c)$/;"	f
+mydot	math_lib.cpp	/^double mydot(int m, double *a, double *b)$/;"	f
+neighs	MESH.h	/^	int **neighs;	\/\/Nel*4, list of neigboring elements, -1 marks a non-existing neighbor$/;"	m	class:MESH
+nel	stencil.h	/^	int nel, lw;$/;"	m	class:STENCIL
+nod_count_b	MESH.h	/^	int *nod_count_b;	\/\/ditto$/;"	m	class:MESH
+nod_count_i	MESH.h	/^	int *nod_count_i;	\/\/ditto$/;"	m	class:MESH
+o_nnz_edge	MESH.h	/^	int *o_nnz_edge;	\/\/off diagonal nnz$/;"	m	class:MESH
+o_nnz_edge_nod	MESH.h	/^	int *o_nnz_edge_nod;$/;"	m	class:MESH
+o_nnz_nod	MESH.h	/^	int *o_nnz_nod;	\/\/off diagonal nnz$/;"	m	class:MESH
+o_nnz_nod_edge	MESH.h	/^	int *o_nnz_nod_edge;$/;"	m	class:MESH
+operator ()	SYSTEM.h	/^	bool operator() (AIJ a, AIJ b) { return (a.i<b.i);}$/;"	f	class:AIJCompare
+p	SYSTEM.h	/^	Vec u, p;$/;"	m	class:SYSTEM
+paramk	SYSTEM.h	/^	PetscScalar paramk;$/;"	m	class:SYSTEM
+pe	SYSTEM.h	/^	Vec ue, pe;$/;"	m	class:SYSTEM
+rhs	SYSTEM.h	/^	Vec	rhs;	\/\/rhs vector$/;"	m	class:SYSTEM
+set	SYSTEM.h	/^	void set(int _i, int _j, double _v) {i=_i; j=_j; value=_v;}$/;"	f	class:AIJ
+sol	SYSTEM.h	/^	Vec sol;$/;"	m	class:SYSTEM
+stream	SYSTEM.h	/^	FILE *stream;$/;"	m	class:SYSTEM
+tancomp	SYSTEM.cpp	/^PetscScalar SYSTEM::tancomp(PetscScalar *spt, PetscScalar *ept)$/;"	f	class:SYSTEM
+u	SYSTEM.h	/^	Vec u, p;$/;"	m	class:SYSTEM
+ue	SYSTEM.h	/^	Vec ue, pe;$/;"	m	class:SYSTEM
+value	SYSTEM.h	/^	double value;$/;"	m	class:AIJ
+variable	SYSTEM.h	/^	int variable; \/\/variable coefficient or not$/;"	m	class:SYSTEM
+vec_normal	math_lib.cpp	/^double vec_normal(int m, double *a)$/;"	f
+vec_scale	math_lib.cpp	/^void vec_scale(int m, double f, double *v, double *t)$/;"	f
+vec_scale	math_lib.cpp	/^void vec_scale(vector<double>  &vec, double f)$/;"	f
+vec_sum	math_lib.cpp	/^void vec_sum(int m, double f1, double f2, double *a, double *b, double *c)$/;"	f
+xhat	PetscCalls.h	/^	Vec xhat, yhat, y1;$/;"	m	class:Hiptmair
+y1	PetscCalls.h	/^	Vec xhat, yhat, y1;$/;"	m	class:Hiptmair
+yhat	PetscCalls.h	/^	Vec xhat, yhat, y1;$/;"	m	class:Hiptmair
+~MESH	MESH.cpp	/^MESH::~MESH(void)$/;"	f	class:MESH
+~SYSTEM	SYSTEM.cpp	/^SYSTEM::~SYSTEM(void)$/;"	f	class:SYSTEM

@@ -1,0 +1,19 @@
+Alterations and changes:
+
+Hi Uri,
+
+Thank you very much again for your careful reading of my thesis and for your helpful comments. You said that you do not need to see the changes, but I thought that I'd briefly mentioned the changes I have made. Blah blah blah...
+
+
+All corrections are bold and red
+
+1. Corrected small comments about grammar and such like that Uri mentioned
+2. Moved 2D and 3D curls to the appendix (p. 86-87), comment in intro to appendix (p. 6)
+3. Linear solver moved to appendix (p. 88-93) and comment added (p. 9)
+4. Dominik's Lipschitz domain comment (p. 18)
+5. Non-linear solver discussion (p. 20-21): I have incorporated a comment that explains why we work with Picard iterations. Briefly, Picard is energy-stable and is also easier to implement. I have added comments about the desirability of applying Newton's method, but this is left as an item for future work.
+6. Uri's comment on "why python?" (p. 42) I have added some text to explain that Python's flexibility and portability, and the availability of many libraries in this platform are my reasons for using it.
+7. Uri's comment on the non-linear stopping tolerance (p. 44-45) I have added a comment that explains the choice and why the stopping criterion in this part of the thesis is more stringent than the stopping criteria used in practice in the preconditioned iterations.
+8. Uri's comment on lowest order elements (p. 45-46): I have added a comment that explains the choice of these elements (stability and sufficient accuracy)
+9. Uri's comment on idealised problem (p. 71-72): I have added comments that acknowlege that our setting is simplified and idealised, outlining possible extension and the challenges that are associated with them.
+10. High frequencies to future work: as Uri pointed out, dealing with high frequencies would be extremely challenging and may require a different discretisation. I therefore feel that it is better not to mention this as an item for future work, as it would require a strong departure from what the thesis focuses on.

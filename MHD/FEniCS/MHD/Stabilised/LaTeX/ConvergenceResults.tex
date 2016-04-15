@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+%
+\newcommand{\uu}[1]{\boldsymbol #1}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+\begin{document}
+
+\section*{Fluid convergence}
+
+\begin{tabular}{lrrrllllll}
+\hline
+    $\ell$ &    Dofs $\uu{u}_h/p_h$ & $\|\uu{u}-\uu{u}_h\|_{L^2(\Omega)}$ & order & $\|\uu{u}-\uu{u}_h\|_{H^1(\Omega)}$ & order & $\|{p}-{p}_h\|_{L^2(\Omega)}$ & order  \\
+\hline
+1 &      18/8 &  1.2365e-01 &     - &  7.1317e-01 &     - &  1.7704e-01 &      - \\
+2 &      50/32 &  3.4685e-02 &     1.83 &  3.5698e-01 &     1.00 &  9.5116e-02 &      0.90 \\
+3 &     162/128 &  9.3714e-03 &     1.89 &  1.7776e-01 &     1.01 &  4.2766e-02 &      1.15 \\
+4 &     578/512 &  2.4411e-03 &     1.94 &  8.8636e-02 &     1.00 &  1.9296e-02 &      1.15 \\
+5 &    2178/2048 &  6.2295e-04 &     1.97 &  4.4254e-02 &     1.00 &  9.0730e-03 &      1.09 \\
+6 &    8450/8192 &  1.5734e-04 &     1.99 &  2.2111e-02 &     1.00 &  4.3923e-03 &      1.05 \\
+7 &   33282/32768 &  3.9535e-05 &     1.99 &  1.1052e-02 &     1.00 &  2.1623e-03 &      1.02 \\
+8 &  132098/131072 &  9.9094e-06 &     2.00 &  5.5251e-03 &     1.00 &  1.0735e-03 &      1.01 \\
+\hline
+\end{tabular}
+
+
+
+\section*{Magnetic convergence}
+
+\begin{tabular}{lrrrllll}
+\hline
+$\ell$ &    Dofs $\uu{b}_h/r_h$ & $\|\uu{b}-\uu{b}_h\|_{L^2(\Omega)}$ & order & $\|\uu{b}-\uu{b}_h\|_{H({\rm curl},\Omega)}$ & order \\
+\hline
+1 &      16/9 &  9.2878e-01 &     - &  1.0772e+00 &        - \\
+2 &      56/25 &  4.7011e-01 &     0.98 &  5.4833e-01 &        0.97 \\
+3 &     208/81 &  2.3573e-01 &     1.00 &  2.7530e-01 &        0.99 \\
+4 &     800/289 &  1.1795e-01 &     1.00 &  1.3778e-01 &        1.00 \\
+5 &    3136/1089 &  5.8983e-02 &     1.00 &  6.8908e-02 &        1.00 \\
+6 &   12416/4225 &  2.9493e-02 &     1.00 &  3.4456e-02 &        1.00 \\
+7 &   49408/16641 &  1.4747e-02 &     1.00 &  1.7228e-02 &        1.00 \\
+8 &  197120/66049 &  7.3733e-03 &     1.00 &  8.6142e-03 &        1.00 \\
+\hline
+\end{tabular}
+
+
+
+\section*{Multiplier convergence}
+
+\begin{tabular}{lrrrrllll}
+\hline
+$\ell$ &    Dofs $\uu{b}_h/r_h$ & $\|{r}-{r}_h\|_{L^2(\Omega)}$ & order & $\|{r}-{r}_h\|_{H^1(\Omega)}$ & order\\
+\hline
+ 1 &        16/9 &  2.9727e-01 &     - &  2.8492e+00 &     - \\
+ 2 &        56/25 &  1.9541e-01 &     0.61 &  1.9225e+00 &     0.57 \\
+ 3 &       208/81 &  7.2577e-02 &     1.43 &  1.0407e+00 &     0.89 \\
+ 4 &       800/289 &  2.0335e-02 &     1.84 &  5.2491e-01 &     0.99 \\
+ 5 &      3136/1089 &  5.2370e-03 &     1.96 &  2.6271e-01 &     1.00 \\
+ 6 &     12416/4225 &  1.3191e-03 &     1.99 &  1.3137e-01 &     1.00 \\
+ 7 &     49408/16641 &  3.3040e-04 &     2.00 &  6.5688e-02 &     1.00 \\
+ 8 &    197120/66049 &  8.2638e-05 &     2.00 &  3.2844e-02 &     1.00 \\
+\hline
+\end{tabular}
+
+
+\end{document}

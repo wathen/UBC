@@ -1,0 +1,248 @@
+
+
+\documentclass[12pt]{extarticle}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{paralist}
+\usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{varwidth}
+\usepackage{lscape}
+% \usepackage{color}
+\usepackage{algpseudocode}
+% \bibliographystyle{amsplain}
+
+
+
+
+\usepackage[utf8]{inputenc}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            %
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[1]{{
+\pythonstyle
+\lstinputlisting{#1}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+
+\addtolength{\oddsidemargin}{-.2in}
+    \addtolength{\evensidemargin}{-.5in}
+    \addtolength{\textwidth}{0.5in}
+
+    \addtolength{\topmargin}{-.5in}
+    \addtolength{\textheight}{0.35in}
+
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{section}    % add the section number to the equation label
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+% \newcommand{\F}{\vec{F}}
+\newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla_{\wedge}\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+\renewcommand{\u}{\vec u}
+\newcommand{\f}{\vec f}
+\newcommand{\n}{\vec n}
+\renewcommand{\v}{\vec v}
+\newcommand{\phiv}{\vec \phi}
+% \usepackage[authoryear,numbers,square,sort,comma,colon,]{natbib}
+% \usepackage[numbers/]{natbib}
+% \usepackage[square,sort,comma,numbers]{natbib}
+\renewcommand{\ne}{N\'ed\'elec elements }
+
+
+\newcommand{\me}{Maxwell's equations }
+
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+% \renewcommand{\baselinestretch}{1.40}\normalsize
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [0.900] pzcmi7t}{}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\onehalfspacing
+\begin{document}
+\pagestyle{fancyplain}
+\fancyhead{}
+\fancyfoot{} % clear all footer fields
+\fancyfoot[LE,RO]{\thepage \hspace{-5mm}}
+\fancyfoot[LO,CE]{ \footnotesize{ Michael Wathen 7830121}}
+\fancyfoot[CO,RE]{}
+\begin{landscape}
+
+
+\begin{table}
+
+\begin{tabular}{lrrrrrrrrrr}
+\hline
+{} &  Total DoF &   V DoF &  Q DoF &  $\#$ iters &  Soln Time &      V-L2 &  V-order &  $||\mbox{div} \ u_h||$ &      P-L2 &  P-order \\
+\hline
+0 &         59 &      50 &      9 &        9 &       0.01 &  2.01e+00 &     0.00 &    -1.55e-15 &  1.72e+01 &     0.00 \\
+1 &        187 &     162 &     25 &       25 &       0.00 &  2.49e-01 &     3.01 &     1.14e-15 &  3.18e+00 &     2.43 \\
+2 &        659 &     578 &     81 &       37 &       0.01 &  3.08e-02 &     3.02 &     4.34e-16 &  7.33e-01 &     2.12 \\
+3 &       2467 &    2178 &    289 &       41 &       0.03 &  3.82e-03 &     3.01 &     7.86e-16 &  1.81e-01 &     2.02 \\
+4 &       9539 &    8450 &   1089 &       41 &       0.18 &  4.77e-04 &     3.00 &     9.73e-17 &  4.51e-02 &     2.00 \\
+5 &      37507 &   33282 &   4225 &       43 &       1.08 &  5.96e-05 &     3.00 &     2.19e-16 &  1.13e-02 &     2.00 \\
+6 &     148739 &  132098 &  16641 &       43 &       6.68 &  7.45e-06 &     3.00 &     9.62e-17 &  2.82e-03 &     2.00 \\
+7 &     592387 &  526338 &  66049 &       45 &      47.65 &  9.31e-07 &     3.00 &    -1.03e-16 &  7.05e-04 &     2.00 \\
+\hline
+\end{tabular}
+
+\caption{TH - polynomial functions}
+\end{table}
+
+
+\begin{table}
+
+\begin{tabular}{lrrrrrrrrrr}
+\hline
+{} &  Total DoF &   V DoF &  Q DoF &  $\#$ iters &  Soln Time &      V-L2 &  V-order &  $||\mbox{div} \ u_h||$ &   P-L2 &  P-order \\
+\hline
+0 &         96 &      72 &     24 &       25 &   6.12e-04 &  1.80e+00 &     0.00 &     4.44e-15 &  17.10 &     0.00 \\
+1 &        360 &     264 &     96 &       33 &   3.37e-03 &  2.30e-01 &     2.97 &     7.77e-16 &   4.72 &     1.86 \\
+2 &       1392 &    1008 &    384 &       35 &   2.41e-02 &  2.69e-02 &     3.10 &    -3.62e-15 &   1.23 &     1.95 \\
+3 &       5472 &    3936 &   1536 &       37 &   2.17e-01 &  3.08e-03 &     3.12 &    -1.51e-15 &   0.31 &     1.98 \\
+4 &      21696 &   15552 &   6144 &       39 &   1.72e+00 &  3.60e-04 &     3.10 &    -3.85e-17 &   0.08 &     1.99 \\
+5 &      86400 &   61824 &  24576 &       39 &   1.38e+01 &  4.30e-05 &     3.06 &     1.24e-15 &   0.02 &     1.99 \\
+6 &     344832 &  246528 &  98304 &       41 &   1.37e+02 &  5.25e-06 &     3.04 &     8.65e-16 &   0.00 &     2.00 \\
+\hline
+\end{tabular}
+
+\caption{BDM - polynomial functions}
+
+\end{table}
+
+\end{landscape}
+% \begin{landscape}
+
+% \begin{table}
+
+
+% \caption{TH - trigonometric functions}
+% \end{table}
+
+
+% \begin{table}
+
+
+
+% \caption{BDM - trigonometric functions}
+% \end{table}
+
+% \end{landscape}
+
+\end{document}

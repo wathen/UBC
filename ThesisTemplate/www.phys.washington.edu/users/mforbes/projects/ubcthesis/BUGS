@@ -1,0 +1,9 @@
+This file contains a list of potential problems and known bugs:
+
+1) hyperref: The documentation and sample thesis use this package.
+If it is not availible, you might have problems.  You can download it
+from www.ctan.org.  Forcing LaTeX to ignore it is not much of a
+problem though.
+
+2) READMe: The README file is there, but does not list with some
+browsers.  I am not sure why or how to fix this

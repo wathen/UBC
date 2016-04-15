@@ -1,0 +1,186 @@
+\documentclass[11pt]{article}
+
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{paralist}
+\usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+\usepackage[normalem]{ulem}
+
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+\newcommand{\F}{\vec{F}}
+\newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+
+\newcommand{\me}{Maxwell's equations }
+
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Bt}{\ensuremath{B^{\mbox{\tiny{T}}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+\newcommand{\Dt}{\ensuremath{D^{\mbox{\tiny{T}}}}}
+% \renewcommand{\baselinestretch}{1.40}\normalsize
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+
+\onehalfspacing
+\begin{document}
+
+$$
+\begin{bmatrix}
+F & \Bt & \Ct & 0 \\
+B & 0 & 0 & 0 \\
+-C & 0 & M & \Dt  \\
+0 & 0 & D &0
+\end{bmatrix}
+\begin{bmatrix}
+u \\ p \\ b \\ r
+\end{bmatrix}
+= \lambda
+\begin{bmatrix}
+F & \Bt & \Ct & 0 \\
+0 & -M_s & 0 & 0 \\
+-C & 0 & M+\Dt L^{-1} D & 0  \\
+0 & 0 & 0 &L
+\end{bmatrix}
+\begin{bmatrix}
+u \\ p \\ b \\ r
+\end{bmatrix}
+$$
+Writing this as four equations gives:
+\begin{subequations} \label{system}
+    \begin{align}
+        (\lambda -1) (Fu+\Bt p+ \Ct b) &= 0\\
+        B u &= -\lambda M_s p\\
+        (\lambda - 1)C u +(1-\lambda)Mb +\Dt r -\lambda \Dt L^{-1} D b &=0\\
+        Db &= \lambda Lr
+    \end{align}
+\end{subequations}
+Substituting (\ref{system}d) into (\ref{system}c) we obtain
+\begin{equation} \label{sub}
+(\lambda - 1)C u +(1-\lambda)Mb + (\Dt -\lambda^2 \Dt)r =0.
+\end{equation}
+From (\ref{system}a) we can see that $\lambda = 1$ satisfies the equation. Substituting $\lambda = 1$ into the other three equations gives:
+\begin{subequations}
+    \begin{align}
+        B u &= - M_s p\\
+         \Dt r - \Dt L^{-1} D b &=0\\
+        Db &=  Lr
+    \end{align}
+\end{subequations}
+From (\ref{sub}) we then obtain the following eigenvector $(u, -M_s^{-1}Bu,b,L^{-1}Db)$. I can't see why $u\neq0$ or $b \neq0$ to get the exact statement which you asked me to show. I coded up the eigenvalue problem with random matrices and it seemed to show that there where $n+\hat{n}+4$ eigenvalues of $\lambda = 1$.
+
+Consider $\lambda \neq 1$ then (\ref{system}) is
+\begin{subequations} \label{system1}
+    \begin{align}
+        Fu+\Bt p+ \Ct b &= 0\\
+        B u &= -\lambda M_s p\\
+        (\lambda - 1)C u +(1-\lambda)Mb +\Dt r -\lambda \Dt L^{-1} D b &=0\\
+        Db &= \lambda Lr
+    \end{align}
+\end{subequations}
+Substitute (\ref{system1}d) into (\ref{system1}c) and with some simplification gives
+\begin{equation} \label{inv}
+-\lambda Cu+ (\lambda Mu +(1+\lambda)\Dt L^{-1}D)b=0.
+\end{equation}
+Let $A = \lambda Mu +(1+\lambda)\Dt L^{-1}D$, then since $M$ is positive semi-definite and $\Dt L^{-1}D$ is positive definite then $A$ is non-singular, hence, $b = \lambda A^{-1} Cu$. Using this expression for $b$ and $p = - \frac{1}{\lambda} M_s^{-1}Bu$ with (\ref{system1}a) to eliminate $b$ and $p$ gives
+$$(F-\frac{1}{\lambda} \Bt M_s^{-1} B+\lambda \Ct A^{-1} C)u = 0 \implies \mathcal{A}u = 0.$$
+Since $\mathcal{A}$ is invertible then $u=0$, hence $p=0$. Looking at the case when $\lambda = -1$ then (\ref{inv}) $$Cu = Mb,$$ since $M$ is singular then $u=0$, hence $p=0$. Therefore, the eigenvector associated with $\lambda = -1$ is $(0,0,b, -L^{-1}Db)$.
+
+When considering $\lambda \neq 1$ or $-1$ then (\ref{inv}) reduces to
+$$ (\lambda Mu +(1+\lambda)\Dt L^{-1}D)b=0$$
+which means that $b\in \mbox{ker}(\lambda Mu +(1+\lambda)\Dt L^{-1}D)$ since $u=p=0$.
+
+I tried to download and install deall.II but if said that I needed to install loads of other packages first which I am currently installing now.
+
+% Substituting $\lambda = -1$ into (\ref{system}) gives
+% \begin{subequations}
+%     \begin{align}
+%         Fu+\Bt p+ \Ct b &= 0\\
+%         B u &= M_s p\\
+%         -2 C u +2Mb +\Dt r +\Dt L^{-1} D b &=0\\
+%         Db &= -Lr
+%     \end{align}
+% \end{subequations}
+% Since both $\Bt$ and $\Ct$ have a null space then $u=0$, hence $p = 0$. Therefore we have the following eigenvector $(0,0,b, -L^{-1}Db)$ which corresponds to the eigenvalue $\lambda = -1$.
+
+
+$\mathscr{i}$
+
+
+
+
+\end{document}

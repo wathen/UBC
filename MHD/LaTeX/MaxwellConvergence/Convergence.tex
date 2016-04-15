@@ -1,0 +1,438 @@
+
+
+\documentclass[12pt]{extarticle}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{paralist}
+\usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{varwidth}
+\usepackage{lscape}
+% \usepackage{color}
+\usepackage{algpseudocode}
+% \bibliographystyle{amsplain}
+
+
+
+
+\usepackage[utf8]{inputenc}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            %
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[1]{{
+\pythonstyle
+\lstinputlisting{#1}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+
+\addtolength{\oddsidemargin}{-.2in}
+    \addtolength{\evensidemargin}{-.5in}
+    \addtolength{\textwidth}{0.5in}
+
+    \addtolength{\topmargin}{-.5in}
+    \addtolength{\textheight}{0.35in}
+
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{section}    % add the section number to the equation label
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+% \newcommand{\F}{\vec{F}}
+\newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla \times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+\renewcommand{\u}{\vec u}
+\newcommand{\f}{\vec f}
+\newcommand{\n}{\vec n}
+\renewcommand{\v}{\vec v}
+\newcommand{\phiv}{\vec \phi}
+% \usepackage[authoryear,numbers,square,sort,comma,colon,]{natbib}
+% \usepackage[numbers/]{natbib}
+% \usepackage[square,sort,comma,numbers]{natbib}
+\renewcommand{\ne}{N\'ed\'elec elements }
+
+
+\newcommand{\me}{Maxwell's equations }
+
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+% \renewcommand{\baselinestretch}{1.40}\normalsize
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [0.900] pzcmi7t}{}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\onehalfspacing
+\begin{document}
+\pagestyle{fancyplain}
+\fancyhead{}
+\fancyfoot{} % clear all footer fields
+\fancyfoot[LE,RO]{\thepage \hspace{-5mm}}
+\fancyfoot[LO,CE]{ \footnotesize{ Michael Wathen 7830121}}
+\fancyfoot[CO,RE]{}
+
+\subsection*{$$\curl \curl \u +c\u = \f$$}
+
+\subsubsection*{Nedelec$_1$ - order 1}
+
+\begin{tabular}{lrrlrlr}
+\hline
+{} &  Total DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &         28 &   1.42e-04 &  7.0716e-01 &     0.00 &  6.2831e+00 &        0.00 \\
+1 &        104 &   1.76e-04 &  3.1843e-01 &     1.15 &  2.5051e+00 &        1.33 \\
+2 &        400 &   6.90e-04 &  1.6044e-01 &     0.99 &  1.1958e+00 &        1.07 \\
+3 &       1568 &   3.05e-03 &  8.0190e-02 &     1.00 &  5.8605e-01 &        1.03 \\
+4 &       6208 &   1.87e-02 &  4.0084e-02 &     1.00 &  2.9136e-01 &        1.01 \\
+5 &      24704 &   1.23e-01 &  2.0040e-02 &     1.00 &  1.4547e-01 &        1.00 \\
+6 &      98560 &   7.99e-01 &  1.0020e-02 &     1.00 &  7.2706e-02 &        1.00 \\
+\hline
+\end{tabular}
+
+
+\subsubsection*{Nedelec$_1$ - order 2}
+
+
+\begin{tabular}{lrrlrlr}
+\hline
+{} &  Total DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &         88 &   2.77e-04 &  1.4222e-01 &     0.00 &  7.8349e-01 &        0.00 \\
+1 &        336 &   4.29e-04 &  4.7178e-02 &     1.59 &  4.4258e-01 &        0.82 \\
+2 &       1312 &   2.06e-03 &  1.1869e-02 &     1.99 &  1.1146e-01 &        1.99 \\
+3 &       5184 &   1.15e-02 &  2.9788e-03 &     1.99 &  2.7943e-02 &        2.00 \\
+4 &      20608 &   9.70e-02 &  7.4552e-04 &     2.00 &  6.9910e-03 &        2.00 \\
+5 &      82176 &   5.45e-01 &  1.8643e-04 &     2.00 &  1.7481e-03 &        2.00 \\
+6 &     328192 &   7.06e+00 &  4.6612e-05 &     2.00 &  4.3704e-04 &        2.00 \\
+\hline
+\end{tabular}
+
+\subsubsection*{Nedelec$_2$ - order 1}
+
+\begin{tabular}{lrrlrlr}
+\hline
+{} &  Total DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &         56 &   1.69e-04 &  7.0710e-01 &     0.00 &  6.2831e+00 &        0.00 \\
+1 &        208 &   3.31e-04 &  2.1056e-01 &     1.75 &  2.4973e+00 &        1.33 \\
+2 &        800 &   1.55e-03 &  6.0010e-02 &     1.81 &  1.1945e+00 &        1.06 \\
+3 &       3136 &   9.14e-03 &  1.5493e-02 &     1.95 &  5.8587e-01 &        1.03 \\
+4 &      12416 &   6.97e-02 &  3.9043e-03 &     1.99 &  2.9134e-01 &        1.01 \\
+5 &      49408 &   5.01e-01 &  9.7802e-04 &     2.00 &  1.4546e-01 &        1.00 \\
+6 &     197120 &   7.05e+00 &  2.4463e-04 &     2.00 &  7.2705e-02 &        1.00 \\
+\hline
+\end{tabular}
+
+\subsubsection*{Nedelec$_2$ - order 2}
+\begin{tabular}{lrrlrlr}
+\hline
+{} &  Total DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &        132 &   2.46e-04 &  3.0169e-02 &     0.00 &  7.8388e-01 &        0.00 \\
+1 &        504 &   1.14e-03 &  1.3531e-02 &     1.16 &  4.3854e-01 &        0.84 \\
+2 &       1968 &   4.20e-03 &  1.6029e-03 &     3.08 &  1.1120e-01 &        1.98 \\
+3 &       7776 &   2.45e-02 &  1.9768e-04 &     3.02 &  2.7927e-02 &        1.99 \\
+4 &      30912 &   1.89e-01 &  2.4627e-05 &     3.00 &  6.9900e-03 &        2.00 \\
+5 &     123264 &   1.43e+00 &  3.0758e-06 &     3.00 &  1.7480e-03 &        2.00 \\
+6 &     492288 &   1.47e+01 &  3.8439e-07 &     3.00 &  4.3704e-04 &        2.00 \\
+\hline
+\end{tabular}
+
+\newpage
+
+\section*{Maxwell saddle point - c = 0}
+
+\subsubsection*{(Nedelec$_1$,CG$_1$) - (1,1)}
+
+\begin{tabular}{lrrrlrlr}
+\hline
+{} &  Total DoF &  B DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &         41 &     28 &       0.00 &  5.9415e-02 &     0.00 &  2.3570e-01 &           0 \\
+1 &        145 &    104 &       0.00 &  2.9524e-02 &     1.01 &  1.1785e-01 &           1 \\
+2 &        545 &    400 &       0.01 &  1.4739e-02 &     1.00 &  5.8926e-02 &           1 \\
+3 &       2113 &   1568 &       0.03 &  7.3667e-03 &     1.00 &  2.9463e-02 &           1 \\
+4 &       8321 &   6208 &       0.12 &  3.6830e-03 &     1.00 &  1.4731e-02 &           1 \\
+5 &      33025 &  24704 &       0.59 &  1.8414e-03 &     1.00 &  7.3657e-03 &           1 \\
+6 &     131585 &  98560 &       2.91 &  9.2071e-04 &     1.00 &  3.6828e-03 &           1 \\
+\hline
+\end{tabular}
+
+\begin{tabular}{lrrrlrlr}
+\hline
+{} &  Total DoF &  R DoF &  Soln Time &        R-L2 &  R-order &        R-H1 &  H1-order \\
+\hline
+0 &         41 &     13 &       0.00 &  1.0257e-02 &     0.00 &  6.9112e-02 &      0.00 \\
+1 &        145 &     41 &       0.00 &  2.5760e-03 &     1.99 &  3.3734e-02 &      1.03 \\
+2 &        545 &    145 &       0.01 &  6.4320e-04 &     2.00 &  1.6760e-02 &      1.01 \\
+3 &       2113 &    545 &       0.03 &  1.6072e-04 &     2.00 &  8.3667e-03 &      1.00 \\
+4 &       8321 &   2113 &       0.12 &  4.0176e-05 &     2.00 &  4.1817e-03 &      1.00 \\
+5 &      33025 &   8321 &       0.59 &  1.0044e-05 &     2.00 &  2.0906e-03 &      1.00 \\
+6 &     131585 &  33025 &       2.91 &  2.5109e-06 &     2.00 &  1.0453e-03 &      1.00 \\
+\hline
+\end{tabular}
+
+\subsubsection*{(Nedelec$_1$,CG$_1$) - (2,2)}
+\begin{tabular}{lrrrlrlr}
+\hline
+{} &  Total DoF &   B DoF &  Soln Time &        B-L2 &  L2-order &      B-Curl &  Curl-order \\
+\hline
+0 &        129 &      88 &       0.00 &  7.0820e-03 &        0 &  2.6736e-04 &        0.00 \\
+1 &        481 &     336 &       0.01 &  1.7705e-03 &        2 &  3.9471e-05 &        2.76 \\
+2 &       1857 &    1312 &       0.03 &  4.4262e-04 &        2 &  5.1382e-06 &        2.94 \\
+3 &       7297 &    5184 &       0.10 &  1.1066e-04 &        2 &  6.4885e-07 &        2.99 \\
+4 &      28929 &   20608 &       0.44 &  2.7664e-05 &        2 &  8.1314e-08 &        3.00 \\
+5 &     115201 &   82176 &       2.24 &  6.9160e-06 &        2 &  1.0171e-08 &        3.00 \\
+6 &     459777 &  328192 &      11.09 &  1.7290e-06 &        2 &  1.2739e-09 &        3.00 \\
+\hline
+\end{tabular}
+
+\begin{tabular}{lrrrlrlr}
+\hline
+{} &  Total DoF &   R DoF &  Soln Time &        R-L2 &  R-order &        R-H1 &  H1-order \\
+\hline
+0 &        129 &      41 &       0.00 &  4.2403e-04 &     0.00 &  1.2952e-02 &      0.00 \\
+1 &        481 &     145 &       0.01 &  5.3673e-05 &     2.98 &  3.1099e-03 &      2.06 \\
+2 &       1857 &     545 &       0.03 &  6.7369e-06 &     2.99 &  7.6935e-04 &      2.02 \\
+3 &       7297 &    2113 &       0.10 &  8.4321e-07 &     3.00 &  1.9183e-04 &      2.00 \\
+4 &      28929 &    8321 &       0.44 &  1.0544e-07 &     3.00 &  4.7926e-05 &      2.00 \\
+5 &     115201 &   33025 &       2.24 &  1.3148e-08 &     3.00 &  1.1980e-05 &      2.00 \\
+6 &     459777 &  131585 &      11.09 &  1.3649e-09 &     3.27 &  2.9948e-06 &      2.00 \\
+\hline
+\end{tabular}
+
+\newpage
+
+\subsection*{MHD}
+
+\subsubsection*{No coupling - orders (2,1,2,2)}
+\begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  V DoF &  Soln Time &      V-L2 &  L2-order &      V-H1 &  H1-order \\
+\hline
+0 &        224 &     82 &       0.00 &  1.05e-03 &      0.00 &  2.74e-02 &         0 \\
+1 &        812 &    290 &       0.01 &  1.30e-04 &      3.02 &  6.87e-03 &         2 \\
+2 &       3092 &   1090 &       0.06 &  1.61e-05 &      3.01 &  1.72e-03 &         2 \\
+3 &      12068 &   4226 &       0.29 &  2.01e-06 &      3.00 &  4.30e-04 &         2 \\
+4 &      47684 &  16642 &       1.44 &  2.36e-07 &      3.09 &  1.08e-04 &         2 \\
+5 &     189572 &  66050 &       7.84 &  7.83e-08 &      1.59 &  2.69e-05 &         2 \\
+
+\hline
+\end{tabular}
+
+
+
+\begin{tabular}{lrrrrr}
+\hline
+{} &  Total DoF &  P DoF &  Soln Time &      P-L2 &  L2-order \\
+\hline
+0 &        224 &     13 &       0.00 &  1.00e-02 &      0.00 \\
+1 &        812 &     41 &       0.01 &  2.47e-03 &      2.02 \\
+2 &       3092 &    145 &       0.06 &  6.21e-04 &      1.99 \\
+3 &      12068 &    545 &       0.29 &  1.56e-04 &      2.00 \\
+4 &      47684 &   2113 &       1.44 &  3.90e-05 &      2.00 \\
+5 &     189572 &   8321 &       7.84 &  9.74e-06 &      2.00 \\
+\hline
+\end{tabular}
+
+
+
+    \begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  B DoF &  Soln Time &      B-L2 &  L2-order &    B-Curl &  Curl-order \\
+\hline
+0 &        224 &     88 &       0.00 &  6.86e-03 &     0.00 &  3.31e-02 &           0 \\
+1 &        812 &    336 &       0.01 &  1.76e-03 &     1.97 &  8.27e-03 &           2 \\
+2 &       3092 &   1312 &       0.06 &  4.42e-04 &     1.99 &  2.07e-03 &           2 \\
+3 &      12068 &   5184 &       0.29 &  1.11e-04 &     2.00 &  5.17e-04 &           2 \\
+4 &      47684 &  20608 &       1.44 &  2.77e-05 &     2.00 &  1.29e-04 &           2 \\
+5 &     189572 &  82176 &       7.84 &  6.92e-06 &     2.00 &  3.23e-05 &           2 \\
+\hline
+\end{tabular}
+
+
+
+\begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  R DoF &  Soln Time &      R-L2 &  R-order &      R-H1 &  H1-order \\
+\hline
+0 &        224 &     41 &       0.00 &  5.22e-04 &     0.00 &  1.29e-02 &      0.00 \\
+1 &        812 &    145 &       0.01 &  6.48e-05 &     3.01 &  3.10e-03 &      2.05 \\
+2 &       3092 &    545 &       0.06 &  8.10e-06 &     3.00 &  7.69e-04 &      2.01 \\
+3 &      12068 &   2113 &       0.29 &  1.01e-06 &     3.00 &  1.92e-04 &      2.00 \\
+4 &      47684 &   8321 &       1.44 &  1.27e-07 &     3.00 &  4.79e-05 &      2.00 \\
+5 &     189572 &  33025 &       7.84 &  1.58e-08 &     3.00 &  1.20e-05 &      2.00 \\
+\hline
+\end{tabular}
+
+\subsubsection*{Coupled - orders (2,1,2,2)}
+
+\begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  V DoF &  Soln Time &      V-L2 &  L2-order &      V-H1 &  H1-order \\
+\hline
+0 &        224 &     82 &       0.00 &  1.05e-03 &      0.00 &  2.74e-02 &         0 \\
+1 &        812 &    290 &       0.02 &  1.30e-04 &      3.02 &  6.87e-03 &         2 \\
+2 &       3092 &   1090 &       0.11 &  1.61e-05 &      3.01 &  1.72e-03 &         2 \\
+3 &      12068 &   4226 &       0.54 &  2.01e-06 &      3.00 &  4.30e-04 &         2 \\
+4 &      47684 &  16642 &       2.90 &  2.36e-07 &      3.09 &  1.08e-04 &         2 \\
+5 &     189572 &  66050 &      17.11 &  7.86e-08 &      1.59 &  2.69e-05 &         2 \\
+\hline
+\end{tabular}
+
+
+\begin{tabular}{lrrrrr}
+\hline
+{} &  Total DoF &  P DoF &  Soln Time &      P-L2 &  L2-order \\
+\hline
+0 &        224 &     13 &       0.00 &  1.00e-02 &      0.00 \\
+1 &        812 &     41 &       0.02 &  2.47e-03 &      2.02 \\
+2 &       3092 &    145 &       0.11 &  6.21e-04 &      1.99 \\
+3 &      12068 &    545 &       0.54 &  1.56e-04 &      2.00 \\
+4 &      47684 &   2113 &       2.90 &  3.90e-05 &      2.00 \\
+5 &     189572 &   8321 &      17.11 &  9.74e-06 &      2.00 \\
+\hline
+\end{tabular}
+
+
+\begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  B DoF &  Soln Time &      B-L2 &  L2-order &    B-Curl &  Curl-order \\
+\hline
+0 &        224 &     88 &       0.00 &  6.86e-03 &     0.00 &  3.31e-02 &           0 \\
+1 &        812 &    336 &       0.02 &  1.76e-03 &     1.97 &  8.27e-03 &           2 \\
+2 &       3092 &   1312 &       0.11 &  4.42e-04 &     1.99 &  2.07e-03 &           2 \\
+3 &      12068 &   5184 &       0.54 &  1.11e-04 &     2.00 &  5.17e-04 &           2 \\
+4 &      47684 &  20608 &       2.90 &  2.77e-05 &     2.00 &  1.29e-04 &           2 \\
+5 &     189572 &  82176 &      17.11 &  6.92e-06 &     2.00 &  3.23e-05 &           2 \\
+\hline
+\end{tabular}
+
+
+\begin{tabular}{lrrrrrrr}
+\hline
+{} &  Total DoF &  R DoF &  Soln Time &      R-L2 &  R-order &      R-H1 &  H1-order \\
+\hline
+0 &        224 &     41 &       0.00 &  5.06e-04 &     0.00 &  1.31e-02 &      0.00 \\
+1 &        812 &    145 &       0.02 &  6.44e-05 &     2.97 &  3.12e-03 &      2.07 \\
+2 &       3092 &    545 &       0.11 &  8.09e-06 &     2.99 &  7.70e-04 &      2.02 \\
+3 &      12068 &   2113 &       0.54 &  1.01e-06 &     3.00 &  1.92e-04 &      2.00 \\
+4 &      47684 &   8321 &       2.90 &  1.27e-07 &     3.00 &  4.79e-05 &      2.00 \\
+5 &     189572 &  33025 &      17.11 &  1.58e-08 &     3.00 &  1.20e-05 &      2.00 \\
+\hline
+\end{tabular}
+
+
+\end{document}

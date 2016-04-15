@@ -1,0 +1,226 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{paralist}
+\usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{cite}
+\bibliographystyle{amsplain}
+
+\addtolength{\oddsidemargin}{-.2in}
+    \addtolength{\evensidemargin}{-.5in}
+    \addtolength{\textwidth}{0.5in}
+
+    \addtolength{\topmargin}{-.5in}
+    \addtolength{\textheight}{0.35in}
+
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{section}    % add the section number to the equation label
+
+
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+\newcommand{\F}{\vec{F}}
+\newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%s
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% PROOF
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% end: our definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+%\newenvironment{Pf}{\noindent {\bf Proof:}} {\hfill $\Box$ \medskip}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\subsection*{CASE 1}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &     DoFu &    Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+\hline
+0 &  1 &      375 &      27 &  2.6212e-02 &     0.00 &  4.5805e-01 &     0.00 &  1.7725e+00 &      0.00 \\
+1 &  2 &     2187 &     125 &  3.2998e-03 &     2.99 &  1.1547e-01 &     1.99 &  2.8602e-01 &      2.63 \\
+2 &  3 &    14739 &     729 &  4.1268e-04 &     3.00 &  2.8944e-02 &     2.00 &  4.0587e-02 &      2.82 \\
+3 &  4 &   107811 &    4913 &  5.1565e-05 &     3.00 &  7.2416e-03 &     2.00 &  6.4794e-03 &      2.65 \\
+4 &  5 &   823875 &   35937 &  6.4443e-06 &     3.00 &  1.8108e-03 &     2.00 &  1.2724e-03 &      2.35 \\
+5 &  6 &  6440067 &  274625 &  8.0547e-07 &     3.00 &  4.5272e-04 &     2.00 &  2.9171e-04 &      2.12 \\
+\hline
+\end{tabular}
+
+
+
+
+\subsection*{CASE 2}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &     DoFu &    Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+0 &  1 &      375 &      27 &  1.6625e-01 &     0.00 &  2.1586e+00 &     0.00 &  2.3579e+00 &      0.00 \\
+1 &  2 &     2187 &     125 &  2.2021e-02 &     2.92 &  5.7155e-01 &     1.92 &  1.9598e-01 &      3.59 \\
+2 &  3 &    14739 &     729 &  2.7945e-03 &     2.98 &  1.4497e-01 &     1.98 &  1.5686e-02 &      3.64 \\
+3 &  4 &   107811 &    4913 &  3.5074e-04 &     2.99 &  3.6375e-02 &     1.99 &  1.2206e-03 &      3.68 \\
+4 &  5 &   823875 &   35937 &  4.3889e-05 &     3.00 &  9.1024e-03 &     2.00 &  1.1715e-04 &      3.38 \\
+5 &  6 &  6440067 &  274625 &  5.4877e-06 &     3.00 &  2.2761e-03 &     2.00 &  2.0420e-05 &      2.52 \\
+\hline
+\end{tabular}
+
+
+\subsection*{CASE 3}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &    DoFu &   Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+0 &  1 &     375 &     27 &  1.8838e-02 &     0.00 &  3.0412e-01 &     0.00 &  7.7086e-01 &      0.00 \\
+1 &  2 &    2187 &    125 &  2.4744e-03 &     2.93 &  8.0366e-02 &     1.92 &  8.3993e-02 &      3.20 \\
+2 &  3 &   14739 &    729 &  3.1577e-04 &     2.97 &  2.0435e-02 &     1.98 &  7.3484e-03 &      3.51 \\
+3 &  4 &  107811 &   4913 &  3.9763e-05 &     2.99 &  5.1344e-03 &     1.99 &  6.7546e-04 &      3.44 \\
+4 &  5 &  823875 &  35937 &  4.9815e-06 &     3.00 &  1.2854e-03 &     2.00 &  1.0990e-04 &      2.62 \\
+\hline
+\end{tabular}
+
+
+\subsection*{CASE 4}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &    DoFu &   Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+0 &  1 &     375 &     27 &  8.1140e-03 &     0.00 &  1.4010e-01 &     0.00 &  1.6114e-01 &      0.00 \\
+1 &  2 &    2187 &    125 &  1.0248e-03 &     2.99 &  3.5323e-02 &     1.99 &  1.6283e-02 &      3.31 \\
+2 &  3 &   14739 &    729 &  1.2873e-04 &     2.99 &  8.8579e-03 &     2.00 &  1.7222e-03 &      3.24 \\
+3 &  4 &  107811 &   4913 &  1.6119e-05 &     3.00 &  2.2166e-03 &     2.00 &  3.2043e-04 &      2.43 \\
+4 &  5 &  823875 &  35937 &  2.0159e-06 &     3.00 &  5.5429e-04 &     2.00 &  7.7425e-05 &      2.05 \\
+\hline
+\end{tabular}
+
+\subsection*{CASE 6}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &    DoFu &   Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+0 &  1 &     375 &     27 &  3.5215e-03 &     0.00 &  5.8926e-02 &     0.00 &  1.6151e-02 &      0.00 \\
+1 &  2 &    2187 &    125 &  4.4018e-04 &     3.00 &  1.4731e-02 &     2.00 &  4.0347e-03 &      2.00 \\
+2 &  3 &   14739 &    729 &  5.5023e-05 &     3.00 &  3.6828e-03 &     2.00 &  1.0086e-03 &      2.00 \\
+3 &  4 &  107811 &   4913 &  6.8779e-06 &     3.00 &  9.2071e-04 &     2.00 &  2.5215e-04 &      2.00 \\
+4 &  5 &  823875 &  35937 &  8.5974e-07 &     3.00 &  2.3018e-04 &     2.00 &  6.3037e-05 &      2.00 \\
+\hline
+\end{tabular}
+
+
+\subsection*{CASE 7}
+
+\begin{tabular}{lrrrllllll}
+\hline
+{} &  l &    DoFu &   Dofp &        V-L2 & L2-order &        V-H1 & H1-order &        P-L2 & PL2-order \\
+\hline
+0 &  1 &     375 &     27 &  1.0327e-01 &     0.00 &  1.6963e+00 &     0.00 &  4.5492e+00 &      0.00 \\
+1 &  2 &    2187 &    125 &  1.3441e-02 &     2.94 &  4.4427e-01 &     1.93 &  7.7598e-01 &      2.55 \\
+2 &  3 &   14739 &    729 &  1.6988e-03 &     2.98 &  1.1244e-01 &     1.98 &  1.0865e-01 &      2.84 \\
+3 &  4 &  107811 &   4913 &  2.1303e-04 &     3.00 &  2.8200e-02 &     2.00 &  1.4911e-02 &      2.87 \\
+4 &  5 &  823875 &  35937 &  2.6653e-05 &     3.00 &  7.0561e-03 &     2.00 &  2.1890e-03 &      2.77 \\
+\hline
+\end{tabular}
+
+
+\end{document}
+
+
+
+
+
+

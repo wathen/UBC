@@ -1,0 +1,31 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Convergence table for 2D Navier-Stokes smooth solution - Picard tolerance 1e-10\relax }}{31}{table.caption.10}
+\contentsline {table}{\numberline {4.2}{\ignorespaces Convergence table for 3D Navier-Stokes smooth solution - Picard tolerance 1e-5\relax }}{33}{table.caption.11}
+\contentsline {table}{\numberline {4.3}{\ignorespaces Iteration table for LSC preconditioner for 2D example - Picard tolerance 1e-10\relax }}{34}{table.caption.12}
+\contentsline {table}{\numberline {4.4}{\ignorespaces Iteration table for PCD preconditioner for 2D example - Picard tolerance 1e-10\relax }}{35}{table.caption.14}
+\contentsline {table}{\numberline {4.5}{\ignorespaces Iteration table for PCD preconditioner for 3D example - Picard tolerance 1e-10\relax }}{36}{table.caption.16}
+\contentsline {table}{\numberline {4.6}{\ignorespaces Convergence table for 2D Maxwell smooth solution - Magnetic field\relax }}{36}{table.caption.17}
+\contentsline {table}{\numberline {4.7}{\ignorespaces Convergence table for 2D Maxwell smooth solution - multiplier field\relax }}{37}{table.caption.18}
+\contentsline {table}{\numberline {4.8}{\ignorespaces Convergence table for 3D Maxwell smooth solution - magnetic field\relax }}{38}{table.caption.19}
+\contentsline {table}{\numberline {4.9}{\ignorespaces Convergence table for 3D Maxwell smooth solution - multiplier field\relax }}{38}{table.caption.20}
+\contentsline {table}{\numberline {4.10}{\ignorespaces Iteration table for Maxwell preconditioner for 2D example - direct application of preconditioner\relax }}{39}{table.caption.22}
+\contentsline {table}{\numberline {4.11}{\ignorespaces Iteration table for Maxwell preconditioner for 3D example - direct application of preconditioner\relax }}{40}{table.caption.24}
+\contentsline {table}{\numberline {4.12}{\ignorespaces Convergence table for 2D MHD smooth solution - Picard tolerance 1e-8\relax }}{41}{table.caption.25}
+\contentsline {table}{\numberline {4.13}{\ignorespaces Convergence table for 2D MHD smooth solution - Magnetic field\relax }}{42}{table.caption.26}
+\contentsline {table}{\numberline {4.14}{\ignorespaces Convergence table for 2D MDH smooth solution - multiplier field\relax }}{42}{table.caption.27}
+\contentsline {table}{\numberline {4.15}{\ignorespaces Convergence table for 3D MHD smooth solution - Picard tolerance 1e-8\relax }}{43}{table.caption.28}
+\contentsline {table}{\numberline {4.16}{\ignorespaces Convergence table for 3D MHD smooth solution - Magnetic field\relax }}{43}{table.caption.29}
+\contentsline {table}{\numberline {4.17}{\ignorespaces Convergence table for 3D MDH smooth solution - multiplier field\relax }}{44}{table.caption.30}
+\contentsline {table}{\numberline {4.18}{\ignorespaces Number of non-linear iterations for various values of $\nu $. Let the Picard tolerance to be $1e-5$, $\kappa = 1$ and $\nu _m = 10$.\relax }}{45}{table.caption.32}
+\contentsline {table}{\numberline {4.19}{\ignorespaces Number of non-linear iterations for various values of $\nu _m$. LLet the Picard tolerance to be $1e-5$, $\nu = 1$ and $\nu _m = 1e2$.\relax }}{46}{table.caption.34}
+\contentsline {table}{\numberline {4.20}{\ignorespaces $tol = 1e-5 kappa = 1.0/2 Mu_m =1e2 MU = 0.1$\relax }}{47}{table.caption.35}
+\contentsline {table}{\numberline {4.21}{\ignorespaces $tol = 1e-5 kappa = 1.0/2 Mu_m =1e2 MU = 10$\relax }}{48}{table.caption.36}
+\addvspace {10\p@ }

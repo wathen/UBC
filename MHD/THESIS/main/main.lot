@@ -1,0 +1,46 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of coefficient matrices and corresponding preconditioners for each iteration scheme\relax }}{40}{table.caption.7}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Convergence of the velocity field for 2D Navier-Stokes - $tol=$\nobreakspace {}1e-10\relax }}{46}{table.caption.12}
+\contentsline {table}{\numberline {4.2}{\ignorespaces Convergence of the pressure variable for 2D Navier-Stokes - $tol=$\nobreakspace {}1e-10\relax }}{46}{table.caption.13}
+\contentsline {table}{\numberline {4.3}{\ignorespaces Convergence of the velocity field for 3D Navier-Stokes - $tol=$\nobreakspace {}1e105\relax }}{47}{table.caption.14}
+\contentsline {table}{\numberline {4.4}{\ignorespaces Convergence of the pressure variable for 3D Navier-Stokes - $tol=$\nobreakspace {}1e-10\relax }}{48}{table.caption.15}
+\contentsline {table}{\numberline {4.5}{\ignorespaces Iteration table for LSC preconditioner for 2D example for various values of $\nu $ and $tol=$\nobreakspace {}1e-5\relax }}{49}{table.caption.16}
+\contentsline {table}{\numberline {4.6}{\ignorespaces Iteration table for a PCD preconditioned 2D example for various values of $\nu $ and $tol=$\nobreakspace {}1e-5\relax }}{50}{table.caption.17}
+\contentsline {table}{\numberline {4.7}{\ignorespaces Convergence for 2D Maxwell smooth solution - magnetic field\relax }}{50}{table.caption.18}
+\contentsline {table}{\numberline {4.8}{\ignorespaces Convergence for 2D Maxwell smooth solution - multiplier variable\relax }}{51}{table.caption.19}
+\contentsline {table}{\numberline {4.9}{\ignorespaces Convergence for 3D Maxwell smooth solution - magnetic field\relax }}{52}{table.caption.20}
+\contentsline {table}{\numberline {4.10}{\ignorespaces Convergence for 3D Maxwell smooth solution - multiplier variable\relax }}{52}{table.caption.21}
+\contentsline {table}{\numberline {4.11}{\ignorespaces Iteration count for Maxwell preconditioner for 2D example - direct application of preconditioner\relax }}{53}{table.caption.23}
+\contentsline {table}{\numberline {4.12}{\ignorespaces Iteration table for Maxwell preconditioner for 3D example - direct application of preconditioner\relax }}{53}{table.caption.25}
+\contentsline {table}{\numberline {4.13}{\ignorespaces Convergence for 2D MHD smooth solution (velocity field) - $tol=$\nobreakspace {}1e-8\relax }}{55}{table.caption.26}
+\contentsline {table}{\numberline {4.14}{\ignorespaces Convergence for 2D MHD smooth solution (pressure variable) - $tol=$\nobreakspace {}1e-8\relax }}{55}{table.caption.27}
+\contentsline {table}{\numberline {4.15}{\ignorespaces Convergence for 2D MHD smooth solution (magnetic field) - $tol=$\nobreakspace {}1e-8\relax }}{55}{table.caption.28}
+\contentsline {table}{\numberline {4.16}{\ignorespaces Convergence for 2D MHD smooth solution (multiplier variable) - $tol=$\nobreakspace {}1e-8\relax }}{56}{table.caption.29}
+\contentsline {table}{\numberline {4.17}{\ignorespaces Convergence for 3D MHD smooth solution (velocity field) - $tol=$\nobreakspace {}1e-8\relax }}{57}{table.caption.30}
+\contentsline {table}{\numberline {4.18}{\ignorespaces Convergence for 3D MHD smooth solution (pressure variable) - $tol=$\nobreakspace {}1e-8\relax }}{57}{table.caption.31}
+\contentsline {table}{\numberline {4.19}{\ignorespaces Convergence for 3D MHD smooth solution (magnetic field) - $tol=$\nobreakspace {}1e-8\relax }}{57}{table.caption.32}
+\contentsline {table}{\numberline {4.20}{\ignorespaces Convergence for 3D MDH smooth solution (multiplier variable) - $tol=$\nobreakspace {}1e-8\relax }}{57}{table.caption.33}
+\contentsline {table}{\numberline {4.21}{\ignorespaces Number of non-linear iterations for various values of $\nu $ with $tol=$\nobreakspace {}1e-5, $\kappa = 1$ and $\nu _m = 10$.\relax }}{59}{table.caption.35}
+\contentsline {table}{\numberline {4.22}{\ignorespaces Number of non-linear iterations for various values of $\kappa $ with $tol=$\nobreakspace {}1e-5, $\nu = 1$ and $\nu _m = 10$.\relax }}{59}{table.caption.37}
+\contentsline {table}{\numberline {4.23}{\ignorespaces Number of non-linear and average number of preconditioning iterations for various values of $\nu $ with $tol=$\nobreakspace {}1e-5, $\kappa = 1$ and $\nu _m = 10$.\relax }}{62}{table.caption.39}
+\contentsline {table}{\numberline {4.24}{\ignorespaces Number of non-linear and average number of preconditioning iterations for various values of $\kappa $ with $tol=$\nobreakspace {}1e-5, $\nu = 1$ and $\nu _m = 10$.\relax }}{63}{table.caption.40}
+\contentsline {table}{\numberline {4.25}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $tol=$\nobreakspace {}1e-4, $\kappa = 1$, $\nu = 1$ and $\nu _m = 10$.\relax }}{63}{table.caption.42}
+\contentsline {table}{\numberline {4.26}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $tol=$\nobreakspace {}1e-4, $\nu = 1$ and $\nu _m = 10$.\relax }}{64}{table.caption.43}
+\contentsline {table}{\numberline {4.27}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $tol=$\nobreakspace {}1e-4, $\kappa = 1$, $\nu = 1$ and $\nu _m = 10$.\relax }}{65}{table.caption.44}
+\contentsline {table}{\numberline {4.28}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $tol=$\nobreakspace {}1e-4, $\kappa = 1$, $\nu = 1$ and $\nu _m = 10$ in 3D.\relax }}{65}{table.caption.46}
+\contentsline {table}{\numberline {4.29}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwell's subproblem for the CD scheme with $tol=$\nobreakspace {}1e-4 $\kappa = 1$, and $\nu _m = 10$.\relax }}{66}{table.caption.48}
+\contentsline {table}{\numberline {4.30}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwells subproblem for the CD scheme with $tol=$\nobreakspace {}1e-4, $\nu = 1$ and $\nu _m = 10$.\relax }}{67}{table.caption.49}
+\contentsline {table}{\numberline {4.31}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwell's subproblem for the CD scheme with $tol=$\nobreakspace {}1e-4, $\kappa = 1$, $\nu = 1$ and $\nu _m = 10$.\relax }}{67}{table.caption.50}
+\contentsline {table}{\numberline {4.32}{\ignorespaces Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwell's subproblem for the CD scheme with $tol=$\nobreakspace {}1e-4, $\kappa = 1$, $\nu = 1$ and $\nu _m = 10$ in 3D.\relax }}{68}{table.caption.52}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

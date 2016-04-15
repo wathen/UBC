@@ -1,0 +1,263 @@
+\documentclass{article}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+%\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage{setspace}
+\newcommand{\uu}[1]{\boldsymbol #1}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+\doublespace
+\begin{document}
+
+
+\section{$\kappa$ precondition test}
+
+Consider a discretised incompressible Magnetohydrodynamics problem of the following form
+\begin{equation} \label{eq:K}
+    {\mathcal K}_{\rm MH} = \left(
+\begin{array}{cccc}
+A+O & B^T & C^T & 0\\
+B & 0 & 0 & 0\\
+-C & 0 & M & D^T \\
+0 & 0 & D & 0
+\end{array}
+\right).
+\end{equation}
+Using the inner-outer precondition 
+\begin{equation}
+\label{eq:mhd_pc_ls}
+\mathcal{K}_{\rm MH} =
+\left(
+\begin{array}{cccc}
+F & B^T & C^T & 0\\
+0 & -{S} & 0 & 0 \\
+-C & 0 & M+X & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right),
+\end{equation}
+from [Dan's thesis] and [Michael's thesis] as a starting point we re-oder the variables to $(u,b,p,r)$ to yield
+\begin{equation}
+\label{eq:mhd_pc_ls}
+\mathcal{M}_{\rm MH} =
+\left(
+\begin{array}{cccc}
+F & C^T & B^T & 0\\
+-C & M+X & 0 & 0 \\
+0 & 0 & -S & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right).
+\end{equation}
+Using the preconditioner $\mathcal{M}_{\rm MHD}$ depends on an efficient way to implement
+\begin{equation}
+\label{eq:mhd_pc_ls}
+\mathcal{M}_{\rm outer}=\left(
+\begin{array}{cc}
+F & C^T \\
+-C & M+X 
+\end{array}
+\right)^{-1}.
+\end{equation}
+The approach used in [Dan's thesis] and [Michael's thesis] was to approximate $\mathcal{M}_{\rm outer}$ with an "inner" GMRES solve taking the block diagonal matrices as the preconditioner. However, this inner solver limits the efficiency of the preconditioning approach, therefore consider different possible approximations of $\mathcal{M}_{\rm outer}$ may increase the performance of this approach. Performing block LDL decomposition gives two possible preconditions of the following form
+\begin{equation}
+    \mathcal{M}_{1} = 
+    \begin{pmatrix}
+        F & 0 \\
+        0 & M+X + CF^{-1}C^{T}
+    \end{pmatrix}, \quad
+    \mathcal{M}_{2} = 
+    \begin{pmatrix}
+        F+C^T(M+X)^{-1}C & 0 \\
+        0 & M+X
+    \end{pmatrix}.
+\end{equation}
+It has been show that using $\mathcal{M}_1$ or $\mathcal{M}_2$ as a preconditioner for a Kyrlov subspace method yields exactly 3 eigenvalues [Murphy, Golub, Wathen]. Therefore, $\mathcal{M}_1^{-1}$ or $\mathcal{M}_2^{-1}$ may yield possible alternative and better approximations to $\mathcal{M}_{\rm outer}$.
+
+\subsection{Approximation of $C^TA^{-1}C$ and $C\tilde{A}^{-1}C^T$ where $A$ and $\tilde{A}$ are Laplacians}
+
+The operator $\tilde{\mathcal{F}}u$ is given by 
+\begin{equation}
+\begin{array}{cl}
+C\tilde{A}^{-1}C^T(u) &= -b \times \{ \nabla \times \Delta^{-1} [\nabla \times (u\times b)]\}, \\
+&= -b\times \nabla\times \Delta^{-1} \nabla \times (u\times b).
+\end{array}
+\end{equation}
+The second operator $\mathcal{F}b$ is given by
+\begin{equation}
+\begin{array}{cl}
+C^t{A}^{-1}C(b) &= \nabla \times ( [\Delta^{-1}\{ -b\times(\nabla \times b)\}] \times b),\\
+&= -\nabla \times ([\frac{1}{2}\Delta^{-1}\nabla (b\cdot b)]\times b - [\Delta^{-1}(b\cdot\nabla)b]\times b),\\
+&= -\frac{1}{2}\nabla \times \Delta^{-1}\nabla (b\cdot b)\times b - \nabla \times \Delta^{-1}(b\cdot\nabla)b)\times b,\\
+&= \nabla \times \Delta^{-1}(-\frac{1}{2}\nabla (b\cdot b)\times b -(b\cdot\nabla)b)\times b),\\
+&= [\nabla \times \Delta^{-1}(\nabla \times b)\times b]\times b.
+\end{array}
+\end{equation}
+
+The efficiency of the two approaches $\mathcal{F}b$ and $\tilde{\mathcal{F}}u$ rely on a good approximation of $\nabla \times \Delta^{-1}\nabla$. In the resent technical report from [Phillips et. al] they showed that 
+$$ \nabla \times \Delta^{-1}\nabla c = -c.$$ 
+Using this identity the two operators simplify to:
+$$\tilde{\mathcal{F}}u = b\times(u\times b), \quad \mathcal{F}b = (b\times b)\times b.$$
+Here we notice that for the simplification of $\mathcal{F}b$ has an $b\times b$ term which is identically zero. However, since the equations are linearised then 
+$$\mathcal{F}b = (b^k\times b)\times b^k.$$
+In 2-dimensions, let $b^k = (b_1^k,b_2^k,0)$ and $b = (b_1,b_2,0)$ then 
+$$
+(b^k \times b)\times b^k = 
+\begin{pmatrix}
+    (b_2^k)^2 & -b_1^kb_2^k\\
+    -b_1^kb_2^k & (b_1^k)^2
+\end{pmatrix}
+\begin{pmatrix}
+    b_1\\b_2
+\end{pmatrix}.
+$$
+Using $u = (u_1,u_2,0)$ and linearising around the two magnetic terms in $\tilde{\mathcal{F}}u$ yields
+$$
+b_k \times (u\times b_k) = 
+\begin{pmatrix}
+    (b_2^k)^2 & -b_1^kb_2^k\\
+    -b_1^kb_2^k & (b_1^k)^2
+\end{pmatrix}
+\begin{pmatrix}
+    u_1\\u_2
+\end{pmatrix}
+$$
+
+
+
+\subsection{Numerical testing}
+
+Construction of the precondition
+\begin{equation}
+    \begin{pmatrix}
+        F & C^T & B^T & 0 \\
+        0 & M+X+CF^{-1}C^T& 0 & 0 \\
+        0 & 0 & S & 0 \\
+        0 & 0 & 0 & L
+    \end{pmatrix},
+\end{equation}
+produces the following results
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+ 1 &    51 &       0.012178 &           0.455623 &                  5 &         11.6 \\
+ 2 &   163 &       0.034960 &           0.543420 &                  5 &         25.8 \\
+ 3 &   579 &       0.134840 &           1.109627 &                  5 &         33.0 \\
+ 4 &  2179 &       1.488171 &           8.177399 &                  5 &         35.2 \\
+ 5 &  8451 &      99.375478 &         498.770225 &                  5 &         36.6 \\
+\hline
+\end{tabular}
+\caption{$\kappa = 1$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+1 &    51 &       0.011994 &           0.536929 &                  6 &         11.5\\
+2 &   163 &       0.034794 &           0.649704 &                  6 &         26.3\\
+3 &   579 &       0.133624 &           1.359779 &                  6 &         34.0\\
+4 &  2179 &       1.463671 &           9.618563 &                  6 &         36.7\\
+5 &  8451 &      83.979013 &         505.978769 &                  6 &         37.3\\
+\hline
+\end{tabular}
+\caption{$\kappa = 10$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+ 1 &    51 &       0.011866 &           0.616299 &                  7 &         10.9  \\
+ 2 &   163 &       0.034967 &           0.756720 &                  7 &         26.7  \\
+ 3 &   579 &       0.134432 &           1.582807 &                  7 &         34.1  \\
+ 4 &  2179 &       1.464692 &          11.227711 &                  7 &         36.4  \\
+ 5 &  8451 &      87.282682 &         613.476128 &                  7 &         37.6  \\
+\hline
+\end{tabular}
+\caption{$\kappa = 100$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+
+
+Now consider the following preconditioner
+\begin{equation}
+    \begin{pmatrix}
+        F - C^T(M+X)^(-1)C& C^T & B^T & 0 \\
+        0 & M+X& 0 & 0 \\
+        0 & 0 & S & 0 \\
+        0 & 0 & 0 & L
+    \end{pmatrix},
+\end{equation}
+Using this preconditioner yields:
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+1 &    51 &       0.012170 &           0.454375 &                  5 &         11.6\\
+2 &   163 &       0.034755 &           0.541899 &                  5 &         25.8\\
+3 &   579 &       0.134306 &           1.105293 &                  5 &         33.0\\
+4 &  2179 &       1.484157 &           8.151595 &                  5 &         35.2\\
+5 &  8451 &     117.987729 &         591.895518 &                  5 &         36.6\\
+\hline
+\end{tabular}
+\caption{$\kappa = 1$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+ 1 &    51 &       0.013092 &           3.153271 &                  6 &         11.5 \\
+ 2 &   163 &       0.036800 &           0.730741 &                  6 &         26.3 \\
+ 3 &   579 &       0.140951 &           1.440613 &                  6 &         34.0 \\
+ 4 &  2179 &       1.817301 &          11.879250 &                  6 &         36.7 \\
+ 5 &  8451 &     114.076549 &         686.811843 &                  6 &         37.3 \\
+\hline
+\end{tabular}
+\caption{$\kappa = 10$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lrrrrrll}
+\hline
+ l &   DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+ 1 &    51 &       0.013156 &           3.384350 &                  7 &         10.9\\
+ 2 &   163 &       0.038609 &           0.911713 &                  7 &         26.7\\
+ 3 &   579 &       0.152467 &           1.862579 &                  7 &         34.1\\
+ 4 &  2179 &       2.115897 &          15.969938 &                  7 &         36.4\\
+ 5 &  8451 &     112.773827 &         792.175312 &                  7 &         37.6\\
+\hline
+\end{tabular}
+\caption{$\kappa = 100$, $\nu_m = 1$ and $\nu=1$}
+\end{table}
+\end{document}

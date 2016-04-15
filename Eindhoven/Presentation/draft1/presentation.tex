@@ -1,0 +1,725 @@
+\documentclass[handout]{beamer}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\makeatletter
+\def\handoutsmode{handoutsmode}
+\def\notesmode{notesmode}
+\ifx\modetype\handoutsmode
+  % Handouts mode: supress overlays
+  \gdef\beamer@currentmode{handout}
+\else\relax\fi
+\ifx\modetype\notesmode
+  % Notes mode: show notes and suppress overlays
+  \gdef\beamer@currentmode{handout}
+  \setbeameroption{show notes}
+\else\relax\fi
+\makeatother
+
+% -- BEAMER PACKAGES & OPTIONS --
+ \setbeamersize{text margin  left=.5cm}   % Default 1cm
+ \setbeamersize{text margin right=.5cm}   % Default 1cm
+ \usefonttheme[onlymath]{serif}           % Serif math font
+ \setbeamertemplate{itemize items}[circle]
+ \setbeamertemplate{section in toc}[sections numbered]
+ \setbeamertemplate{navigation symbols}{} % No navigation symbols
+%\setbeamercovered{invisible}             % Shadowed/invisible overlays
+%\setbeameroption{show notes}
+ \setbeamercolor{frametitle}{fg=black}
+ \setbeamerfont{frametitle}{size=\large,series=\bfseries}
+ \setbeamertemplate{frametitle}
+ {
+   \begin{centering}
+     \insertframetitle\par
+   \end{centering}
+ }
+% \setbeamertemplate{footline}[page number]  % Simple n/N footer
+ \setbeamertemplate{footline}[text line]{%
+   \vbox{%
+%     \tinycolouredline{black}{\color{white}\bf%
+       \insertpart\hfill%
+       \insertpartnumber--\insertframenumber%
+       \smallskip
+ }}
+
+% -- PACKAGES --
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{bbding}
+% \usepackage{pstricks}
+
+% \usepackage[misc]{ifsym}
+\usepackage{braket}
+\usepackage{boxedminipage}
+\usepackage{overpic}
+% -- SLIDE MACROS --
+\def\bc{\begin{center}}
+%\def\be{\begin{enumerate}}
+\def\bi{\begin{itemize}}
+\def\bs{\begin{small}}
+\def\ec{\end{center}}
+%\def\ee{\end{enumerate}}
+\def\ei{\end{itemize}}
+\def\es{\end{small}}
+
+
+% -- ONE-LINE SLIDES --
+\newcommand{\TOPIC}[1]{
+  \frame{LARGE\textbf{%
+      \begin{center}
+        \gr{#1}
+      \end{center}}}}
+
+% -- BOXED EQUATIONS --
+%\usepackage{empheq}
+\newenvironment{boxedeq}%
+  {\begin{empheq}[box=\fbox]{align}}
+  {\end{empheq}}
+
+% -- MISC --
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+\newcommand{\BALL}{{\color{structure}$\bullet \;$}}
+\newcommand{\eq}{\ =}
+\newcommand{\plus}{\ +}
+\newcommand{\footbar}{\hspace*{-2.5ex}\rule{2in}{.2pt}\\}
+\newcommand{\topline}{\hrulefill}
+\newcommand{\botline}{\vspace*{-1ex}\hrulefill}
+\renewcommand{\emph}[1]{\textbf{#1}}
+\newcommand{\mcol}[3]{\multicolumn{#1}{#2}{#3}}
+\newcommand{\assign}{\ensuremath{\leftarrow}}
+\newcommand{\textbox}[2]{%
+% \renewcommand{}[1]{{#1}}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+
+  \begin{tabular}{@{}#1@{}}%
+    #2
+  \end{tabular}}
+\def\paper#1{\textcolor{darkyellow}{[#1]}}
+\newcommand{\tss}[1]{{\scriptscriptstyle #1}}
+\renewcommand{\Re}{\ensuremath{\mathbf{R}}}
+
+\newcommand{\squishlist}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{1.5em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\barelist}{
+   \begin{list}{}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{0em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishlisttwo}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}    \setlength{\parsep}{0pt}
+      \setlength{\topsep}{0pt}     \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{2em} \setlength{\labelwidth}{1.5em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishend}{
+    \end{list}  }
+
+
+% -- COLORS --
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkyellow}{rgb}{.8,.6,.04}
+\newcommand{\gr}[1]{\textcolor{darkgreen} {#1}}
+\newcommand{\wh}[1]{\textcolor{white}     {#1}}
+\newcommand{\dy}[1]{\textcolor{darkyellow}{#1}}
+\newcommand{\yb}[1]{\colorbox {yellow}    {#1}}
+\newcommand{\re}[1]{{\textcolor{red}       {#1}}}
+\newcommand{\bl}[1]{{\textcolor{blue}{#1}}}
+
+\newcommand{\RE}[1]{{\bf\textcolor{red}       {#1}}}
+\newcommand{\GR}[1]{{\bf\textcolor{darkgreen} {#1}}}
+\newcommand{\DY}[1]{{\bf\textcolor{darkyellow}{#1}}}
+\newcommand{\BL}[1]{{\bf\textcolor{blue}{#1}}}
+\newcommand{\ssec}[1]{{\bf #1}}
+\newcommand{\rsec}[1]{{\bf\color{red}       #1}}
+\newcommand{\bsec}[1]{{\bf\color{blue}      #1}}
+\newcommand{\gsec}[1]{{\bf\color{darkgreen} #1}}
+\newcommand{\dom}{\mbox{\sf dom}}
+
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+
+% -- SPACING --
+\def\TabS  {\\ \hspace*{12pt}}
+\def\TabSS {\\ \hspace*{30pt}}
+\def\TabSSS{\\ \hspace*{45pt}}
+
+\def\fourth{{\textstyle{\frac{1}{4}}}}
+\newcommand{\rock}{\mcol{1}{l}{\bf Rock}}
+\renewcommand{\paper}{\mcol{1}{l}{\bf Paper}}
+\newcommand{\scissors}{\mcol{1}{l}{\bf Scissors}}
+\newcommand{\Px}{{\bf X}}
+\newcommand{\Py}{{\bf Y}}
+\renewcommand{\div}{\nabla\cdot\,}
+%\newcommand{Lt}{\hbox{\bf Left}}
+\newcommand{\Rt}{\hbox{\bf Right}}
+\newcommand{\iLt}{\invisible{Lt}}
+\newcommand{\iRt}{\invisible{\Rt}}
+\usetheme{CambridgeUS}
+\useinnertheme{rectangles}
+\useoutertheme{infolines}
+\usecolortheme{whale}
+\definecolor{mygreen}{cmyk}{0.82,0.11,1,0.25}
+\setbeamercolor{structure}{fg=mygreen}
+\setbeamercolor{frametitle}{fg=black,bg=mygreen}
+\usefonttheme[onlylarge]{structuresmallcapsserif}
+\usefonttheme[onlysmall]{structurebold}
+%\setbeamerfont{title}{shape=\itshape,family=\rmfamily}
+%\setbeamercolor{title}{fg=black!80!black, bg=white!70!blue}
+%\useoutertheme{miniframes}
+%\usecolortheme{rose}
+\beamertemplatetransparentcovereddynamic
+
+
+\title{MHD}
+\author[]{Chen Greif, Dan Li, Dominik Sch\"{o}tzau, \underline{Michael Wathen}}
+\institute[]{\Big{Eindhoven precond}}
+\date[]{$17^{\tiny{\mbox{th}}}$ June 2015 \\ Preconditioning 2015 \\ Eindhoven}
+\begin{document}
+
+\begin{frame}
+\institute[]{The University of British Columbia}
+
+\title{Block Preconditioners for an Incompressible Magnetohydrodynamics Problem}
+\titlepage
+\author{Michael Wathen}
+
+\author{Michael Wathen}
+
+\title{MHD}
+\author{Michael Wathen}
+
+\end{frame}
+\title{MHD}
+% \section{Introduction}
+
+% \begin{frame}
+
+% \frametitle{Continuous and Discrete Maxwell's equations}
+% \begin{tabular}{lrrrr}
+% \hline
+% {} &  Grid size &      DoF &  $\#$ iters &  Soln Time \\
+% \hline
+% 0 &       $   2^3$ &       81 &        1 &   4.25e-04 \\
+% 1 &       $   4^3$ &      375 &        3 &   6.03e-04 \\
+% 2 &       $   8^3$ &     2187 &        5 &   2.53e-03 \\
+% 3 &      $  16^3$ &    14739 &        5 &   1.96e-02 \\
+% 4 &      $  32^3$ &   107811 &        6 &   2.24e-01 \\
+% 5 &      $  64^3$ &   823875 &        6 &   2.28e+00 \\
+% 6 &     $ 128^3$ &  6440067 &        6 &   2.09e+01 \\
+% \hline
+% \end{tabular}
+
+% \end{frame}
+
+
+% \section{Overview}
+% \begin{frame}
+% \begin{center}
+%   Overview
+% \end{center}
+
+% \begin{itemize}
+%   \item Problem background: Setup, ...
+%   \item
+% \end{itemize}
+
+% \end{frame}
+
+\section{Problem background}
+\begin{frame}{Problem background}
+
+\begin{itemize}
+  \item MHD models electrically conductive fluids (such as liquid metals, plasma, salt water, etc) in an electic field
+  \pause
+  \item Applications: electromagnetic pumping, aluminium electrolysis, the Earth's molten core and solar flares
+  \pause
+  \item MHD models couple electromagnetism (governed by Maxwell's equations) and fluid dynamics (governed by the Navier-Stokes equations)
+  \pause
+  \item Movement of the conductive material that induces and modifies any existing electromagnetic field
+  \pause
+  \item Magnetic and electric fields generate a mechanical force on the fluid
+\end{itemize}
+
+\end{frame}
+
+\subsection{Navier-Stokes Equations} % (fold)
+
+\begin{frame}
+\frametitle{Steady-state Navier-Stokes equations}
+Incompressible Navier-Stokes Equations:
+
+\begin{subequations}\nonumber
+  \re{\begin{alignat}2
+    - \nu  \, \Delta{u}+({u} \cdot \nabla){u} +\nabla p &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    \nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    u &= u_D & \qquad &\mbox{on $\partial \Omega$}
+    \end{alignat}}
+\end{subequations}
+where $\re{u}$ is the fluids velocity; $\re{p}$ is the fluids pressure; $\re{f}$ is the body force acting on the fluid and $\re{\nu}$ the kinematic viscosity.
+
+
+\end{frame}
+
+
+\begin{frame}{Steady-state Navier-Stokes equations}
+
+Corresponding linear system:
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+A+0 & B^T \\
+B & 0
+\end{pmatrix}
+\begin{pmatrix}
+u\\p
+\end{pmatrix}=
+\begin{pmatrix}
+f \\ 0
+\end{pmatrix}
+}$$
+where $\re{A\in\mathbb{R}^{n_u\times n_u}}$ is the discrete Laplacian; $\re{O\in\mathbb{R}^{n_u\times n_u}}$ is the convection operator and $\re{B\in\mathbb{R}^{m_u\times n_u}}$ is a discrete divergence operator with full row rank.
+
+\bl{Note}: due to convection term the linear system is non-symmetric
+
+\vspace{2mm}
+
+For an extensive discussion of preconditioners we refer to \gr{Elman, Silvester and Wathen 2005/2014}.
+
+\end{frame}
+
+
+
+\subsection{Maxwell's Equations} % (fold)
+\begin{frame}{Time-Harmonic Maxwell in mixed form}
+Maxwell operator in mixed form:
+\begin{subequations}\nonumber
+  \re{\begin{alignat}2
+    \nabla\times( \nabla\times {b}) -k^2 b +\grad r &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    b \times n &= b_D & \qquad &\mbox{on $\partial \Omega$},\\[.1cm]
+    r &= 0& \qquad &\mbox{on $\partial \Omega$},
+    \end{alignat}}\\[.1cm]
+\end{subequations}
+where $\re{b}$ is the magnetic vector field, $\re{r}$ is the scalar multiplier and $\re{k}$ is the wave number.
+
+\vspace{2mm}
+
+Note: for the MHD system $\re{k = 0}$
+
+\end{frame}
+
+\begin{frame}
+Discretised and linearised Incompressible Navier-Stokes system
+\begin{equation}
+\nonumber
+\re{\begin{pmatrix}
+M-k^2X & D^T \\
+D & 0
+\end{pmatrix}
+\begin{pmatrix}
+b \\
+r
+\end{pmatrix}
+=
+\begin{pmatrix}
+g \\
+0
+\end{pmatrix}},
+\end{equation}
+where $\re{M\in\mathbb{R}^{n_b\times n_b}}$ is the discrete curl-curl operator; $\re{X\in\mathbb{R}^{n_b\times n_b}}$ the discrete mass matrix; $\re{D\in\mathbb{R}^{m_b\times n_b}}$ the discrete divergence operator
+
+\vspace{2mm}
+
+\bl{Note:} $\re{M}$ is semidefinate with nulity $\re{m_b}$.
+
+\vspace{2mm}
+
+A significant amount of literature on time-harmonic Maxwell: notably for us, work of \gr{Hiptmair 1999} and \gr{Hiptmair \& Xu 2007} for solving shifted curl-curl equations in a fully scalable fashion.
+
+
+
+\end{frame}
+
+
+\section{MHD}
+\begin{frame}{MHD model: coupled Navier-Stokes and Maxwell's equations}
+
+\begin{subequations} \nonumber
+% \label{eq:mhd}
+\re{\begin{alignat}2
+% \label{eq:mhd1}
+ - \nu  \, \Delta{u} + ({u} \cdot \nabla)
+{u}+\nabla p  {\only<2>{\color{blue}}- \kappa\,
+(\nabla\times{b})\times{b}} &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd2}
+\nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd3}
+\kappa\nu_m  \, \nabla\times( \nabla\times {b})
++ \nabla r
+{\only<2>{\color{blue}}- \kappa \, \nabla\times({u}\times {b})}  &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd4}
+ \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},
+\end{alignat}}
+\end{subequations}
+with appropriate boundary conditions.
+\pause
+\begin{itemize}
+  \item ${\color{blue}(\nabla\times{b})\times{b}}$:  Lorentz force accelerates the fluid particles in the direction normal to
+ the electric and magnetic fields.
+
+  \item ${\color{blue} \nabla\times({u}\times {b})}$: electromotive force modifying the magnetic field
+\end{itemize}
+\end{frame}
+
+\section{Discretisation}
+\begin{frame}{Discretisation}
+
+\begin{itemize}
+  \item Finite element discretisation based on the formulation in \gr{Sch{\"o}tzau 2004}
+  \item Fluid variables: lowest order Taylor-Hood (${\mathcal P_2}/{\mathcal P_1}$)
+  \item Magnetic variables: mixed {N\'{e}d\'{e}lec} element approximation
+  \item {N\'{e}d\'{e}lec} elements capture solutions correctly on non-convex domains
+\end{itemize}
+
+
+
+\end{frame}
+
+\begin{frame}
+Discretised and linearised MHD model:
+\begin{equation}
+\nonumber %\mathcal{K} x \equiv
+\re{\left(
+\begin{array}{cccc}
+A+O(u) & B^T & C(b)^T & 0\\
+B & 0 & 0 & 0 \\
+-C(b) & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},}
+\end{equation}
+with
+\begin{equation}\nonumber
+\re{\begin{array}{rl}
+r_u &= f- Au -O(u) u - C(b)^T b- B^T p,\\
+r_p &=-B u,\\
+r_b &=g-Mu+C(b)b-D^T r,\\
+r_r &=-D b.
+\end{array}}
+\end{equation}
+  $\re{A}$:~discrete Laplacian operator, $\re{O}$:~discrete convection operator, $\re{B}$:~discrete divergence operator, $\re{M}$:~discrete curl-curl operator, $\re{C}$:~coupling terms, $\re{D}$:~discrete divergence operator.
+  \end{frame}
+
+
+\begin{frame}
+\begin{center}
+  {\Large Decoupling schemes}
+\end{center}
+
+Magnetic Decoupling (MD):
+  $$\re{\mathcal{K}_{\rm MD}=\left(
+\begin{array}{cc|cc}
+A+O(u) & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+\hline
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}\right)}
+$$
+
+Complete Decoupling (CD):
+$$\re{\mathcal{K}_{\rm CD}=\left(
+\begin{array}{cc|cc}
+A & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+\hline
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)}
+$$
+\end{frame}
+
+\section{Preconditioning}
+
+\begin{frame}{Linear solver and Preconditioning}
+Consider
+$$\re{Ax=b},$$
+to iteratively solve:
+$$\mbox{find }\re{x_k \in x_0+{\rm span}\{r_0,Ar_0, \ldots ,A^{k-1}r_0\}}$$
+where $\re{r_0 = b-Ax_0}$ and $\re{x_0}$ is the initial guess.
+
+\vspace{5mm}
+
+Key for success: preconditioning
+\begin{itemize}
+    \item[1.] the preconditioner $\re{P}$ approximates $\re{A}$
+    \item[2.]  $\re{P}$ easy to solve for than $\re{A}$
+\end{itemize}
+Want eigenvalues of $\re{P  ^{-1}A}$  to be clusters
+
+\end{frame}
+
+
+
+\begin{frame}{Ideal preconditioning}
+
+Non-singular $(1,1)$ block
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F & B^T\\
+0 & B F^{-1} B^T
+\end{pmatrix}}
+\end{equation}
+\gr{Murphy, Golub \& Wathen 2000} showed exactly two eigenvalues: $\pm 1$ %and $\nicefrac{1}{2}\pm \nicefrac{\sqrt{5}}{2}$
+
+\vspace{5mm}
+\pause
+{Singular} $(1,1)$ block
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F+B^T W^{-1} B & 0 \\
+0 & W
+\end{pmatrix}}, \ \mbox{where $\re{W}$ is SPD}
+\end{equation}
+\gr{Greif \& Sch{\"o}tzau 2006} showed exactly two eigenvalues: $\pm 1$
+
+\end{frame}
+
+\begin{frame}{Navier-Stokes subproblem}
+
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}}$$
+where $\re{F=A+O}$ is the discrete convection diffusion operator. Shown in \gr{Elman, Silvester \& Wathen 2005/2014} that
+$$\re{\mathcal{P}_{\rm NS}=\left(\begin{array}{cc}
+F & B^T \\
+0 & S
+\end{array}\right)}, \quad \re{S =A_p F_p^{-1}Q_p}$$
+is a good approximation to the Schur complement preconditioner. $\re{A_p}$:~pressure space Laplacian, $\re{F_p}$:~pressure space convection-diffusion operator, $\re{Q_p}$:~pressure space mass matrix
+\end{frame}
+
+
+\begin{frame}{Maxwell subproblem}
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+M & B^T \\
+B & 0
+\end{pmatrix}}$$
+{\textit Note:} M is highly rank defficient.
+
+\gr{Greif \& Sch{\"o}tzau 2007} shows that $\re{L}$ (scalar Laplacian) is the appropriate choice for $\re{W}$
+$$\re{\mathcal{P}_{\rm iM}=\left(\begin{array}{cc}
+M+B^T L^{-1} B & 0 \\
+0 & L
+\end{array}\right)}$$
+\pause
+Practical preconditioner:
+$$\re{\mathcal{P}_{\rm M}=\left(\begin{array}{cc}
+M+X & 0 \\
+0 & L
+\end{array}\right)}$$
+where $\re{X}$ vector mass matrix is spectrally equivalent to $\re{B^T L^{-1} B}$
+\end{frame}
+
+
+\begin{frame}{MHD problem}
+  Combining the Navier-Stokes and Maxwell preconditioners
+  $$\re{\mathcal{P}_{\rm MH} =
+  \left(
+  \begin{array}{cccc}
+  F  & B^T & C^T & 0\\
+  0 & -{S} & 0 & 0 \\
+  -C & 0 & M+X & 0\\
+  0 & 0 & 0 & L
+  \end{array}
+  \right)}$$
+
+\vspace{2mm}
+
+\bl{Note:} $\re{{\mathcal{P}_{\rm MH}}}$ remains impractical due to coupling terms. Dual Schur complement approximation for velocity-magnetic unknowns
+
+$$\re{\mathcal{P}_{\rm schurMH} =
+\left(
+\begin{array}{cccc}
+F  + N_C & B^T & 0 & 0\\
+0 & -{S} & 0 & 0 \\
+0 & 0 & M+X & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right)}$$
+where $\re{N_C = C^T (M + X)^{-1}C}$
+\end{frame}
+
+
+\begin{frame}{Approximation for $\re{N_C}$}
+
+\end{frame}
+
+\begin{frame}{Summary of decoupling scheme preconditioners}
+  \begin{table}[h!]
+  \begin{center}
+  \begin{tabular}{|c|c|c|}
+  \hline
+    Iteration & Coefficient & Preconditioner \\
+    scheme & matrix & \\
+  \hline
+%   \rule{0pt}{12pt}(P) & $ \left(
+% \begin{array}{cccc}
+% A+O & B^T & C^T & 0\\
+% B & 0 & 0 & 0\\
+% -C & 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right)$ & $\left(
+% \begin{array}{cccc}
+% F & B^T & C^T & 0\\
+% 0 & -{S} & 0 & 0 \\
+% -C & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right)$ \\[0.1cm]
+%   \hline
+  \rule{0pt}{20pt}(MD) & $\re{ \left(
+      \begin{array}{cc|cc}
+      F& B^T & 0 & 0\\
+      B & 0 & 0 & 0 \\
+      \hline
+      0 & 0 & M & D^T\\
+      0 & 0 & D & 0
+      \end{array}
+      \right)}$ & $\re{\left(
+      \begin{array}{cc|cc}
+      F & B^T & 0 & 0\\
+      0 & -{S} & 0 & 0 \\
+      \hline
+      0 & 0 & M+X & 0\\
+      0 & 0 & 0 & L
+      \end{array}
+      \right)}$  \\[0.1cm]
+  \hline
+  \rule{0pt}{20pt}(CD) & $\re{\left(
+  \begin{array}{cc|cc}
+  A & B^T & 0 & 0\\
+  B & 0 & 0 & 0 \\
+  \hline
+  0 & 0 & M & D^T\\
+  0 & 0 & D & 0
+  \end{array}
+  \right)}$ &$\re{\left(\begin{array}{cc|cc}
+  A & 0 & 0 & 0\\
+  0 & \mbox{\small \(\frac{1}{\nu}\)} Q_p & 0 & 0 \\
+  \hline
+  0 & 0 & M+X & 0\\
+  0 & 0 & 0 & L
+  \end{array}
+  \right)}$ \\[0.1cm]
+  \hline
+  \end{tabular}
+  \caption{Summary of coefficient matrices and corresponding preconditioners for each the decoupling scheme}
+  \label{tab:SummaryTable}
+  \end{center}
+  \end{table}
+\end{frame}
+
+\section{Numerical results}
+
+\begin{frame}{Numerical software used}
+
+\begin{itemize}
+  \item Finite element software \re{\tt FEniCS}: core libraries are the problem-solving interface \re{\tt DOLFIN},  the compiler for finite element variational forms \re{\tt FFC}, the finite element  tabulator \re{\tt FIAT} for creating finite element function spaces, the just-in-time compiler \re{\tt Instant},  the code generator \re{\tt UFC} and  the form language \re{\tt UFL}.
+  \item Linear algebra software: \re{\tt HYPRE} as a multigrid solver and the sparse direct solvers  \re{\tt UMFPACK}, \re{\tt PASTIX}, \re{\tt SuperLU} and \re{\tt MUMPS}
+\end{itemize}
+\end{frame}
+
+
+
+% \begin{frame}
+% \begin{equation} \nonumber
+%     \begin{aligned}
+%       \re{  -\nu \Delta \vec u+ \nabla p} \ & \re{= \vec f} \\
+%          \re{ \div \vec u   } \ & \re{= 0 }\\
+%         % \vec u &= \vec 0 \ \ \ \mbox{on } \partial\Omega}
+%     \end{aligned} \ \ \ \ \  \mbox{in } \Omega \hspace{24mm}
+% \end{equation}
+% \vspace{-3mm}
+% \begin{equation} \nonumber
+% \mbox{\hspace{-1.5mm}} \re{\vec u = \vec g} \ \ \ \ \ \ \mbox{on } \partial\Omega
+% \end{equation}
+
+% Viscosity $ \re{\nu}$, velocity $ \re{\vec u}$ and pressure $ \re{p}$
+
+% \end{frame}
+
+% \begin{frame}
+
+% \frametitle{Stokes}
+
+% $$ \re{\mathcal{K} = \begin{bmatrix}
+% A & B^{\mbox{\tiny{T}}}\\
+% B & 0\\
+% \end{bmatrix} \hspace{15mm}
+% \mathcal{M} = \begin{bmatrix}
+% A & 0\\
+%  0& M\\
+% \end{bmatrix}}
+% $$
+
+% \end{frame}
+
+
+\section{Future work}
+\begin{frame}
+
+Future work:
+\begin{itemize}
+\item Scalable inner solvers
+\item Release code on a public repository
+\item Parallelisation of the code
+\item Robustness with respect to kinematic viscosity
+\item Other non-linear solvers
+\item Different mixed finite element discretisations
+\end{itemize}
+\end{frame}
+
+
+\end{document}

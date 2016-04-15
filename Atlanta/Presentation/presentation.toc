@@ -1,0 +1,8 @@
+\beamer@endinputifotherversion {3.36pt}
+\beamer@sectionintoc {1}{Problem background}{2}{0}{1}
+\beamer@sectionintoc {2}{MHD}{5}{0}{2}
+\beamer@sectionintoc {3}{Discretisation}{7}{0}{3}
+\beamer@sectionintoc {4}{Preconditioning}{11}{0}{4}
+\beamer@sectionintoc {5}{Numerical results}{19}{0}{5}
+\beamer@sectionintoc {6}{Future Work}{26}{0}{6}
+\beamer@sectionintoc {7}{References}{27}{0}{7}

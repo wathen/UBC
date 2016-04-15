@@ -1,0 +1,231 @@
+
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesFile{ubcsample.tex}[2012/04/07 v1.70 ^^J
+ University of British Columbia Sample Thesis]
+
+\documentclass[msc,oneside]{ubcthesis}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{psfrag}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{caption}
+% \usepackage{subcaption}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+% \usepackage{paralist}
+% % \usepackage[geometry]{ifsym}
+\usepackage{rotating}
+%
+% \usepackage[normalem]{ulem}
+% \usepackage{cite}
+% \usepackage{nicefrac}
+% % \usepackage{algpseudocode}
+\usepackage{varwidth}
+\usepackage[linewidth=1pt]{mdframed}
+\usepackage{lipsum}
+% \usepackage{hyperref}
+
+\usepackage[unicode=true,
+  linktocpage,
+  linkbordercolor={0.5 0.5 1},
+  citebordercolor={0.5 1 0.5},
+  linkcolor=blue]{hyperref}
+
+\institution{The University Of British Columbia}
+
+\faculty{The Faculty of Graduate Studies}
+\institutionaddress{Vancouver}
+
+\previousdegree{M.Sci., The University of Birmingham, 2012}
+
+\title{A mixed Finite Element approach to the Magnetohydrodynamics problem}
+% \subtitle{With a Subtitle}
+\author{Michael Wathen}
+\copyrightyear{2014}
+\submitdate{\monthname\ \number\year} % The "\ " is required after
+                                      % \monthname to prevent the
+                                      % command from eating the space.
+\program{Computer Science}
+
+\renewcommand\thepart         {\Roman{part}}
+\renewcommand\thechapter      {\arabic{chapter}}
+\renewcommand\thesection      {\thechapter.\arabic{section}}
+\renewcommand\thesubsection   {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection.\arabic{subsubsection}}
+\renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+
+\floatstyle{ruled}
+\newfloat{Program}{htbp}{lop}[chapter]
+
+% Here is the start of the document.
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{section}    % add the section number to the equation label
+\usepackage{amsthm}
+
+\newtheorem{mydef}{Definition}
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+\newcommand{\F}{\vec{F}}
+% \newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+% \newcommand{\U}{\vec u}
+\newcommand{\V}{\vec v}
+\newcommand{\Bt}{B^{\mbox{\tiny{T}}}}
+\newcommand{\me}{Maxwell's equations }
+\newcommand{\ns}{Navier-Stokes Equations }
+\renewcommand{\s}{Stokes Equations }
+\newcommand{\Fs}{\vec{f}_{\mbox{\tiny s}}}
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+\renewcommand{\R}{\mathbb{R}}
+\renewcommand{\C}{\mathbb{C}}
+\newcommand{\lstPython}[1]{\lstinline[language=Python,breaklines=true,mathescape,literate={\-}{}{0\discretionary{-}{}{}}]§#1§}
+\newcommand{\code}[1]{{\ttfamily{#1}}}
+\newcommand{\fenics}{FEniCS }
+\newcommand{\uu}[1]{\boldsymbol #1}
+\renewcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{zref-xr}
+% \AtBeginEnvironment{minted}{\singlespacing}
+% \AfterEndEnvironment{minted}{\doublespacing}
+% \BeforeBeginEnvironment{minted}{\begin{singlespacing*}}
+% \AfterEndEnvironment{minted}{\end{singlespacing*}}
+\doublespacing
+\usepackage{listings}
+\begin{document}
+\lstset{language=Python}
+% \definecolor{champagne}{rgb}{0.97, 0.91, 0.81}
+\newminted{python}{frame=single,mathescape=true,numbersep=11pt,linenos=true}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+
+
+
+
+%% This starts numbering in Roman numerals as required for the thesis
+%% style and is mandatory.
+\frontmatter
+
+
+\maketitle                      %% Mandatory
+\begin{abstract}                %% Mandatory -  maximum 350 words
+
+\end{abstract}
+
+\chapter{Preface}
+
+
+
+\tableofcontents                %% Mandatory
+\listoftables                   %% Mandatory if thesis has tables
+\listoffigures                  %% Mandatory if thesis has figures
+
+\chapter{Acknowledgements}      %% Optional
+
+\chapter{Dedication} %% Optional
+
+\mainmatter
+\input{../Intro/Intro}
+\input{../FEniCS/FEniCS}
+\input{../FEM/FEM}
+\input{../LinearSolver/LinearSolver}
+\input{../Preconditioning/Preconditioning}
+\input{../Results/Results}
+\input{../Conclusion/Conclusion}
+\bibliographystyle{plain}
+\bibliography{../ref/ref}
+
+\end{document}
+\endinput
+%%
+%% End of file `ubcsample.tex'.

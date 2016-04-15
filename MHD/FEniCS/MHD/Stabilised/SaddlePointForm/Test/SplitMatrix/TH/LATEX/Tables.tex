@@ -1,0 +1,121 @@
+
+%   Journal Article Template
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{bm}
+%\usepackage[notref,notcite]{showkeys}
+%\usepackage[dvipdfm]{hyperref}
+%\usepackage{hyperref}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+%\usepackage{epsfig,psfig}
+\usepackage{amsfonts,amsmath,latexsym}
+\usepackage{amsbsy}
+\usepackage{nicefrac}
+\usepackage{todonotes}
+\usepackage{subcaption}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%s
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% PROOF
+%
+%\newenvironment{rproof}{\addvspace{\medskipamount}\par\noindent{\it Proof:\/}}
+%{\unskip\nobreak\hfill$\Box$\par\addvspace{\medskipamount}}
+%
+% ROMENUM
+%
+
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\curl}{\rm curl}
+\newcommand{\dvr}{\rm div}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+
+\newcommand{\grad}{\ensuremath{\nabla}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% end: our definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\newenvironment{Pf}{\noindent {\bf Proof:}} {\hfill $\Box$ \medskip}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{table}
+\begin{tabular}{lrrrrrll}
+\hline
+l &      DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+3 &     1620 &       0.011381 &           0.328332 &                  6 &         12.8 \\
+4 &     6180 &       0.037703 &           0.711745 &                  5 &         13.8 \\
+5 &    24132 &       0.160827 &           2.738334 &                  5 &         15.0 \\
+6 &    95364 &       0.816697 &          11.812349 &                  5 &         16.4 \\
+7 &   379140 &       4.395587 &          53.305628 &                  5 &         17.6 \\
+8 &  1511940 &      24.030000 &         247.136355 &                  5 &         18.8 \\
+\hline
+\end{tabular}
+\caption{$\nu=1$, $\nu_m = 10$ and $\kappa = 1$}
+\end{table}
+
+
+\begin{table}
+\begin{tabular}{lrrrrrll}
+\hline
+l &      DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+3 &     1620 &       0.021366 &           7.091148 &                  7 &         19.7 \\
+4 &     6180 &       0.059668 &           1.199215 &                  7 &         20.0 \\
+5 &    24132 &       0.223140 &           4.416250 &                  7 &         20.6 \\
+6 &    95364 &       1.042803 &          18.568297 &                  7 &         20.9 \\
+7 &   379140 &       5.412990 &          84.093302 &                  7 &         21.3 \\
+8 &  1511940 &      27.404549 &         379.648390 &                  7 &         21.1 \\
+\hline
+\end{tabular}
+\caption{$\nu=1$, $\nu_m = 10$ and $\kappa = 10$}
+\end{table}
+
+\begin{table}
+\begin{tabular}{lrrrrrll}
+\hline
+l &      DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+3 &     1620 &       0.036849 &           9.437184 &                  7 &         46.0 \\
+4 &     6180 &       0.119174 &           1.607241 &                  7 &         45.9 \\
+5 &    24132 &       0.409964 &           5.713314 &                  7 &         42.4 \\
+6 &    95364 &       1.989536 &          25.688396 &                  7 &         44.9 \\
+7 &   379140 &       8.975908 &         109.497258 &                  7 &         42.3 \\
+8 &  1511940 &      34.769908 &         433.102749 &                  7 &         31.1 \\
+\hline
+\end{tabular}
+\caption{$\nu=1$, $\nu_m = 10$ and $\kappa = 100$}
+\end{table}
+
+\begin{table}
+\begin{tabular}{lrrrrrll}
+\hline
+l &      DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its \\
+\hline
+3 &     1620 &       0.072369 &           9.732176 &                  8 &        103.4 \\
+4 &     6180 &       0.175126 &           1.978998 &                  7 &         74.7 \\
+5 &    24132 &       0.315595 &           4.981197 &                  7 &         31.4 \\
+6 &    95364 &       1.509973 &          22.395556 &                  7 &         31.4 \\
+7 &   379140 &       7.166412 &          96.423271 &                  7 &         32.0 \\
+8 &  1511940 &      36.286390 &         437.894617 &                  7 &         35.0 \\
+\hline
+\end{tabular}
+\caption{$\nu=0.1$, $\nu_m = 10$ and $\kappa = 1$}
+\end{table}
+
+\end{document}

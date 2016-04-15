@@ -1,0 +1,66 @@
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{Introduction}
+
+\section{Magnetohydrodynamics}
+
+
+
+\subsection{Navier-Stokes}
+
+\subsection{Maxwell}
+
+\section{A model problem}
+
+stationary incompressible and resistive magnetohydrodynamics (MHD) system:
+\begin{subequations}
+\label{eq:mhd}
+\begin{alignat}2
+\label{eq:mhd1} - \nu  \, \Delta\uu{u} + (\uu{u} \cdot \nabla)
+\uu{u}+\nabla p - \kappa\,
+(\nabla\times\uu{b})\times\uu{b} &= \uu{f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd2}
+\nabla\cdot\uu{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd3}
+\kappa\nu_m  \, \nabla\times( \nabla\times \uu{b})
++ \nabla r
+- \kappa \, \nabla\times(\uu{u}\times \uu{b}) &= \uu{g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd4} \nabla\cdot\uu{b} &= 0 & \qquad &\mbox{in
+$\Omega$}.
+\end{alignat}
+\end{subequations}
+
+\begin{subequations}
+\label{eq:bc}
+\begin{alignat}2
+\label{eq:bc1} \uu{u} &= \uu{u_D} & \qquad &\mbox{on $\partial\Omega$},\\[.1cm]
+\label{eq:bc2}
+   \uu{n}\times\uu{b} &= \uu{n} \times \uu{b_D} & \qquad &\mbox{on $\partial\Omega$},\\[.1cm]
+\label{eq:bc3}      r &=0 &\qquad &\mbox{on $\partial\Omega$},
+\end{alignat}
+\end{subequations}
+
+\section{Finite element methods}
+${\mathcal P}_{k}$: the space of polynomials of total degree at most $k$
+$ \uu{R}_k$: the space of homogeneous vector polynomials of total degree $k$ that are orthogonal to the position vector $\uu{x}$
+
+\section{Iterative Methods}
+
+\section{Objectives and contributions}
+
+
+%{\bf [ changed order of equations to $(u,p,b,r)$] }
+% Here, $\Omega$ is a bounded simply-connected Lipschitz polyhedron in~$\mathbb{R}^3$, with a connected boundary~$\partial\Omega$. The unknowns are the velocity~$\uu{u}$, the hydrodynamic pressure~$p$, the magnetic field $\uu{b}$, and the Lagrange multiplier $r$ associated with the divergence constraint on the magnetic field. The functions $\uu{f}$ and $\uu{g}$ represent
+% external force terms.
+
+% The equations \eqref{eq:mhd} are characterized by three dimensionless parameters: the hydrodynamic Reynolds number ${\rm Re}=\nu^{-1}$, the magnetic Reynolds number ${\rm Rm}~=~\nu_m^{-1}$, and the coupling number~$\kappa$. For further discussion of these parameters and their typical values, we refer the reader to~\cite{ArmeroSimo96, Gerbeau2006, Roberts67}. We consider the following homogeneous and inhomogeneous Dirichlet boundary conditions:
+% with $\uu{n}$ being the unit outward normal on $\partial\Omega$. By taking the divergence of the magnetostatic equation~(\ref{eq:mhd3}), we obtain the Poisson problem
+% \begin{equation}
+% \label{eq:zero-r} \Delta r =\nabla \cdot \uu{g} \quad \mbox{in
+% $\Omega$}, \qquad r=0 \quad\mbox{on $\partial\Omega$}.
+% \end{equation}
+% Since $\uu{g}$ is divergence-free in physically relevant applications, the multiplier $r$ is typically zero and its primary purpose is to ensure stability; see also~\cite{Greif10}.
+
+% Our goal in this paper is to derive a scalable numerical solution procedure for solving \eqref{eq:mhd}-\eqref{eq:bc}. We first present in Section~\ref{sec:discretization} the finite element discretization and the structure of the matrices that arise throughout the nonlinear iterations. In Section~\ref{sec:preconditioning} we introduce the proposed preconditioners for the indefinite linear systems that arise; our ideas are based on combining preconditioners for the incompressible Navier-Stokes and Maxwell sub-systems appearing  in the MHD system~\eqref{eq:mhd1}--\eqref{eq:mhd4} while taking into account the presence of coupling terms. Spectral analysis is performed in Section~\ref{sec:mhd_eigenvalue}. {\bf [DS: More precise and quote earlier papers]}. In Section~\ref{sec:decoupling} we consider circumstances where the incompressible Navier-Stokes and the Maxwell systems can be decoupled; in such cases the preconditioning approach may be significantly simplified. In Section~\ref{sec:numerical_results_mhd_
+% solver} we provide preliminary results in two dimensions that show that our numerical  solution techniques are feasible and reasonably scalable. Finally, we offer some concluding remarks in Section~\ref{sec:conclusions}.

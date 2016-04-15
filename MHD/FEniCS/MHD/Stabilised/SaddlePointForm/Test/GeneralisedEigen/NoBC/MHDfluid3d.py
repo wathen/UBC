@@ -1,0 +1,365 @@
+
+
+
+import petsc4py
+import sys
+
+petsc4py.init(sys.argv)
+
+from petsc4py import PETSc
+Print = PETSc.Sys.Print
+from dolfin import *
+# from MatrixOperations import *
+import numpy as np
+#import matplotlib.pylab as plt
+import PETScIO as IO
+import common
+import scipy
+import scipy.io
+import time
+
+import BiLinear as forms
+import IterOperations as Iter
+import MatrixOperations as MO
+import CheckPetsc4py as CP
+import ExactSol
+import Solver as S
+import MHDmatrixPrecondSetup as PrecondSetup
+import NSprecondSetup
+import MHDallatonce as MHDpreconditioner
+import GeneralisedEigenvalues as GE
+import os
+m = 3
+
+
+errL2u =np.zeros((m-1,1))
+errH1u =np.zeros((m-1,1))
+errL2p =np.zeros((m-1,1))
+errL2b =np.zeros((m-1,1))
+errCurlb =np.zeros((m-1,1))
+errL2r =np.zeros((m-1,1))
+errH1r =np.zeros((m-1,1))
+
+
+
+l2uorder =  np.zeros((m-1,1))
+H1uorder =np.zeros((m-1,1))
+l2porder =  np.zeros((m-1,1))
+l2border =  np.zeros((m-1,1))
+Curlborder =np.zeros((m-1,1))
+l2rorder =  np.zeros((m-1,1))
+H1rorder = np.zeros((m-1,1))
+
+NN = np.zeros((m-1,1))
+DoF = np.zeros((m-1,1))
+Velocitydim = np.zeros((m-1,1))
+Magneticdim = np.zeros((m-1,1))
+Pressuredim = np.zeros((m-1,1))
+Lagrangedim = np.zeros((m-1,1))
+Wdim = np.zeros((m-1,1))
+iterations = np.zeros((m-1,1))
+SolTime = np.zeros((m-1,1))
+udiv = np.zeros((m-1,1))
+MU = np.zeros((m-1,1))
+level = np.zeros((m-1,1))
+NSave = np.zeros((m-1,1))
+Mave = np.zeros((m-1,1))
+TotalTime = np.zeros((m-1,1))
+Dimensions = np.zeros((m-1,4))
+nn = 2
+
+dim = 2
+ShowResultPlots = 'yes'
+split = 'Linear'
+
+MU[0]= 1e0
+for xx in xrange(1,m):
+    print xx
+    level[xx-1] = xx+0
+    nn = 2**(level[xx-1])
+
+
+
+    # Create mesh and define function space
+    nn = int(nn)
+    NN[xx-1] = nn/2
+    # parameters["form_compiler"]["quadrature_degree"] = 6
+    # parameters = CP.ParameterSetup()
+    mesh = UnitCubeMesh(nn,nn,nn)
+
+    order = 1
+    parameters['reorder_dofs_serial'] = False
+    Velocity = VectorFunctionSpace(mesh, "CG", order)+VectorFunctionSpace(mesh, "B",4)
+    Pressure = FunctionSpace(mesh, "CG", order)
+    Magnetic = FunctionSpace(mesh, "N1curl", order)
+    Lagrange = FunctionSpace(mesh, "CG", order)
+    W = MixedFunctionSpace([Velocity,Magnetic, Pressure, Lagrange])
+    # W = Velocity*Pressure*Magnetic*Lagrange
+    Velocitydim[xx-1] = Velocity.dim()
+    Pressuredim[xx-1] = Pressure.dim()
+    Magneticdim[xx-1] = Magnetic.dim()
+    Lagrangedim[xx-1] = Lagrange.dim()
+    Wdim[xx-1] = W.dim()
+    print "\n\nW:  ",Wdim[xx-1],"Velocity:  ",Velocitydim[xx-1],"Pressure:  ",Pressuredim[xx-1],"Magnetic:  ",Magneticdim[xx-1],"Lagrange:  ",Lagrangedim[xx-1],"\n\n"
+    dim = [Velocity.dim(), Magnetic.dim(), Pressure.dim(), Lagrange.dim()]
+
+    Dimensions[xx-1,:] = np.array([Velocity.dim(), Pressure.dim(), Magnetic.dim(),Lagrange.dim()])
+
+    def boundary(x, on_boundary):
+        return on_boundary
+
+    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(4,1)
+
+
+    bcu = DirichletBC(W.sub(0),u0, boundary)
+    bcb = DirichletBC(W.sub(1),b0, boundary)
+    bcr = DirichletBC(W.sub(3),r0, boundary)
+
+    # bc = [u0,p0,b0,r0]
+    bcs = [bcu,bcb,bcr]
+    FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
+
+
+    (u, b, p, r) = TrialFunctions(W)
+    (v, c, q, s) = TestFunctions(W)
+    kappa = 1.0
+    Mu_m = 10.0
+    MU = 1.0/1
+
+    F_NS = -MU*Laplacian+Advection+gradPres-kappa*NS_Couple
+    if kappa == 0:
+        F_M = Mu_m*CurlCurl+gradR -kappa*M_Couple
+    else:
+        F_M = Mu_m*kappa*CurlCurl+gradR -kappa*M_Couple
+    params = [kappa,Mu_m,MU]
+
+
+    # MO.PrintStr("Preconditioning MHD setup",5,"+","\n\n","\n\n")
+    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, 1e-4, params)
+
+
+    MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
+    u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-6,Neumann=Expression(("0","0")),options ="New")
+    # plot(p_k, interactive = True)
+    b_t = TrialFunction(Velocity)
+    c_t = TestFunction(Velocity)
+    #print assemble(inner(b,c)*dx).array().shape
+    #print mat
+    #ShiftedMass = assemble(inner(mat*b,c)*dx)
+    #as_vector([inner(b,c)[0]*b_k[0],inner(b,c)[1]*(-b_k[1])])
+
+    ones = Function(Pressure)
+    ones.vector()[:]=(0*ones.vector().array()+1)
+    # pConst = - assemble(p_k*dx)/assemble(ones*dx)
+    p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
+    x = Iter.u_prev(u_k,b_k,p_k,r_k)
+
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
+    # plot(b_k)
+
+    IterType = 'Full'
+    ns,maxwell,CoupleTerm,Lmaxwell,Lns = forms.MHD2D(mesh, W,F_M,F_NS, u_k,b_k,params,IterType,"CG", SaddlePoint = "Yes")
+    RHSform = forms.PicardRHS(mesh, W, u_k, p_k, b_k, r_k, params,"CG",SaddlePoint = "Yes")
+
+
+    bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0")), boundary)
+    bcb = DirichletBC(W.sub(1),Expression(("0.0","0.0","0.0")), boundary)
+    bcr = DirichletBC(W.sub(3),Expression(("0.0")), boundary)
+    bcs = [bcu,bcb,bcr]
+
+    eps = 1.0           # error measure ||u-u_k||
+    tol = 1.0E-4     # tolerance
+    iter = 0            # iteration counter
+    maxiter = 5       # max no of iterations allowed
+    SolutionTime = 0
+    outer = 0
+    # parameters['linear_algebra_backend'] = 'uBLAS'
+
+    # FSpaces = [Velocity,Magnetic,Pressure,Lagrange]
+
+    if IterType == "CD":
+        AA, bb = assemble_system(maxwell+ns, (Lmaxwell + Lns) - RHSform,  bcs)
+        A,b = CP.Assemble(AA,bb)
+        # u = b.duplicate()
+        # P = CP.Assemble(PP)
+
+
+    u_is = PETSc.IS().createGeneral(range(Velocity.dim()))
+    NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
+    M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
+    OuterTol = 1e-5
+    InnerTol = 1e-3
+    NSits =0
+    Mits =0
+    TotalStart =time.time()
+    SolutionTime = 0
+    kspMASS = PrecondSetup.Masstest(Lagrange, p0, 1e-6)
+    while eps > tol  and iter < maxiter:
+        iter += 1
+        MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
+        tic()
+        if IterType == "CD":
+            bb = assemble((Lmaxwell + Lns) - RHSform)
+            for bc in bcs:
+                bc.apply(bb)
+            FF = AA.sparray()[0:dim[0],0:dim[0]]
+            A,b = CP.Assemble(AA,bb)
+            # if iter == 1
+            if iter == 1:
+                u = b.duplicate()
+                F = A.getSubMatrix(u_is,u_is)
+                kspF = NSprecondSetup.LSCKSPnonlinear(F)
+        else:
+            AA, bb = assemble_system(maxwell+ns+CoupleTerm, (Lmaxwell + Lns) - RHSform,  bcs)
+            A,b = CP.Assemble(AA,bb)
+            F = A.getSubMatrix(u_is,u_is)
+            n = FacetNormal(mesh)
+            mat = as_matrix([[b_k[2]*b_k[2]+b[1]*b[1],-b_k[1]*b_k[0],-b_k[0]*b_k[2]],
+                      [-b_k[1]*b_k[0],b_k[0]*b_k[0]+b_k[2]*b_k[2],-b_k[2]*b_k[1]],
+                    [-b_k[0]*b_k[2],-b_k[1]*b_k[2],b_k[0]*b_k[0]+b_k[1]*b_k[1]]])
+            a = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1/2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1/2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+            a = kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+
+            ShiftedMass = assemble(a)
+            
+            #bcu.apply(ShiftedMass)
+
+            #MO.StoreMatrix(AA.sparray()[0:dim[0],0:dim[0]]+ShiftedMass.sparray(),"A")
+            FF = CP.Assemble(ShiftedMass)
+            kspF = NSprecondSetup.LSCKSPnonlinear(FF)
+        # if iter == 1:
+            if iter == 1:
+                u = b.duplicate()
+        print ("{:40}").format("MHD assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
+        print "Inititial guess norm: ", u.norm()
+
+        ksp = PETSc.KSP()
+        ksp.create(comm=PETSc.COMM_WORLD)
+        pc = ksp.getPC()
+        ksp.setType('gmres')
+        pc.setType('python')
+        pc.setType(PETSc.PC.Type.PYTHON)
+        # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
+        reshist = {}
+        def monitor(ksp, its, fgnorm):
+            reshist[its] = fgnorm
+            print its,"    OUTER:", fgnorm
+        # ksp.setMonitor(monitor)
+        ksp.max_it = 1
+        FFSS = [Velocity,Magnetic,Pressure,Lagrange]
+        pc.setPythonContext(MHDpreconditioner.InnerOuterMAGNETICinverse(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],1e-6,FF))
+        # OptDB = PETSc.Options()
+
+        # OptDB['pc_factor_mat_solver_package']  = "mumps"
+        # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        # ksp.setFromOptions()
+        scale = b.norm()
+        b = b/scale
+        ksp.setOperators(A,A)
+        stime = time.time()
+        ksp.solve(b,u)
+        Soltime = time.time()- stime
+        NSits += ksp.its
+        # Mits +=dodim
+        u = u*scale
+        SolutionTime = SolutionTime +Soltime
+        AA = assemble(ns+maxwell+CoupleTerm)
+        AA = CP.Assemble(AA)
+
+        MO.PrintStr("Number of iterations ="+str(ksp.its),60,"+","\n\n","\n\n")
+        u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter, SaddlePoint = "Yes")
+        p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
+        u_k.assign(u1)
+        p_k.assign(p1)
+        b_k.assign(b1)
+        r_k.assign(r1)
+        uOld= np.concatenate((u_k.vector().array(),b_k.vector().array(),p_k.vector().array(),r_k.vector().array()), axis=0)
+        x = IO.arrayToVec(uOld)
+        PCD = [MatrixLinearFluids[0], MatrixLinearFluids[1], Fp]
+        if iter == 1:
+            t = TestFunction(Lagrange)
+            q = TrialFunction(Lagrange)
+            M = CP.Assemble(assemble(inner((t),(q))*dx))
+            t = TestFunction(Magnetic)
+            q = TrialFunction(Magnetic)
+            #AA = CP.Assemble(assemble(inner(grad(t),grad(q))*dx))
+            print W
+            LL = HiptmairMatrices[4].getOperators()[0]
+            print LL
+            A = assemble(maxwell+ns+CoupleTerm)
+            A = CP.Assemble(A)
+            A, P, Pinner, Papprox = GE.eigensORIG(AA,A, W, PCD, M)
+            #A, P = GE.eigensApprox(A, W, PCD, HiptmairMatrices[4],HiptmairMatrices[6], FF)
+            #A, P = GE.eigens(A, W, PCD, kspMASS)
+            its = GE.ShiftedCDtest(FF)
+            path = 'TESTmatrix_kappa='+str(kappa)+'_nu_m='+str(Mu_m)+'_nu='+str(MU)
+            if not os.path.exists(path):
+                os.makedirs(path)
+            os.chdir(path)
+            Mits += its
+            MO.StoreMatrix(CP.PETSc2Scipy(M),"M_"+str(iter)+"_"+str(nn))
+            #MO.StoreMatrix(CP.PETSc2Scipy(AA),"LL_"+str(iter)+"_"+str(nn))
+            MO.StoreMatrix(A,"A_"+str(iter)+"_"+str(nn))
+            MO.StoreMatrix(CP.PETSc2Scipy(FF),"SM_"+str(iter)+"_"+str(nn))
+            MO.StoreMatrix(P,"P_"+str(iter)+"_"+str(nn))
+            MO.StoreMatrix(Pinner,"Pinner_"+str(iter)+"_"+str(nn))
+            MO.StoreMatrix(Papprox,"Papprox_"+str(iter)+"_"+str(nn))
+            os.chdir('..')
+
+
+    XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+    SolTime[xx-1] = SolutionTime/iter
+    NSave[xx-1] = (float(NSits)/iter)
+    Mave[xx-1] = (float(Mits)/iter)
+    iterations[xx-1] = iter
+    TotalTime[xx-1] = time.time() - TotalStart
+
+
+
+    print SolTime
+
+import pandas as pd
+
+
+
+
+print "\n\n   Iteration table"
+if IterType == "Full":
+    IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av Outer its","Av Inner its",]
+else:
+    IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av NS iters","Av M iters"]
+IterValues = np.concatenate((level,Wdim,SolTime,TotalTime,iterations,NSave,Mave),axis=1)
+IterTable= pd.DataFrame(IterValues, columns = IterTitles)
+if IterType == "Full":
+    IterTable = MO.PandasFormat(IterTable,'Av Outer its',"%2.1f")
+    IterTable = MO.PandasFormat(IterTable,'Av Inner its',"%2.1f")
+else:
+    IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
+    IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
+print IterTable.to_latex()
+print " \n  Outer Tol:  ",OuterTol, "Inner Tol:   ", InnerTol
+
+print Dimensions
+np.savetxt('dimensions.t',Dimensions)
+
+# # # if (ShowResultPlots == 'yes'):
+
+# plot(u_k)
+# plot(interpolate(ue,Velocity))
+
+# plot(p_k)
+
+# plot(interpolate(pe,Pressure))
+
+# plot(b_k)
+# plot(interpolate(be,Magnetic))
+
+# plot(r_k)
+# plot(interpolate(re,Lagrange))
+
+# interactive()
+
+interactive()

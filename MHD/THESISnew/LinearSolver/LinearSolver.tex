@@ -1,0 +1,19 @@
+ \chapter{Linear Solver}
+
+In many applications one of the main problems is to find the solution of a linear system. This system may arise form an optimisation or, like here, a discretised PDE. In this chapter we will go through the two methods which this is done.
+
+\section{Direct Methods}
+
+Suppose you are given a linear system of the form
+$$Ax = b$$
+where $A$ is a real $n\times n$ non-singular matrix and right hand side vector $b \in \mathcal{R}^n$, where the aim is to solve for the vector $x \in \mathcal{R}^n$. All direct methods are based on Gaussian elimination.
+
+\subsection{Software}
+
+UMFPACK \cite{Davis:2004:CPS:992200.992205,Davis:2004:AUV:992200.992206,Davis:1999:CUM:305658.287640,davis1997unsymmetric}, PASTIX \cite{henon2002pastix}, SuperLU \cite{superlu_ug99,li05} and MUMPS \cite{amestoy2000multifrontal,amestoy2001fully,amestoy2006hybrid}
+
+
+\section{Iterative Methods}
+
+
+

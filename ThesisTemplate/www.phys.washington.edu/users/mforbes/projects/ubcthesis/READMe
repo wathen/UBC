@@ -1,0 +1,96 @@
+This directory contains the ubcthesis LaTeX2e class.  This class is
+designed to help students write theses in LaTeX2e, and was
+specifically design for conformance with the following institutions:
+
+ubcthesis.cls: The University of British Columbia (UBC)
+mitthesis.cls: The Massachusetts Institute of Technology (MIT)
+
+It is not officially supported by either institution, but the UBC faculty of
+graduate studies has checked with the sample and recommends its use.  If you
+follow the instructions in ubcsample.tex you should produce a compliant thesis.
+*Always* send your thesis in to check for conformance with sufficient time to
+make corrections.  If you have any problems, please let me know so I can update
+the instructions.
+
+The MIT thesis class is somewhat out of date and has not been actively
+maintained.
+
+Please note that both classes REQUIRE the following:
+
+genthesis.cls
+
+This directory contains the following files:
+
+README:		This file
+BUGS:		List of known bugs and/or potential problems with
+                installation.
+
+The following four files form the core of the distribution:
+
+ubcthesis.dtx:	Self documenting source for thesis class
+ubcthesis.ins:	Latex batch file for extracting the class
+fig.eps:	Sample figure
+fig.fig:	xfig file use to generate fig.eps
+lyx:            Support files for use with LyX. *unsupported and possibly old*
+
+ubcthesis.tgz:	Tarball with the previous files.
+
+The following files have been extracted for convenience.  These can be extracted
+from ubcthesis.dtx by running: 
+
+latex ubcthesis.ins
+
+genthesis.cls:	The genthesis LaTeX2e base class
+ubcthesis.cls:	The ubcthesis LaTeX2e class for UBC theses
+mitthesis.cls:	The mitthesis LaTeX2e class for MIT theses
+ubcthesis.dvi:	The ubcthesis class documentation (use xdvi)
+ubcthesis.ps:	The ubcthesis class documentation (postscript)
+ubcsample.tex:	Sample thesis for UBC
+mitsample.tex:	Sample thesis for MIT
+sample.bib:	Sample bibliographics database (BIBTeX)
+
+------------------------- 
+To use the class, simply put the genthesis.cls file and the
+appropriate school-specific file (ubcthesis.cls, mitthesis.cls) files
+somewhere on your LaTeX path (or simply in the same directory as your
+thesis).  See the documentation for more information.
+
+Comments, Questions, Suggestions?  Please contact:
+
+Michael Forbes
+mforbes@alum.mit.edu
+
+P.S. I am working on a completely new thesis class that looks *much* better but
+is not yet ready for mainstream use.  I will no-longer be improving the class
+found in this directory, but I shall continue to provide support until the new
+class is ready for use and approved by UBC.  If you are interested in trying the
+new class, please drop me a line and check out at:
+
+https://bitbucket.org/mforbes/ubcthesis_new
+
+-------------------------
+Important Changes:
+1.70: Move \backmatter *after* appendices in sample theses.
+1.69: Add hooks so babel does not revert \contentsname.
+1.68: Fixed some babel issues.
+1.67: Removed statement of co-authorship as per change in UBC guidelines.
+1.66: Added linktocpage as default for hyperref.
+1.63: Allow unnumbered chapters to affect running headers.
+1.61: Fixed page numbering bugs with \cleardoublepage and related.
+1.58: Fixed a bug with the pagination after \mainmatter allowing for
+      correct numbering and insertion of blank pages before chapters
+      as required for new theses.
+1.28: In this version and later, the commands \parttoc, \chaptertoc,
+      \sectiontoc etc. were removed.  These should be replaced with
+      the usual commands with optional arguments.  For example:
+
+      \chaptertoc{Long Chapter Name}{Short Name} ->
+      \chapter[Short Name]{Long Chapter Name}
+
+      The \preface and \acknowledgements commands were also removed.
+      These should be replaced by \chapter{Preface} etc.
+
+      See the sample theses for details.
+
+      My contact information has also changed.  Please make a note of
+      this.

@@ -1,0 +1,941 @@
+\documentclass{beamer}
+
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\makeatletter
+\def\handoutsmode{handoutsmode}
+\def\notesmode{notesmode}
+\ifx\modetype\handoutsmode
+  % Handouts mode: supress overlays
+  \gdef\beamer@currentmode{handout}
+\else\relax\fi
+\ifx\modetype\notesmode
+  % Notes mode: show notes and suppress overlays
+  \gdef\beamer@currentmode{handout}
+  \setbeameroption{show notes}
+\else\relax\fi
+\makeatother
+
+% -- BEAMER PACKAGES & OPTIONS --
+ \setbeamersize{text margin  left=.5cm}   % Default 1cm
+ \setbeamersize{text margin right=.5cm}   % Default 1cm
+ \usefonttheme[onlymath]{serif}           % Serif math font
+ \setbeamertemplate{itemize items}[circle]
+ \setbeamertemplate{section in toc}[sections numbered]
+ \setbeamertemplate{navigation symbols}{} % No navigation symbols
+%\setbeamercovered{invisible}             % Shadowed/invisible overlays
+%\setbeameroption{show notes}
+ \setbeamercolor{frametitle}{fg=black}
+ \setbeamerfont{frametitle}{size=\large,series=\bfseries}
+ \setbeamertemplate{frametitle}
+ {
+   \begin{centering}
+     \insertframetitle\par
+   \end{centering}
+ }
+% \setbeamertemplate{footline}[page number]  % Simple n/N footer
+ \setbeamertemplate{footline}[text line]{%
+   \vbox{%
+%     \tinycolouredline{black}{\color{white}\bf%
+       \insertpart\hfill%
+       \insertpartnumber--\insertframenumber%
+       \smallskip
+ }}
+
+% -- PACKAGES --
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{bbding}
+% \usepackage{pstricks}
+
+% \usepackage[misc]{ifsym}
+\usepackage{braket}
+\usepackage{boxedminipage}
+\usepackage{overpic}
+% -- SLIDE MACROS --
+\def\bc{\begin{center}}
+%\def\be{\begin{enumerate}}
+\def\bi{\begin{itemize}}
+\def\bs{\begin{small}}
+\def\ec{\end{center}}
+%\def\ee{\end{enumerate}}
+\def\ei{\end{itemize}}
+\def\es{\end{small}}
+
+
+% -- ONE-LINE SLIDES --
+\newcommand{\TOPIC}[1]{
+  \frame{LARGE\textbf{%
+      \begin{center}
+        \gr{#1}
+      \end{center}}}}
+
+% -- BOXED EQUATIONS --
+%\usepackage{empheq}
+\newenvironment{boxedeq}%
+  {\begin{empheq}[box=\fbox]{align}}
+  {\end{empheq}}
+
+% -- MISC --
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+\newcommand{\BALL}{{\color{structure}$\bullet \;$}}
+\newcommand{\eq}{\ =}
+\newcommand{\plus}{\ +}
+\newcommand{\footbar}{\hspace*{-2.5ex}\rule{2in}{.2pt}\\}
+\newcommand{\topline}{\hrulefill}
+\newcommand{\botline}{\vspace*{-1ex}\hrulefill}
+\renewcommand{\emph}[1]{\textbf{#1}}
+\newcommand{\mcol}[3]{\multicolumn{#1}{#2}{#3}}
+\newcommand{\assign}{\ensuremath{\leftarrow}}
+\newcommand{\textbox}[2]{%
+% \renewcommand{}[1]{{#1}}
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+
+  \begin{tabular}{@{}#1@{}}%
+    #2
+  \end{tabular}}
+\def\paper#1{\textcolor{darkyellow}{[#1]}}
+\newcommand{\tss}[1]{{\scriptscriptstyle #1}}
+\renewcommand{\Re}{\ensuremath{\mathbf{R}}}
+
+\newcommand{\squishlist}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{1.5em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\barelist}{
+   \begin{list}{}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{0em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishlisttwo}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}    \setlength{\parsep}{0pt}
+      \setlength{\topsep}{0pt}     \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{2em} \setlength{\labelwidth}{1.5em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishend}{
+    \end{list}  }
+
+
+% -- COLORS --
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkyellow}{rgb}{.8,.6,.04}
+\newcommand{\gr}[1]{\textcolor{darkgreen} {#1}}
+\newcommand{\wh}[1]{\textcolor{white}     {#1}}
+\newcommand{\dy}[1]{\textcolor{darkyellow}{#1}}
+\newcommand{\yb}[1]{\colorbox {yellow}    {#1}}
+\newcommand{\re}[1]{{\textcolor{red}       {#1}}}
+\newcommand{\RE}[1]{{\bf\textcolor{red}       {#1}}}
+\newcommand{\GR}[1]{{\bf\textcolor{darkgreen} {#1}}}
+\newcommand{\DY}[1]{{\bf\textcolor{darkyellow}{#1}}}
+\newcommand{\BL}[1]{{\bf\textcolor{blue}{#1}}}
+\newcommand{\ssec}[1]{{\bf #1}}
+\newcommand{\rsec}[1]{{\bf\color{red}       #1}}
+\newcommand{\bsec}[1]{{\bf\color{blue}      #1}}
+\newcommand{\gsec}[1]{{\bf\color{darkgreen} #1}}
+\newcommand{\dom}{\mbox{\sf dom}}
+
+\newcommand{\curl}{\ensuremath{\nabla\times\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+
+% -- SPACING --
+\def\TabS  {\\ \hspace*{12pt}}
+\def\TabSS {\\ \hspace*{30pt}}
+\def\TabSSS{\\ \hspace*{45pt}}
+
+\def\fourth{{\textstyle{\frac{1}{4}}}}
+\newcommand{\rock}{\mcol{1}{l}{\bf Rock}}
+\renewcommand{\paper}{\mcol{1}{l}{\bf Paper}}
+\newcommand{\scissors}{\mcol{1}{l}{\bf Scissors}}
+\newcommand{\Px}{{\bf X}}
+\newcommand{\Py}{{\bf Y}}
+\renewcommand{\div}{\nabla\cdot\,}
+%\newcommand{Lt}{\hbox{\bf Left}}
+\newcommand{\Rt}{\hbox{\bf Right}}
+\newcommand{\iLt}{\invisible{Lt}}
+\newcommand{\iRt}{\invisible{\Rt}}
+\usetheme{CambridgeUS}
+
+\usecolortheme{whale}
+% \usecolortheme[named=Brown]{structure}
+\usefonttheme[onlylarge]{structuresmallcapsserif}
+\usefonttheme[onlysmall]{structurebold}
+%\setbeamerfont{title}{shape=\itshape,family=\rmfamily}
+%\setbeamercolor{title}{fg=black!80!black, bg=white!70!blue}
+%\useoutertheme{miniframes}
+%\usecolortheme{rose}
+\beamertemplatetransparentcovereddynamic
+
+
+\title{MHD}
+\author{Michael Wathen}
+\institute{MSc presentation}
+\date{August 2014}
+
+\begin{document}
+
+\begin{frame}
+\institute{MSc presentation \\ UBC Computer Science}
+
+\title{Iterative Solution of a Mixed Finite Element Discretisation of
+an Incompressible Magnetohydrodynamics Problem}
+\titlepage
+\institute{MSc presentation}
+\title{MHD}
+\institute{MSc presentation}
+\end{frame}
+\institute{MSc presentation}
+\title{MHD}
+% \section{Introduction}
+
+% \begin{frame}
+
+% \frametitle{Continuous and Discrete Maxwell's equations}
+% \begin{tabular}{lrrrr}
+% \hline
+% {} &  Grid size &      DoF &  $\#$ iters &  Soln Time \\
+% \hline
+% 0 &       $   2^3$ &       81 &        1 &   4.25e-04 \\
+% 1 &       $   4^3$ &      375 &        3 &   6.03e-04 \\
+% 2 &       $   8^3$ &     2187 &        5 &   2.53e-03 \\
+% 3 &      $  16^3$ &    14739 &        5 &   1.96e-02 \\
+% 4 &      $  32^3$ &   107811 &        6 &   2.24e-01 \\
+% 5 &      $  64^3$ &   823875 &        6 &   2.28e+00 \\
+% 6 &     $ 128^3$ &  6440067 &        6 &   2.09e+01 \\
+% \hline
+% \end{tabular}
+
+% \end{frame}
+
+
+% \section{Overview}
+% \begin{frame}
+% \begin{center}
+%   Overview
+% \end{center}
+
+% \begin{itemize}
+%   \item Problem background: Setup, ...
+%   \item
+% \end{itemize}
+
+% \end{frame}
+
+\section{Problem background}
+\begin{frame}{Problem background}
+
+\begin{itemize}
+  \item MHD models electrically conductive fluids (such as liquid metals, plasma, salt water, etc) in an electic field
+  \pause
+  \item Applications: electromagnetic pumping, aluminium electrolysis, the Earth's molten core and solar flares
+  \pause
+  \item MHD models couple electromagnetism (governed by Maxwell's equations) and fluid dynamics (governed by the Navier-Stokes equations)
+  \pause
+  \item Movement of the conductive material that induces and modifies any existing electromagnetic field
+  \pause
+  \item Magnetic and electric fields generate a mechanical force on the fluid
+\end{itemize}
+
+\end{frame}
+
+\subsection{Navier-Stokes Equations} % (fold)
+
+\begin{frame}
+Incompressible Navier-Stokes Equations:
+
+\begin{subequations}\nonumber
+  \re{\begin{alignat}2
+    - \nu  \, \Delta{u}+({u} \cdot \nabla){u} +\nabla p &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    \nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    u &= u_D & \qquad &\mbox{on $\partial \Omega$}
+    \end{alignat}}
+\end{subequations}
+
+\begin{itemize}
+  \item $\re{u}$: fluid velocity
+  \item $\re{p}$: fluid pressure
+  \item $\re{f}$: body force acting on the fluid
+  \item $\re{\nu}$: kinematic viscosity
+\end{itemize}
+
+\end{frame}
+
+% \begin{frame}
+% Discretised and linearised Incompressible Navier-Stokes system
+% \begin{equation}
+% \nonumber
+% \re{\begin{pmatrix}
+% A+O & B^T \\
+% B & 0
+% \end{pmatrix}
+% \begin{pmatrix}
+% u \\
+% p
+% \end{pmatrix}
+% =
+% \begin{pmatrix}
+% f \\
+% 0
+% \end{pmatrix}},
+% \end{equation}
+% \begin{itemize}
+%   \item $\re{A}$: discrete Laplacian operator
+%   \item $\re{O}$: discrete convection-diffusion operator
+%   \item $\re{B}$: discrete divergence operator
+% \end{itemize}
+
+% \vspace{5mm}
+
+% For an extensive discussion of preconditioners we refer to \gr{Elman, Silvester and Wathen 2005/2014}.
+% \end{frame}
+
+\subsection{Maxwell's Equations} % (fold)
+\begin{frame}
+Maxwell operator in mixed form:
+\begin{subequations}\nonumber
+  \re{\begin{alignat}2
+    \nabla\times( \nabla\times {b}) +\grad r &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+    b \times n &= b_D & \qquad &\mbox{on $\partial \Omega$},\\[.1cm]
+    r &= 0& \qquad &\mbox{on $\partial \Omega$},
+    \end{alignat}}\\[.1cm]
+\end{subequations}
+\begin{itemize}
+  \item $\re{b}$: magnetic  field
+  \item $\re{r}$: scalar multiplier
+  \item $\re{n}$: unit outward normal
+\end{itemize}
+
+\end{frame}
+
+% \begin{frame}
+% Discretised and linearised Incompressible Navier-Stokes system
+% \begin{equation}
+% \nonumber
+% \re{\begin{pmatrix}
+% M+X & D^T \\
+% D & 0
+% \end{pmatrix}
+% \begin{pmatrix}
+% b \\
+% r
+% \end{pmatrix}
+% =
+% \begin{pmatrix}
+% g \\
+% 0
+% \end{pmatrix}},
+% \end{equation}
+% \begin{itemize}
+%   \item $\re{M}$: discrete curl-curl operator
+%   \item $\re{X}$: discrete mass matrix
+%   \item $\re{D}$: discrete divergence operator
+% \end{itemize}
+
+% \vspace{5mm}
+
+% For an extensive discussion of preconditioners we refer to \gr{Elman, Silvester and Wathen 2005/2014}.
+% \end{frame}
+
+
+\section{MHD}
+\begin{frame}{MHD model: coupled Navier-Stokes and Maxwell's equations}
+
+\begin{subequations} \nonumber
+% \label{eq:mhd}
+\re{\begin{alignat}2
+% \label{eq:mhd1}
+ - \nu  \, \Delta{u} + ({u} \cdot \nabla)
+{u}+\nabla p  {\only<2>{\color{blue}}- \kappa\,
+(\nabla\times{b})\times{b}} &= {f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd2}
+\nabla\cdot{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd3}
+\kappa\nu_m  \, \nabla\times( \nabla\times {b})
++ \nabla r
+{\only<2>{\color{blue}}- \kappa \, \nabla\times({u}\times {b})}  &= {g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+% \label{eq:mhd4}
+ \nabla\cdot{b} &= 0 & \qquad &\mbox{in $\Omega$},
+\end{alignat}}
+\end{subequations}
+with appropriate boundary conditions.
+\pause
+\begin{itemize}
+  \item ${\color{blue}(\nabla\times{b})\times{b}}$:  Lorentz force accelerates the fluid particles in the direction normal to
+ the electric and magnetic fields.
+
+  \item ${\color{blue} \nabla\times({u}\times {b})}$: electromotive force modifying the magnetic field
+\end{itemize}
+\end{frame}
+
+\section{Discretisation}
+\begin{frame}{Discretisation}
+
+\begin{itemize}
+  \item Finite element discretisation based on the formulation in \gr{Sch{\"o}tzau 2004}
+  \item Fluid variables: lowest order Taylor-Hood (${\mathcal P_2}/{\mathcal P_1}$)
+  \item Magnetic variables: mixed {N\'{e}d\'{e}lec} element approximation
+  \item {N\'{e}d\'{e}lec} elements capture solutions correctly on non-convex domains
+\end{itemize}
+
+
+
+\end{frame}
+\subsection{Picard (fixed-point iteration)}
+\begin{frame}{Non-linear solver}
+\begin{itemize}
+  \item MHD model is non-linear: $\re{\mathcal{K}(x) x = b}$
+
+  \item Standard Oseen iteration: $\re{\mathcal{K}(x_k) x_{k+1} = b}$
+
+ \item Re-arrange to solve for updates
+
+  \item $\re{\mathcal{K}(x_k) \delta x = b - \mathcal{K}(x_k)x_k} \ $ where $ \ \re{x_{k+1} = x_k+\delta x}$
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+Discretised and linearised MHD model:
+\begin{equation}
+\nonumber %\mathcal{K} x \equiv
+\re{\left(
+\begin{array}{cccc}
+A+O(u) & B^T & C(b)^T & 0\\
+B & 0 & 0 & 0 \\
+-C(b) & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)
+\,
+\left(
+\begin{array}{c}
+\delta u\\
+\delta p\\
+\delta b\\
+\delta r
+\end{array}
+\right)  =
+\begin{pmatrix}
+r_u \\
+r_p\\
+r_b\\
+r_r
+\end{pmatrix},}
+\end{equation}
+with
+\begin{equation}\nonumber
+\re{\begin{array}{rl}
+r_u &= f- Au -O(u) u - C(b)^T b- B^T p,\\
+r_p &=-B u,\\
+r_b &=g-Mu+C(b)b-D^T r,\\
+r_r &=-D b.
+\end{array}}
+\end{equation}
+  $\re{A}$:~discrete Laplacian operator, $\re{O}$:~discrete convection operator, $\re{B}$:~discrete divergence operator, $\re{M}$:~discrete curl-curl operator, $\re{C}$:~coupling terms, $\re{D}$:~discrete divergence operator.
+  \end{frame}
+
+
+\begin{frame}
+\begin{center}
+  {\Large Decoupling schemes}
+\end{center}
+
+Magnetic Decoupling (MD):
+  $$\re{\mathcal{K}_{\rm MD}=\left(
+\begin{array}{cc|cc}
+A+O(u) & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+\hline
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}\right)}
+$$
+
+Complete Decoupling (CD):
+$$\re{\mathcal{K}_{\rm CD}=\left(
+\begin{array}{cc|cc}
+A & B^T & 0 & 0\\
+B & 0 & 0 & 0 \\
+\hline
+0 & 0 & M & D^T\\
+0 & 0 & D & 0
+\end{array}
+\right)}
+$$
+\end{frame}
+
+\section{Preconditioning}
+
+\begin{frame}{Linear solver and Preconditioning}
+Consider
+$$\re{Ax=b},$$
+to iteratively solve:
+$$\mbox{find }\re{x_k \in x_0+{\rm span}\{r_0,Ar_0, \ldots ,A^{k-1}r_0\}}$$
+where $\re{r_0 = b-Ax_0}$ and $\re{x_0}$ is the initial guess.
+
+\vspace{5mm}
+
+Key for success: preconditioning
+\begin{itemize}
+    \item[1.] the preconditioner $\re{P}$ approximates $\re{A}$
+    \item[2.]  $\re{P}$ easy to solve for than $\re{A}$
+\end{itemize}
+Want eigenvalues of $\re{P  ^{-1}A}$  to be clusters
+
+\end{frame}
+
+
+
+\begin{frame}{Ideal preconditioning}
+
+Non-singular $(1,1)$ block
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F & B^T\\
+0 & B F^{-1} B^T
+\end{pmatrix}}
+\end{equation}
+\gr{Murphy, Golub \& Wathen 2000} showed exactly two eigenvalues: $\pm 1$ %and $\nicefrac{1}{2}\pm \nicefrac{\sqrt{5}}{2}$
+
+\vspace{5mm}
+\pause
+{Singular} $(1,1)$ block
+\begin{equation}\nonumber
+\re{\mathcal{K} = \begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}; \quad
+\mathcal{P}=\begin{pmatrix}
+F+B^T W^{-1} B & 0 \\
+0 & W
+\end{pmatrix}}, \ \mbox{where $\re{W}$ is SPD}
+\end{equation}
+\gr{Greif \& Sch{\"o}tzau 2006} showed exactly two eigenvalues: $\pm 1$
+
+\end{frame}
+
+\begin{frame}{Navier-Stokes subproblem}
+
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+F & B^T \\
+B & 0
+\end{pmatrix}}$$
+where $\re{F=A+O}$ is the discrete convection diffusion operator. Shown in \gr{Elman, Silvester \& Wathen 2005/2014} that
+$$\re{\mathcal{P}_{\rm NS}=\left(\begin{array}{cc}
+F & B^T \\
+0 & S
+\end{array}\right)}, \quad \re{S =A_p F_p^{-1}Q_p}$$
+is a good approximation to the Schur complement preconditioner. $\re{A_p}$:~pressure space Laplacian, $\re{F_p}$:~pressure space convection-diffusion operator, $\re{Q_p}$:~pressure space mass matrix
+\end{frame}
+
+
+\begin{frame}{Maxwell subproblem}
+$$\re{\mathcal{K}_{\rm NS}=\begin{pmatrix}
+M & B^T \\
+B & 0
+\end{pmatrix}}$$
+{\textit Note:} M is highly rank defficient.
+
+\gr{Greif \& Sch{\"o}tzau 2007} shows that $\re{L}$ (scalar Laplacian) is the appropriate choice for $\re{W}$
+$$\re{\mathcal{P}_{\rm iM}=\left(\begin{array}{cc}
+M+B^T L^{-1} B & 0 \\
+0 & L
+\end{array}\right)}$$
+\pause
+Practical preconditioner:
+$$\re{\mathcal{P}_{\rm M}=\left(\begin{array}{cc}
+M+X & 0 \\
+0 & L
+\end{array}\right)}$$
+where $\re{X}$ vector mass matrix is spectrally equivalent to $\re{B^T L^{-1} B}$
+\end{frame}
+
+
+\begin{frame}{MHD problem}
+  Combining the Navier-Stokes and Maxwell preconditioners
+  $$\re{\mathcal{P}_{\rm MH} =
+  \left(
+  \begin{array}{cccc}
+  F & B^T & C^T & 0\\
+  0 & -{S} & 0 & 0 \\
+  -C & 0 & M+X & 0\\
+  0 & 0 & 0 & L
+  \end{array}
+  \right)}$$
+with the inner preconditioner
+$$\re{\mathcal{P}_{\rm innerMH} =
+\left(
+\begin{array}{cccc}
+F & B^T & 0 & 0\\
+0 & -{S} & 0 & 0 \\
+0 & 0 & M+X & 0\\
+0 & 0 & 0 & L
+\end{array}
+\right)}$$
+
+\end{frame}
+
+
+\begin{frame}{Summary of decoupling scheme preconditioners}
+  \begin{table}[h!]
+  \begin{center}
+  \begin{tabular}{|c|c|c|}
+  \hline
+    Iteration & Coefficient & Preconditioner \\
+    scheme & matrix & \\
+  \hline
+%   \rule{0pt}{12pt}(P) & $ \left(
+% \begin{array}{cccc}
+% A+O & B^T & C^T & 0\\
+% B & 0 & 0 & 0\\
+% -C & 0 & M & D^T \\
+% 0 & 0 & D & 0
+% \end{array}
+% \right)$ & $\left(
+% \begin{array}{cccc}
+% F & B^T & C^T & 0\\
+% 0 & -{S} & 0 & 0 \\
+% -C & 0 & N & 0\\
+% 0 & 0 & 0 & L
+% \end{array}
+% \right)$ \\[0.1cm]
+%   \hline
+  \rule{0pt}{20pt}(MD) & $\re{ \left(
+      \begin{array}{cc|cc}
+      F& B^T & 0 & 0\\
+      B & 0 & 0 & 0 \\
+      \hline
+      0 & 0 & M & D^T\\
+      0 & 0 & D & 0
+      \end{array}
+      \right)}$ & $\re{\left(
+      \begin{array}{cc|cc}
+      F & B^T & 0 & 0\\
+      0 & -{S} & 0 & 0 \\
+      \hline
+      0 & 0 & M+X & 0\\
+      0 & 0 & 0 & L
+      \end{array}
+      \right)}$  \\[0.1cm]
+  \hline
+  \rule{0pt}{20pt}(CD) & $\re{\left(
+  \begin{array}{cc|cc}
+  A & B^T & 0 & 0\\
+  B & 0 & 0 & 0 \\
+  \hline
+  0 & 0 & M & D^T\\
+  0 & 0 & D & 0
+  \end{array}
+  \right)}$ &$\re{\left(\begin{array}{cc|cc}
+  A & 0 & 0 & 0\\
+  0 & \mbox{\small \(\frac{1}{\nu}\)} Q_p & 0 & 0 \\
+  \hline
+  0 & 0 & M+X & 0\\
+  0 & 0 & 0 & L
+  \end{array}
+  \right)}$ \\[0.1cm]
+  \hline
+  \end{tabular}
+  \caption{Summary of coefficient matrices and corresponding preconditioners for each the decoupling scheme}
+  \label{tab:SummaryTable}
+  \end{center}
+  \end{table}
+\end{frame}
+
+\section{Numerical results}
+
+\begin{frame}{Numerical software used}
+
+\begin{itemize}
+  \item Finite element software \re{\tt FEniCS}: core libraries are the problem-solving interface \re{\tt DOLFIN},  the compiler for finite element variational forms \re{\tt FFC}, the finite element  tabulator \re{\tt FIAT} for creating finite element function spaces, the just-in-time compiler \re{\tt Instant},  the code generator \re{\tt UFC} and  the form language \re{\tt UFL}.
+  \item Linear algebra software: \re{\tt HYPRE} as a multigrid solver and the sparse direct solvers  \re{\tt UMFPACK}, \re{\tt PASTIX}, \re{\tt SuperLU} and \re{\tt MUMPS}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Navier-Stokes subproblem in isolation: 2D}
+\begin{table}[h!]
+\begin{center}
+    \begin{tabular}{cccccc}
+    \hline
+    $\ell$ &    Dofs &  \multicolumn{4}{ c }{Average iterations}\\
+     & ${u}_h/p_h$ & $\nu=10$ &  $\nu=1$ &  $\nu=0.1$&  $\nu=0.01$ \\
+    \hline
+    5 &     8,450/1,089 &  17 &  17 &  21 &  58 \\
+    6 &    33,282/4,225 &  17 &  17 &  22 &  30 \\
+    7 &   132,098/16,641 &  18 &  17 &  22 &  21 \\
+    8 &   526,338/66,049 &  18 &  18 &  22 &  20 \\
+    9 &  2,101,250/263,169 &  18 &  19 &  22 &  21 \\
+    \hline
+    \end{tabular}
+\caption{Iteration table for a PCD preconditioned for various values of $\nu$}
+\label{tab:PCD_2D}
+\end{center}
+\end{table}
+
+\end{frame}
+
+
+\begin{frame}{Maxwell subproblem in isolation: 2D}
+\begin{table}[h!] \small
+\begin{center}
+  \begin{tabular}{cccccc}
+  \hline
+   $\ell$ &     Dofs ${b}_h/r_h$ &  \multicolumn{4}{ c }{Number of iterations} \\
+    &                 &  $\nu_m=10$ &  $\nu_m=100 $&  $\nu_m=1000 $&  $\nu_m=10000$ \\
+  \hline
+   5 &    10,368/4,225 &   5 &    4 &     6 &      6 \\
+   6 &    41,216/16,641 &   5 &    6 &     6 &      6 \\
+   7 &   164,352/66,049 &   5 &    6 &     6 &      6 \\
+   8 &   656,384/263,169 &   5 &    6 &     6 &      8 \\
+   9 &  2,623,488/1,050,625 &   4 &    6 &     6 &      8 \\
+   10 &  10,489,856/4,198,401 &   4 &    6 &     8 &     10 \\
+
+  \hline
+\end{tabular}
+\caption{Iteration count for Maxwell preconditioner}
+\label{tab:Maxwell_2D}
+\end{center}
+\end{table}
+\end{frame}
+
+% \begin{frame}{Maxwell subproblem in isolation: 3D}
+
+% \begin{table}[h!]
+% \begin{center}
+% \begin{tabular}{cccccc}
+% \hline
+%   $\ell$ &     Dofs ${b}_h/r_h$ &  \multicolumn{4}{ c }{Number of iterations} \\
+%     & &  $\nu_m=10$ &  $\nu_m=100 $&  $\nu_m=1000 $&  $\nu_m=10000$ \\
+%     \hline
+%   2 &    2,936/729 &   4 &    4 &     6 &      5 \\
+%   3 &   21,424/49,13 &   4 &    4 &     6 &      5 \\
+%   4 &  163,424/35,937 &   4 &    6 &     6 &      5 \\
+%   5 &  1,276,096/274,625 &   4 &    6 &     6 &      5 \\
+% \hline
+% \end{tabular}
+% \caption{Iteration table for Maxwell preconditioner  for 3D example}
+% \label{tab:Maxwell_3D}
+% \end{center}
+% \end{table}
+% \end{frame}
+
+
+\begin{frame}{MHD: why inner-outer?}
+ %  \begin{table}[h!] \small
+ %  \begin{center}
+ %  \begin{tabular}{ccccccc}
+ %  \hline
+ %  $\ell$ &      Dofs &  Av solve time &  Total time & Its$_{\rm NL}$ &  Its$_{\rm O}$ &  Its$_{\rm I}$ \\
+ %  \hline
+ % 4 &     6,180 &       0.8 &       5.4 &                  5 &         21.2 &         11.2 \\
+ % 5 &    24,132 &       3.4 &      20.4 &                  5 &         22.2 &         11.0 \\
+ % 6 &    95,364 &      16.4 &      94.2 &                  5 &         23.2 &         12.2 \\
+ % 7 &   379,140 &      52.1 &     309.6 &                  5 &         19.4 &         10.0 \\
+ % 8 &  1,511,940 &     243.7 &    1695.0 &                  6 &         21.2 &         10.0 \\
+ % 9 &  6,038,532 &    3592.6 &   26861.9 &                  7 &         17.3 &         10.9 \\
+ %  \hline
+ %  \end{tabular}
+ %  \caption{Number of non-linear and average number of preconditioning iterations with $\kappa = 1$, $\nu = 1$ and $\nu_m = 10$. Outer tol 1e-6, inner tol 1e-4.}
+ %  \label{tab:MD_large_scale}
+ %  \end{center}
+ %  \end{table}
+
+{\setlength{\tabcolsep}{.25em}
+\begin{table}[h!] \scriptsize
+\begin{center}
+\begin{tabular}{|cc|ccc|ccc|ccc|ccc|}
+\hline
+  \multicolumn{2}{|c }{} &  \multicolumn{3}{ |c| }{$\kappa=0.1$} &  \multicolumn{3}{|c| }{$\kappa=1$} &  \multicolumn{3}{|c| }{$\kappa=10$}&     \multicolumn{3}{|c| }{$\kappa=100$} \\
+$\ell$ &     Dofs &  Its$_{\rm NL}$ &  Its$_{\rm O}$ &  Its$_{\rm I}$ &  Its$_{\rm NL}$ &  Its$_{\rm O}$ &  Its$_{\rm I}$  &   Its$_{\rm NL}$ &  Its$_{\rm O}$ &  Its$_{\rm I}$ &   Its$_{\rm NL}$ &  Its$_{\rm O}$ &  Its$_{\rm I}$     \\
+\hline
+  % 3 &  1,620 &  6 &  46.7 &  41.5 &   6 &  22.3 &  20.2 &   7 &  24.7 &  14.6 &   10 &  54.8 &  34.6 \\
+  4 &  6,180 &  5 &  22.2 &  15.4 &   6 &  18.8 &  14.7 &   7 &  30.7 &  14.1 &    9 &  61.4 &  24.4 \\
+  5 &    24,132 &  5 &  23.8 &  11.4 &     6 &  27.3 &  15.2 &     8 &  43.8 &  24.0 &    10 &  80.3 &  37.9 \\
+  6 &    95,364 &  5 &  28.0 &  17.4 &     6 &  20.2 &  15.3 &     7 &  41.1 &  15.4 &     9 &  74.6 &  31.1 \\
+  7 &   379,140 &  5 &  18.6 &  14.6 &     7 &  16.3 &  14.2 &     7 &  37.4 &  16.4 &    14 &  73.9 &  34.7 \\
+  8 &  1,511,940 &  5 &  20.4 &  15.2 &     8 &  24.3 &  14.9 &     7 &  39.6 &  18.4 &    11 &  75.4 &  33.3 \\
+\hline
+\end{tabular}
+\caption{Number of non-linear and average number of preconditioning iterations for various values of $\kappa$ with $\nu = 1$ and $\nu_m = 10$.}
+\label{tab:Picard_kappa_test}
+\end{center}
+\end{table}}
+
+{\setlength{\tabcolsep}{.16em}
+\begin{table}[h!] \scriptsize
+\begin{center}
+\begin{tabular}{|cc|ccc|ccc|ccc|ccc|}
+\hline
+  \multicolumn{2}{|c }{} &  \multicolumn{3}{ |c| }{$\kappa=0.1$} &  \multicolumn{3}{|c| }{$\kappa=1$} &  \multicolumn{3}{|c| }{$\kappa=10$}&     \multicolumn{3}{|c| }{$\kappa=100$}      \\
+$\ell$ &     Dofs &  Its$_{\rm NL}$ &     Its$_{\rm NS}$ &    Its$_{\rm M}$ &  Its$_{\rm NL}$ &     Its$_{\rm NS}$ &    Its$_{\rm M}$  &   Its$_{\rm NL}$ &     Its$_{\rm NS}$ &    Its$_{\rm M}$ &   Its$_{\rm NL}$ &     Its$_{\rm NS}$ &    Its$_{\rm M}$     \\
+\hline
+ 4 &  6,180 &  4 &  22.5 &  4.5 &   5 &  23.0 &  3.4 &  10 &  21.9 &  2.3 &   - &  22.2 &  2.2 \\
+ 5 &    24,132 &  4   &  22.1     & 4.5   &  5&    22.0  &      3.4   & 10 &     21.4   &  2.3   &- &     21.7   & 2.2 \\
+ 6 &    95,364 &   4    & 21.5    & 4.5  &   5 &     21.2 &    3.4   & 10 &     21.1   &  2.3   &- &     21.5   & 2.3 \\
+ 7 &   379,140 &  4    & 21.5   &  4.8   & 5   &   21.2   &  3.4   & 10 &     21.1   &  2.4   &- &     21.6   & 2.2 \\
+ 8 &  1,511,940 &  4    & 21.5 &    4.8   & 5  &   21.4    & 3.4   & 10 &     21.1   &  2.4   &- &     21.7   & 2.2 \\
+\hline
+\end{tabular}
+\caption{Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $\nu = 1$ and $\nu_m = 10$.}
+\label{tab:MD_kappa_test}
+\end{center}
+\end{table}}
+
+\end{frame}
+
+\begin{frame}{MHD: (MD) scheme 2D}
+  \begin{table}[h!] \small
+  \begin{center}
+  \begin{tabular}{ccccccc}
+  \hline
+  $\ell$ &      Dofs &  Av solve time &  Total time &  Its$_{\rm NL}$ &     Its$_{\rm NS}$ &    Its$_{\rm M}$ \\
+  \hline
+   5 &    24,132 &       0.5 &           7.3 &                  5 &        22.0 &        3.4 \\
+   6 &    95,364 &       2.5 &          30.4 &                  5 &        21.2 &        3.4 \\
+   7 &   379,140 &      13.1 &         134.7 &                  5 &        21.2 &        3.4 \\
+   8 &  1,511,940 &      69.8 &         627.3 &                  5 &        21.4 &        3.4 \\
+   9 &  6,038,532 &     407.7 &        3159.7 &                  5 &        21.6 &        3.2 \\
+    10 &  24,135,684 &    3022.1 &       19668.3 &                  5 &        21.6 &        3.4 \\
+  \hline
+  \end{tabular}
+  \caption{Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $\kappa = 1$, $\nu = 1$ and $\nu_m = 10$.}
+  \label{tab:MD_large_scale}
+  \end{center}
+  \end{table}
+
+\end{frame}
+
+\begin{frame}{MHD: (MD) scheme 3D}
+  \begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{ccccccc}
+\hline
+   l&  Dofs &  Av solve time &  Total time &    Its$_{\rm NL}$ &  Its$_{\rm NS}$ &  Its$_{\rm M}$ \\
+\hline
+1 &    963 &       0.04 &           2.7 &                  5 &        23.2 &        3.4 \\
+2 &   5977 &       0.20 &          17.2 &                  5 &        34.2 &        3.0 \\
+3 &  41805 &       4.86 &         151.1 &                  5 &        34.2 &        3.4 \\
+ 4 &  312,085 &     242.1 &        2222.8 &                  5 &        32.4 &        3.4 \\
+ 5 &  2,410,533 &   30222.3 &      159032.8 &                  5 &        30.8 &        3.2 \\
+\hline
+\end{tabular}
+\caption{Number of non-linear iterations and average number of iterations to solve the Navier-Stokes and Maxwell's subproblem for the MD scheme with $\kappa = 1$, $\nu = 1$ and $\nu_m = 10$ in 3D.}
+\label{tab:MD_3Dlarge_scale}
+\end{center}
+\end{table}
+\end{frame}
+\begin{frame}{{MHD: (CD) scheme 2D}}
+  \begin{table}[h!] \small
+  \begin{center}
+  \begin{tabular}{ccccccc}
+  \hline
+   $\ell$ &      Dofs &  Av solve time &  Total time & Its$_{\rm NL}$ &     Its$_{\rm S}$ &    Its$_{\rm M}$ \\
+  \hline
+   5 &    24,132 &       0.4 &           7.7 &                 11 &        29.0 &        3.3 \\
+   6 &    95,364 &       2.6 &          38.8 &                 11 &        28.5 &        3.4 \\
+   7 &   379,140 &      13.0 &         181.7 &                 11 &        27.5 &        3.4 \\
+   8 &  1,511,940 &      66.5 &         888.0 &                 11 &        28.3 &        3.5 \\
+   9 &  6,038,532 &     358.0 &        4565.4 &                 11 &        28.3 &        3.4 \\
+   10 &  24,135,684 &    2335.7 &       28337.4 &                 11 &        27.4 &        3.5 \\
+  \hline
+  \end{tabular}
+  \caption{Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwell's subproblem for the CD scheme with $\kappa = 1$, $\nu = 1$ and $\nu_m = 10$.}
+  \label{tab:CD_large_scale}
+  \end{center}
+  \end{table}
+
+\end{frame}
+\begin{frame}{{MHD: (CD) scheme 3D}}
+  \begin{table}[h!] \small
+\begin{center}
+\begin{tabular}{ccccccc}
+\hline
+ $\ell$ &    Dofs &  Av solve time &  Total time &   Its$_{\rm NL}$ &     Its$_{\rm S}$ &    Its$_{\rm M}$\\
+\hline
+ 1 &    963 &       0.03 & 1.8 & 6 &        30.0 &        3.5 \\
+ 2 &   5,977 &       0.20 & 9.9 &                  6 &        45.7 &        3.2 \\
+ 3 &  41,805 &       4.32 & 89.2 & 6 &        43.0 &        2.8 \\
+  4 &  312,085 &     214.3 &         1786.5 & 6 &     42.3 &        2.8 \\
+5 &  2,410,533 &   26954.4 &       165671.1 & 6 &        41.3 &        2.8 \\
+\hline
+\end{tabular}
+\caption{Number of non-linear iterations and average number of iterations to solve the Stokes and Maxwell's subproblem for the CD scheme with $\kappa = 1$, $\nu = 1$ and $\nu_m = 10$ in 3D.}
+\label{tab:CD3D_large_scale}
+\end{center}
+\end{table}
+\end{frame}
+
+% \begin{frame}
+% \begin{equation} \nonumber
+%     \begin{aligned}
+%       \re{  -\nu \Delta \vec u+ \nabla p} \ & \re{= \vec f} \\
+%          \re{ \div \vec u   } \ & \re{= 0 }\\
+%         % \vec u &= \vec 0 \ \ \ \mbox{on } \partial\Omega}
+%     \end{aligned} \ \ \ \ \  \mbox{in } \Omega \hspace{24mm}
+% \end{equation}
+% \vspace{-3mm}
+% \begin{equation} \nonumber
+% \mbox{\hspace{-1.5mm}} \re{\vec u = \vec g} \ \ \ \ \ \ \mbox{on } \partial\Omega
+% \end{equation}
+
+% Viscosity $ \re{\nu}$, velocity $ \re{\vec u}$ and pressure $ \re{p}$
+
+% \end{frame}
+
+% \begin{frame}
+
+% \frametitle{Stokes}
+
+% $$ \re{\mathcal{K} = \begin{bmatrix}
+% A & B^{\mbox{\tiny{T}}}\\
+% B & 0\\
+% \end{bmatrix} \hspace{15mm}
+% \mathcal{M} = \begin{bmatrix}
+% A & 0\\
+%  0& M\\
+% \end{bmatrix}}
+% $$
+
+% \end{frame}
+
+
+\section{Future work}
+\begin{frame}
+
+Future work:
+\begin{itemize}
+\item Scalable inner solvers
+\item Release code on a public repository
+\item Parallelisation of the code
+\item Robustness with respect to kinematic viscosity
+\item Other non-linear solvers
+\item Different mixed finite element discretisations
+\end{itemize}
+\end{frame}
+
+
+\end{document}

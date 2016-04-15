@@ -1,0 +1,37 @@
+\documentclass{article}
+\newcommand{\fenics}{{\tt FEniCS} }
+\newcommand{\nedelec}{N\'{e}d\'{e}lec }
+
+\begin{document}
+
+
+
+
+%Magnetohydrodynamics (MHD) describes the behaviour of electrically conductive fluids (liquid metals, plasma, salt water, etc) in an electromagnetic field. MHD models has a number of important applications within technology and industry as well as Geophysical and Astrophysical applications. Some such applications are: electromagnetic pumping, aluminium electrolysis, the Earth's molten core and solar flares. We focus on preconditioning techniques for a mixed finite element discretization of an incompressible and resistive MHD problem. The propose techniques are motivated by the block structure of the underlying linear systems in conjunction with state of the art preconditioners for the mixed Maxwell and Navier-Stokes subproblems. Large scale numerical results demonstrate the effectiveness of our approaches.
+
+We focus on preconditioning techniques for a mixed finite element discretization of an incompressible magnetohydrodynamics (MHD) problem. Upon discretization and linearization, a $4\times4$ non-symmetric block-structured linear system needs to be (repetitively) solved. One of the principal challenges is the presence of a skew-symmetric term that couples the fluid velocity with the electric field. Our proposed technique exploits the block structure of the underlying linear system, utilizing and combining effective preconditioners for the mixed Maxwell and Navier-Stokes subproblems. The preconditioner is based on dual and primal Schur complement approximations to yield a scalable solution method. Large scale numerical results demonstrate the effectiveness of our approach.
+
+%We focus on preconditioning techniques for a mixed finite element discretization of an incompressible magnetohydrodynamics (MHD) problem. Upon discretization and linearization, a $4\times4$ non-symmetric block-structured linear system needs to be (repetitively) solved. One of the principal challenges is the presence of a skew-symmetric term that couples the fluid velocity with the electric field. Our proposed technique is motivated by the block-structure of the underlying linear systems in conjunction with effective preconditioners for the mixed Maxwell and Navier-Stokes subproblems. The preconditioner is based on dual and primal Schur complement approximations to yield a scalable solution method. Large scale numerical results demonstrate the effectiveness of our approach.
+
+
+%We consider preconditioning techniques for a discretized incompressible and resistive magnetohydrodynamics problem in mixed form. The governing equations couple the incompressible Navier-Stokes equations with the low-frequency Maxwell equations. We present a few preconditioning ideas for the underlying indefinite linear system, which are based on combining preconditioners for the Maxwell and Navier-Stokes sub-systems. We carry out spectral analysis that demonstrates that the eigenvalues are clustered in some cases. Preliminary numerical results in two dimensions show that our preconditioning techniques are feasible and reasonably scalable.
+%
+%
+%The aim of this thesis is to develop and numerically test a large scale preconditioned finite element implementation of an incompressible magnetohydrodynamics (MHD) model. To accomplish this, a broad-scope code has been generated using the finite element software package \fenics and the linear algebra software {\tt PETSc}. The code is modular, extremely flexible, and allows for implementing and testing different discretisations and linear algebra solvers with relatively modest effort. It can handle two- and three-dimensional problems in excess of 20 million degrees of freedom.
+%
+%
+%Incompressible MHD describes the interaction between an incompressible electrically charged fluid governed by the incompressible Navier-Stokes equations coupled with electromagnetic effects from  Maxwell's equations in mixed form. We introduce a model problem and a mixed finite element discretisation based on using Taylor-Hood elements for the fluid variables and on a mixed \nedelec pair for the magnetic unknowns. We introduce three iteration strategies to handle the non-linearities present in the model, ranging from Picard iterations to completely decoupled schemes.
+%
+%
+%Adapting and extending ideas introduced in [Dan Li, {\em Numerical Solution of the Time-Harmonic Maxwell Equations and Incompressible Magnetohydrodynamics Problems}, Ph.D. Dissertation, The University of British Columbia, 2010], we implement a preconditioning approach motivated by the block structure of the underlying linear systems in conjunction with state of the art preconditioners for the mixed Maxwell and Navier-Stokes subproblems. For the Picard iteration scheme we implement an inner-outer preconditioner.
+%
+%% We propose preconditioning ideas motivated by the block structure of the underlying linear systems in conjunction with state of the art preconditioners for the mixed Maxwell and Navier-Stokes subproblems. For the Picard scheme we further propose an inner-outer preconditioner.
+%
+%
+%% Using the finite element software package \fenics \cite{wells2012automated} and the linear algebra software {\tt PETSc} \cite{petsc-web-page,petsc-user-ref}, we numerically run several two- and three-dimensional tests using our large scale implementation of the model (with in excess of 20 million degrees of freedom).
+%
+%The numerical results presented in this thesis demonstrate the efficient performance of our preconditioned solution techniques and show good scalability with respect to the discretisation parameters.
+
+
+
+\end{document}

@@ -1,0 +1,225 @@
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{Introduction}
+
+The primary topic of this thesis is to develop and numerically test a large scale implementation of an incompressible magnetohydrodynamics model. In this introductory chapter, we will first  present a description of the model problem studied. We then give a brief overview of finite element methods and Krylov subspace methods for this problem. Finally, we outline the objectives, contributions and structure of the thesis.
+
+\section{A model problem in incompressible magnetohydrodynamics}
+
+The area of incompressible magnetohydrodynamics (MHD)  describes the behaviour of electrically conductive incompressible fluids (liquid metals, plasma, salt water, etc) in an electromagnetic field \cite{davidson2001introduction,le2006mathematical,muller2001magnetofluiddynamics}. MHD models couple electromagnetism and fluid dynamics. The coupling effects are due to two fundamental physical properties. Firstly, through the movement of the conductive material that induces a magnetic field which then modifies any existing electromagnetic field. Secondly, the magnetic and electric fields generate a mechanical force on the fluid known as the Lorentz force. The Lorentz force accelerates the fluid particles in the direction normal to both the electric and magnetic fields.
+
+Incompressible MHD has a number of important applications within technology and industry as well as Geophysical and Astrophysical applications. Some such applications are: electromagnetic pumping, aluminium electrolysis, the Earth's molten core and solar flares. For more applications see \cite{muller2001magnetofluiddynamics}.
+
+In this thesis, we are principally interested in an incompressible MHD model. This means that the electrically conductive fluid is incompressible, i.e., the mass of the fluid is conserved, and the electric resistivity of the fluid cannot be ignored. The MHD model we consider consist of two coupled fundamental equations: the incompressible Navier-Stokes equations and Maxwell's equations. We will outline the derivation of a formulation of an incompressible MHD model for a homogeneous and isotropic medium to ensure that all material parameters are constant; for full details see \cite{armero1996long}.
+
+The transient incompressible Navier-Stokes equations that govern incompressible fluid flow are given by:
+\begin{subequations}
+\label{eq:ns}
+\begin{alignat}2
+\rho_f\bigg(\frac{\partial \uu{u}}{\partial t}+ (\uu{u} \cdot \nabla)\uu{u}\bigg)- \mu  \, \Delta\uu{u} +\nabla p &= \uu{f}+\uu{f}_L & \qquad &\mbox{in $\Omega\times(0,T)$},\\[.1cm]
+\nabla\cdot\uu{u} &= 0 & \qquad &\mbox{in $\Omega\times(0,T)$}.
+\end{alignat}
+\end{subequations}
+Here $\uu{u}$ and $p$ are the velocity and pressure of the fluid, $\uu{f}$ denotes the body forces acting on the fluid and $\uu{f}_L$ is the Lorentz force, which will be specified later. The parameters $\mu>0$  and $\rho_f>0$ denote the dynamic viscosity and density of the fluid, respectively. The spatial domain is given by $\Omega$ and the end time is denoted by $T$. Mass conservation is given by (\ref{eq:ns}b), see  \cite[Chapter 0]{elman2005finite} for the derivation of the incompressible Navier-Stokes equations.
+
+
+Maxwell's equations that govern electromagnetic effects are given by:
+\begin{subequations}
+\label{eq:maxwell2}
+    \begin{alignat}2
+        &\mbox{Faraday's law:}\quad \quad & \partialt{\uu{b}} +\curl \uu{e} &= \uu{0}, \\
+        &\mbox{Coulomb's law:}\quad \quad & \div \uu{d} &= \hat{\rho_{e}}, \\
+        &\mbox{Amp\`{e}re's law:}\quad \quad & -\partialt{\uu{d}} + \curl \uu{h} &= {\uu{j}},\\
+        &\mbox{Gauss's law:}\quad \quad & \div \uu{b} &= 0.
+    \end{alignat}
+\end{subequations}
+The fields in \eqref{eq:maxwell2} are given by: $\uu{h}$ the magnetic field, $\uu{e}$ the electric field, $\uu{d}$ the electric displacement, $\uu{b}$ the magnetic induction and ${\uu{j}}$ the electric current density. The parameter $\hat{\rho_{e}}$ \RE{is} the electric charge density. In a homogeneous and isotropic medium, the following linear relations hold:
+\begin{equation} \label{eq:assumpt}
+    \uu{d} = \delta \uu{e}, \quad \uu{b} = \mu \uu{h},
+\end{equation}
+where the constant $\delta>0$ denotes the electric permittivity and the constant $\mu>0$ the magnetic permeability. Using \eqref{eq:maxwell2} together with \eqref{eq:assumpt} yields the form of Maxwell's equations considered in this thesis:
+\begin{subequations}
+\label{eq:maxwell}
+    \begin{alignat}2
+        &\mbox{Faraday's law:}\quad \quad & \partialt{\uu{b}} +\curl \uu{e} &= \uu{0}, \\
+        &\mbox{Coulomb's law:}\quad \quad & \div \uu{e} &= \rho_{e}, \\
+        &\mbox{Amp\`{e}re's law:}\quad \quad & -\partialt{(\delta\uu{ e})} + \curl (\frac{1}{\mu}\uu{b}) &= \uu{j},\\
+        &\mbox{Gauss's law:}\quad \quad & \div \uu{b} &= 0,
+    \end{alignat}
+\end{subequations}
+where $\rho_{e}=\frac{\hat{\rho_{e}}}{\delta}$; see \cite[Chapter 1]{monk2003finite} for more details on Maxwell's equations.
+
+
+The physical assumptions we consider to form a MHD model are the same as in \cite[Section 2.1]{armero1996long}. More precisely we assume:
+\begin{itemize}
+    \item Non-relativistic motion: The characteristic fluid velocity is assumed to be orders of magnitude smaller than the speed of light.
+    \item Low-frequency approximation: Phenomena involving high frequencies are omitted. That is, the term $\partialt{(\delta\uu{ e})}$ involving the  displacement current is neglected in Maxwell's equations. Therefore, Amp\`{e}re's law~(\ref{eq:maxwell}c) simplifies to
+    \begin{equation} \label{eq:AmpereModified}
+        \curl \left(\frac{1}{\mu}\uu{b}\right) = \uu{j}.
+    \end{equation}
+    \item Quasi-neutrality assumption:  Positive and negative charges are equal in any given region. The convection current is omitted and Ohm's law now reads
+    \begin{equation} \label{eq:QNassumpt}
+        \uu{j} = \theta (\uu{e}+\uu{u}\times\uu{b}),
+    \end{equation}
+    where positive parameter $\theta$ defines the electric conductivity of the fluid and $\uu{u}\times\uu{b}$ corresponds to the charge density induced by the fluid motion. The electrical resistivity is given by $\nicefrac{1}{\theta}$ and causes dissipative effects in Maxwell's equations but is not to be neglected in this model.
+    \item Non-magnetisation and non-polarisation: The assumptions of homogeneity and isotropy also imply that the medium is non-magnetisable and non-polarisable.
+\end{itemize}
+The Lorentz force $\uu{f}_L$ in (\ref{eq:ns}a) can now be expressed as:
+\begin{equation} \label{eq:lorentz}
+    \uu{f}_L = \frac{1}{\rho_{f}\,\mu} (\curl \uu{b})\times \uu{b}.
+\end{equation}
+The electromotive term in \eqref{eq:QNassumpt} now enters Faraday's law (\ref{eq:maxwell}a) by combining \eqref{eq:QNassumpt} and \eqref{eq:AmpereModified} into the following expression for $\uu{e}$:
+\begin{equation} \nonumber
+    \uu{e} = \frac{1}{\theta}\left(\curl \left(\frac{1}{\mu}\uu{b}\right)-\uu{u}\times\uu{b}\right).
+\end{equation}
+
+% \begin{itemize}
+%     \item Non-relativistic motion:~\\ In general,  Maxwell's equations are invariant under transformations of the Lorentz group. In this thesis, we assume non-relativistic motion, i.e., the fluid velocity is orders of magnitude smaller than the speed of light. Hence, we assume the Galilean invariant approximation of the electromagnetic field transformations. Defining $\uu{e}'$ and $\uu{b}'$ as the electric field and  magnetic induction at rest in the reference frame  moving at velocity $\uu{u}$ with respect to spatial system, then we suppose that
+%     $$\uu{e}'= \uu{e}+\uu{u}\times \uu{b}, \quad \uu{b}'=\uu{b},$$
+%     where $\uu{e}$ and $\uu{b}$ are the spatial electric field and spatial magnetic induction.
+%     \item High frequencies: ~\\ Phenomena involving high frequencies are not considered, hence, displacement current $\partialt{(\delta\uu{ e})}$ can be neglected. Therefore, Amp\`{e}re's law~(\ref{eq:maxwell}c) simplifies to
+%     \begin{equation} \label{eq:AmpereModified}
+%         \curl (\frac{1}{\mu}\uu{b}) = \uu{j}.
+%     \end{equation}
+%     \item Quasi-neutrality: ~\\ Positive and negative charges are equal in any given region. Hence, the convection current can be omitted and Ohm's law becomes
+%     $$\uu{j} = \theta \uu{e}'=  \theta (\uu{e}+\uu{u}\times\uu{b}).$$
+%     The positive parameter $\theta$ defines the electric conductivity of the fluid and $\uu{u}\times\uu{b}$ describes the flow of the fluid that has been induced by the electric field.  The electrical resistivity is given by $\nicefrac{1}{\theta}$ and causes dissipative effects in Maxwell's equations but is not neglected.
+%     \item Non-magnetisable and non-polarised medium: ~\\ This assumption implies that the relations \eqref{eq:assumpt} hold for all values of the electric permeability and magnetic permittivity. Therefore, the Lorentz force $\uu{f}_L$ in (\ref{eq:ns}a) is now given by:
+%     $$\uu{f}_L = \frac{1}{\rho_{f}} \uu{j}\times \uu{b}.$$
+%     Substituting Amp\`{e}re's law \eqref{eq:AmpereModified} (under the low frequency assumption) into the Lorentz force gives the following relationship:
+%     $$\uu{f}_L = \frac{1}{\rho_{f}\,\mu} (\curl \uu{b})\times \uu{b}.$$
+% \end{itemize}
+
+{Using the assumptions above, elimination of the electric field $\uu{e}$ and non-dimensionalisation, the systems in \eqref{eq:ns} and \eqref{eq:maxwell} are coupled into the following set of partial differential equations:}
+\begin{subequations}
+\label{eq:mhdnon}
+\begin{alignat}2
+ \frac{\partial \uu{u}}{\partial t}- \nu  \, \Delta \uu{u} + (\uu{u} \cdot \nabla) \uu{u}+\nabla p - \kappa\, (\nabla\times\uu{b})\times\uu{b} &= \uu{f}, \\
+\nabla\cdot\uu{u} &= 0, \\
+\frac{\partial \uu{b}}{\partial t}+\nu_m  \, \nabla\times( \nabla\times \uu{b})
+-  \, \nabla\times(\uu{u}\times \uu{b}) &= \uu{0}, \\
+\nabla\cdot\uu{b} &= 0,
+\end{alignat}
+\end{subequations}
+ with suitable initial conditions and boundary conditions; see \cite[Section 2]{armero1996long}. The unknowns $\uu{u}$, $p$ and $\uu{b}$ are the fluid velocity, the fluid pressure and the magnetic field, respectively.
+ % The first coupling term $\kappa\, (\nabla\times\uu{b})\times\uu{b}$ in (\ref{eq:mhdnon}a) represents to the Lorentz force $f_L$ in \eqref{eq:lorentz}, whereas the second coupling term $\nabla\times(\uu{u}\times \uu{b})$ in (\ref{eq:mhdnon}c) corresponds to the electromotive force modifying the magnetic field, due to the motion of the conductive fluid.
+
+
+The solution to \eqref{eq:mhdnon} depends on three non-dimensional parameters $\nu = \nicefrac{1}{\rm Re}$, $\nu_m = \nicefrac{1}{\rm Rm}$ and $\kappa$. The first parameter Re is the hydrodynamic Reynolds number, which indicates the balance between the inertial forces and the viscous forces. The parameter Rm is the magnetic Reynolds number, which measures the effect by which the magnetic field induces flow motion. The final parameter, the coupling number, $\kappa$, represents the influence of the electromagnetic field on the flow. It is sometimes defined in terms of the Hartmann number denoted by Ha, as
+\begin{equation}
+    \nonumber
+    \mbox{Ha} = \sqrt{\kappa \, \mbox{Re\,Rm}}.
+    % \kappa = \frac{\mbox{Ha}^2}{\mbox{Re\,Rm}}.
+\end{equation}
+To find typical physical values for these parameters, we refer to \cite{armero1996long,le2006mathematical,roberts1967introduction}. We refer to $\nu$ as the viscosity for the rest of this thesis.
+
+In this thesis, we are interested in the steady-state ($\frac{\partial}{\partial t} = 0$) version of~\eqref{eq:mhdnon}:
+\begin{subequations}
+\label{eq:steadystate}
+\begin{alignat}2
+ - \nu  \, \Delta \uu{u} + (\uu{u} \cdot \nabla) \uu{u}+\nabla p - \kappa\, (\nabla\times\uu{b})\times\uu{b} &= \uu{f}, \\
+\nabla\cdot\uu{u} &= 0, \\
+\label{eq:curlcurl}
+\kappa\nu_m  \, \nabla\times( \nabla\times \uu{b})
+- \kappa \, \nabla\times(\uu{u}\times \uu{b}) &= \uu{0}, \\
+\nabla\cdot\uu{b} &= 0.
+\end{alignat}
+\end{subequations}
+Note we have multiplied (\ref{eq:steadystate}c) by $\kappa$ to enforce skew-symmetry of the coupling terms. We will consider both two- and three-dimensional solutions to \eqref{eq:steadystate}. \RE{See Appendix~\ref{Curl} for curl definitions.}
+
+% The curl operator is well defined in three-dimensions and the two-dimensional curl may be defined as follows: given 2D vector fields $\uu{b}(x,y) = (b_1,b_2)$, $\uu{u}(x,y) = (u_1,u_2)$ and the scalar function $r(x,y)$ then the curl and cross products are
+% \begin{subequations}
+% \nonumber
+% \begin{alignat}2
+% \curl \uu{b} &=& \frac{\partial b_2}{\partial x} - \frac{\partial b_1}{\partial y}, \\
+% \curl r &=& \Big(\frac{\partial r}{\partial y}, -\frac{\partial r}{\partial x}\Big),\\
+% \uu{u} \times \uu{b} &=& u_1b_2-u_2b_1.
+% \end{alignat}
+% \end{subequations}
+% Note that taking the curl of a 2D vector field results in a scalar function which is the component in the normal direction to the 2D field ($z$-component).
+
+\section{Numerical solution}
+
+The partial differential equation (PDE) system given in \eqref{eq:steadystate} requires a numerical approximation as in general an analytical solution is not possible. There are two main components in computing a numerical solution of a PDE:
+\begin{itemize}
+    \item[1.] Discretisation: take a continuous model and transfer it into a discrete model;
+    \item[2.] Solve: take the discretised model and solve for the unknowns.
+\end{itemize}
+In this thesis, we use mixed finite element methods for discretising an MHD model problem, and solve it using preconditioned Krylov subspace methods.
+In the sequel, we briefly describe these components in the context of the approach we take.
+
+
+\subsection{Finite element methods for incompressible MHD problems}
+
+There are several finite element methods for discretising MHD problems as in \eqref{eq:steadystate}. A common approach in the literature is to approximate the magnetic field using standard nodal $H^1$-conforming elements \cite{phillips2014block,armero1996long,gerbeau2000stabilized,gunzburger1991existence}. Such a formulation enables one to use the following vector calculus identity
+\begin{equation} \label{eq:CurlIdentity}
+-\Delta \uu{b} = \curl (\curl \uu{b}) - \nabla(\div \uu{b}).
+\end{equation}
+Since $\uu{b}$ is divergences-free it is then possible to apply an augmentation technique to replace the curl-curl operator with a vector Laplacian. This then reduces one of the principal  computational difficulties, namely the large null-space of the curl-curl operator in \eqref{eq:curlcurl}. However, one of the main problems using $H^1$-conforming elements for the magnetic field is that for non-convex domains (such as the 2D L-shaped domain with a reentrant corner, or the 3D Fichera corner domain with reentrant edges and corners) the magnetic field will converge to a solution that is not correct around the singular point, see \cite{codina2006stabilized,costabel2000singularities}. Therefore, we consider a mixed discretisation that captures singular solutions correctly. One such family of elements are $H({\rm curl})$ conforming \nedelec elements \cite{nedelec1980mixed}.
+
+To enable the use of \nedelec elements for the magnetic field we use the mixed formulation in \cite{schotzau2004mixed,GreifLiSchotzauWei2010}. This leads to the following governing equations in a domain $\Omega$:
+\begin{subequations}
+\label{eq:mhd}
+\begin{alignat}2
+\label{eq:mhd1} - \nu  \, \Delta\uu{u} + (\uu{u} \cdot \nabla)
+\uu{u}+\nabla p - \kappa\,
+(\nabla\times\uu{b})\times\uu{b} &= \uu{f} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd2}
+\nabla\cdot\uu{u} &= 0 & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd3}
+\kappa\nu_m  \, \nabla\times( \nabla\times \uu{b})
++ \nabla r
+- \kappa \, \nabla\times(\uu{u}\times \uu{b}) &= \uu{g} & \qquad &\mbox{in $\Omega$},\\[.1cm]
+\label{eq:mhd4} \nabla\cdot\uu{b} &= 0 & \qquad &\mbox{in $\Omega$},
+\end{alignat}
+\end{subequations}
+where we have introduced the Lagrange multiplier, $r$, in the form of $\nabla r$ in \eqref{eq:mhd3}. Again, $\uu{u}$ and $p$ are the velocity and pressure of the fluids and $\uu{b}$ is the magnetic field. The introduction of the Lagrange multiplier, $r$, corresponds to the divergence-free constraint \eqref{eq:mhd4} of the magnetic field. With the addition of the Lagrange multiplier, $r$, we may also introduce a generic forcing term $\uu{g}$ associated with the Maxwell part of \eqref{eq:mhd}.
+
+The numerical tests that we will consider will have inhomogeneous Dirichlet boundary conditions for the fluid and magnetic fields and homogeneous Dirichlet boundary condition for the multiplier, $r$, of the form:
+\begin{subequations}
+\label{eq:bc}
+\begin{alignat}2
+\label{eq:bc1} \uu{u} &= \uu{u_D} & \qquad &\mbox{on $\partial\Omega$},\\[.1cm]
+\label{eq:bc2}
+   \uu{n}\times\uu{b} &= \uu{n} \times \uu{b_D} & \qquad &\mbox{on $\partial\Omega$},\\[.1cm]
+\label{eq:bc3}      r &=0 &\qquad &\mbox{on $\partial\Omega$},
+\end{alignat}
+\end{subequations}
+where $\uu{u_D}$ and $\uu{b_D}$ are given functions, and $\uu{n}$ is the unit outward normal to the boundary $\partial \Omega$. Notice, by taking the divergence of equation \eqref{eq:mhd3} we obtain Poisson's equation (as $\div \curl \uu{b} = 0$):
+$$\Delta r = \div \uu{g} \quad \mbox{in } \Omega, \quad r = 0 \quad \mbox{on } \partial \Omega.$$
+In many physical applications $\uu{g}$ is divergence-free, which implies that the multiplier, $r$, is zero. In general, the main purpose of the magnetic multiplier is to provide stability, see~\cite{demkowicz1998modeling}.
+
+
+
+
+\subsection{Preconditioning incompressible MHD problems}
+
+Incompressible  MHD problems have been extensively studied in the context of various discretisation and formulations. However, the development of preconditioned iterative solutions to MHD problems is limited. \RE{We refer the reader to the Appendix for a review of Krylov subspace solvers for linear systems. In this thesis our focus will be on the implementation of preconditioners which are tailored to MHD model problem.}
+
+% there does not seem to have been much study of preconditioned iterative solutions.
+
+In the literature there have not been too many approaches to precoditioning the MHD equations given in either the non-multiplier form \eqref{eq:steadystate} or with the multiplier form \eqref{eq:mhd}. In the very recent work \cite{phillips2014block}, an operator-based preconditioner for the non-multiplier MHD equations \eqref{eq:steadystate} has been proposed in the context of $H^1$-conforming elements for the magnetic field. To form their preconditioner the authors use the identity \eqref{eq:CurlIdentity} and a discrete commutator idea to form approximations to the Schur complements. This is based on an approach for a preconditioner to the  Navier-Stokes system as in \cite[Chapter 8]{elman2005finite}. The preconditioners  we employ are based on similar Navier-Stokes preconditioners but rely on the Maxwell preconditioner in \cite{greif2007preconditioners} for $H({\rm curl})$ elements.
+
+
+\section{Objectives and contributions}
+
+The aim of this thesis is to develop and test fully scalable iterative solution methods for the incompressible MHD model \eqref{eq:mhd}, \eqref{eq:bc} using natural Taylor-Hood elements \cite{taylor1973numerical} for the fluid variables and \nedelec mixed element  \cite{nedelec1980mixed} pair for the magnetic variables.  Our numerical results show good scalability with respect to the mesh size. We provide  several tests  to study the performance of the preconditioners with respect to the relevant non-dimensional parameters. We also present two- and three-dimensional results.
+
+To enable large scale preconditioned tests of the MHD model we use the finite element software \fenics \cite{wells2012automated} together with the linear algebra software from {\tt PETSc} \cite{petsc-web-page,petsc-user-ref}. Using these two principal software packages, experiments were run in excess of 20 million degrees of freedom. As well, it provides an example of how significant physical problems described by partial differential equations can be solved by combining state of the art numerical software packages. The aim is to release the code for public use.
+
+As stated above,  little has been done in terms of preconditioned iterations for the MHD model other than the works of  \cite{phillips2014block} for the non-multiplier form \eqref{eq:steadystate}. Our approach is based on $H({\rm curl})$ elements for the magnetic field \cite{schotzau2004mixed}, and motivated by the preliminary results of \cite{li2010numerical} in the context of exactly divergence-free elements for the velocity field. It combines preconditioners for the incompressible Navier-Stokes and Maxwell's equations in \cite{elman2005finite,greif2007preconditioners,MR2911387}.
+
+
+% The scalable solvers considered in this thesis may now enable more investigation of the physical problems they describe.
+The availability of our large-scale solvers and code will hopefully allow more development and research into such MHD models.
+
+\section{Outline}
+
+This thesis is made up of five chapters and is structured as follows. In Chapter 2, we introduce a mixed finite element approximation to the MHD system \eqref{eq:mhd}-\eqref{eq:bc}. The mixed approximation is based on a standard nodal Taylor-Hood finite element approximation for the velocity field and the pressure, together with a mixed \nedelec element approximation for the magnetic field and the multiplier. Using this approximation, we introduce three possible non-linear iteration schemes.
+
+In Chapter 3, we present an overview of the preconditioning approaches for the individual subproblems separately, namely the incompressible Navier-Stokes and Maxwell's equations. We then apply these preconditioning techniques to propose preconditoning strategies for the linearisations which arise from the three non-linear iteration schemes from Chapter~2. In particular, for the coupled linearised Picard scheme we propose an inner-outer preconditioning approach.
+
+In Chapter 4, to perform numerical experiments in both two and three spatial dimensions we use the following two main software packages \fenics \cite{wells2012automated} and {\tt PETSc} \cite{petsc-web-page,petsc-user-ref}. We show convergence results for the linearised MHD system along with the incompressible Navier-Stokes and Maxwell subproblems in isolation. Along with the convergence results we numerically test the preconditioning approaches for the three non-linear iteration schemes, providing heuristic tests with respect to the dimensionless parameters ($\nu$,~$\nu_m$~and~$\kappa$;~see~\eqref{eq:mhd}) and mesh size. These tests examine the robustness of both the preconditioners and the iteration schemes.
+
+Chapter 5 provides conclusions and outlines possible extensions for future work.

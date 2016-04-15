@@ -1,0 +1,9 @@
+PWD /Users/michaelwathen/Dropbox/PHDResearch/MHD/THESIS/Results
+INPUT /opt/local/etc/texmf/texmf.cnf
+INPUT /opt/local/var/db/texmf/web2c/pdftex/pdflatex.fmt
+INPUT /Users/michaelwathen/Dropbox/PHDResearch/MHD/THESIS/Results/Results.tex
+OUTPUT /Users/michaelwathen/Dropbox/PHDResearch/MHD/THESIS/Results/Results.log
+INPUT /opt/local/share/texmf-texlive/fonts/map/fontname/texfonts.map
+INPUT /opt/local/share/texmf-texlive/fonts/tfm/public/cm/cmbx10.tfm
+OUTPUT /Users/michaelwathen/Dropbox/PHDResearch/MHD/THESIS/Results/Results.pdf
+INPUT /opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map

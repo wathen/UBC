@@ -1,0 +1,6 @@
+\beamer@endinputifotherversion {3.36pt}
+\beamer@sectionintoc {1}{MHD model}{3}{0}{1}
+\beamer@sectionintoc {2}{Discretisation}{6}{0}{2}
+\beamer@sectionintoc {3}{Preconditioning}{10}{0}{3}
+\beamer@sectionintoc {4}{Numerical results}{21}{0}{4}
+\beamer@sectionintoc {5}{Future work}{32}{0}{5}

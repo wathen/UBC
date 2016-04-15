@@ -1,0 +1,13 @@
+bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+python CDmu.py
+bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+python CD.py
+#bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+#python Fullmu.py
+#bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+#python Full.py
+bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+python MDmu.py
+bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+python MD.py
+
