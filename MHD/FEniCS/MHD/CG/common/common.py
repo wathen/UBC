@@ -23,6 +23,12 @@ import time
 import MatrixOperations as MO
 import MatrixMulti as MM
 
+def PETScCheck(A):
+    if dolfin_version() == '1.6.0':
+        return as_backend_type(A).mat()
+    else:
+        return PETSc.Mat().createAIJ(size=A.sparray().shape,csr=(A.sparray().indptr, A.sparray().indices, A.sparray().data))
+
 def InitialGuess(Fspace,BC,RHS,params,HiptmairMatrices,Hiptmairtol,Neumann=None,options="Orig",
         FS = "CG", InitialTol = 1e-6,System = None):
     print System
@@ -76,7 +82,7 @@ def InitialGuess(Fspace,BC,RHS,params,HiptmairMatrices,Hiptmairtol,Neumann=None,
 
 def Stokes(V,Q,BC,f,params,FS,InitialTol,Neumann=None,A = 0, b = 0):
     if A == 0:
-        parameters['linear_algebra_backend'] = 'uBLAS'
+        # parameters['linear_algebra_backend'] = 'uBLAS'
 
         # parameters = CP.ParameterSetup()
         # parameters["form_compiler"]["quadrature_degree"] = 6
@@ -275,7 +281,7 @@ def Stokes(V,Q,BC,f,params,FS,InitialTol,Neumann=None,A = 0, b = 0):
 
 
 def Maxwell(u,V,Q,BC,f,params,HiptmairMatrices,Hiptmairtol,InitialTol,Neumann=None):
-    parameters['linear_algebra_backend'] = 'uBLAS'
+    # parameters['linear_algebra_backend'] = 'uBLAS'
     dim = f.shape()[0]
     W = V*Q
 

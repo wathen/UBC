@@ -91,7 +91,7 @@ class Approx(object):
         kspL.create(comm=PETSc.COMM_WORLD)
         pcL = kspL.getPC()
         kspL.setType('preonly')
-        pcL.setType('hypre')
+        pcL.setType('gamg')
         # kspL.max_it = 1
         kspL.setFromOptions()
         self.kspL = kspL
@@ -100,7 +100,7 @@ class Approx(object):
         kspM.create(comm=PETSc.COMM_WORLD)
         pcM = kspM.getPC()
         kspM.setType('preonly')
-        pcM.setType('hypre')
+        pcM.setType('gamg')
         kspM.setFromOptions()
         self.kspM = kspM
 
@@ -214,7 +214,7 @@ def ApproxFunc(W, A, x, y):
     kspL.create(comm=PETSc.COMM_WORLD)
     pcL = kspL.getPC()
     kspL.setType('preonly')
-    pcL.setType('hypre')
+    pcL.setType('gamg')
     # kspL.max_it = 1
     kspL.setFromOptions()
 
@@ -256,7 +256,7 @@ def ApproxSplitFunc(W, A, M,x,y):
     kspL.create(comm=PETSc.COMM_WORLD)
     pcL = kspL.getPC()
     kspL.setType('preonly')
-    pcL.setType('hypre')
+    pcL.setType('gamg')
     # kspL.max_it = 1
     kspL.setFromOptions()
 

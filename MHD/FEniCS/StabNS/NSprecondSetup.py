@@ -27,7 +27,7 @@ def PCDKSPlinear(Q, A):
     pcA = kspA.getPC()
     kspA.setType('richardson')
     kspA.max_it = 1
-    pcA.setType('hypre')
+    pcA.setType('gamg')
     kspA.setFromOptions()
 
     kspQ = PETSc.KSP()
@@ -53,7 +53,7 @@ def PCDKSPnonlinear(F):
     pcF = kspF.getPC()
     kspF.setType('richardson')
     kspF.max_it = 1
-    pcF.setType('hypre')
+    pcF.setType('gamg')
     kspF.setFromOptions()
 
     kspF.setOperators(F,F)
@@ -77,7 +77,7 @@ def Ksp(BQB):
     kspBQB.create(comm=PETSc.COMM_WORLD)
     pcBQB = kspBQB.getPC()
     kspBQB.setType('richardson')
-    pcBQB.setType('hypre')
+    pcBQB.setType('gamg')
     kspBQB.setFromOptions()
 
 
@@ -93,7 +93,7 @@ def LSCKSPnonlinear(F):
     kspF.create(comm=PETSc.COMM_WORLD)
     pcF = kspF.getPC()
     kspF.setType('richardson')
-    pcF.setType('hypre')
+    pcF.setType('gamg')
     kspF.setFromOptions()
 
     kspF.setOperators(F,F)
