@@ -90,7 +90,9 @@ for xx in xrange(1,m):
     z0 = 1.
     mesh, boundaries, domains = HartmanChannel.Domain(nn)
     # set_log_level(WARNING)
-
+    # p = plot(mesh)
+    # p.write_png()
+    # sss
     parameters['form_compiler']['quadrature_degree'] = -1
     order = 2
     parameters['reorder_dofs_serial'] = False
@@ -170,6 +172,7 @@ for xx in xrange(1,m):
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, u0, p0, params, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b, r0, params, boundaries,HiptmairMatrices, Hiptmairtol)
 
+
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
@@ -189,7 +192,7 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_S)*dx(0) + inner(p0*n,v)*ds(2)
+    Lns  = inner(v, F_S)*dx(0) - inner(p0*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
 
     m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
@@ -244,6 +247,7 @@ for xx in xrange(1,m):
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
 
+        # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
         bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
         bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
@@ -291,7 +295,7 @@ for xx in xrange(1,m):
     iterations[xx-1] = iter
     TotalTime[xx-1] = time.time() - TotalStart
 
-    XX= np.concatenate((-u_k.vector().array(),-p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+    XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
     dim = [Velocity.dim(), Pressure.dim(), Magnetic.dim(),Lagrange.dim()]
 
     ExactSolution = [u0,p0,b0,r0]
@@ -321,7 +325,7 @@ for xx in xrange(1,m):
 # p.write_png()
 # p = plot(interpolate(u0,Velocity))
 # p.write_png()
-# p = plot(-interpolate(p0,Pressure))
+# p = plot(interpolate(p0,Pressure))
 # p.write_png()
 # p = plot(interpolate(b0,Magnetic))
 # p.write_png()

@@ -64,47 +64,47 @@ def ExactSol(mesh, params):
     Ha = sqrt(params[0]/(params[1]*params[2]))
     G = 10.
 
-    x = sy.Symbol('X')
-    y = sy.Symbol('Y')
-    b = G/params[0]*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)
-    # print "b", b
-    d = 1
-    # print "d", d
-    p = -G*x - (params[0]/2)*b**2
-    print "p", p
-    u = G/(params[2]*Ha*sy.tanh(Ha))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
-    # print "u", u
+    x = sy.Symbol('x')
+    y = sy.Symbol('y')
+    b = (G/params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)
+    print "b", b
+    d = 1.0
+    print "d", d
+    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+    print "\np", p
+    u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+    print "\nu", u
     v = sy.diff(x,y)
-    # print "v", v
+    print "v", v
 
 
     L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
-    print "L1", L1
+    print "\nL1", L1
     L2 = sy.diff(v,x,x)+sy.diff(v,y,y)
-    # print "L2", L2
+    print "L2", L2
 
     A1 = u*sy.diff(u,x)+v*sy.diff(u,y)
     print "A1", A1
     A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
-    # print "A2", A2
+    print "A2", A2
 
     P1 = sy.diff(p,x)
     print "P1", P1
     P2 = sy.diff(p,y)
-    # print "P2", P2
+    print "P2", P2
     C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
-    # print "C1", C1
+    print "C1", C1
     C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
-    # print "C2", C2
+    print "C2", C2
     NS1 = -d*(sy.diff(d,x) - sy.diff(b,y))
     print "NS1", NS1
     NS2 = b*(sy.diff(d,x) - sy.diff(b,y))
-    # print "NS2", NS2
+    print "NS2", NS2
 
     M1 = sy.diff(u*d-v*b,y)
-    # print "M1", M1
+    print "M1", M1
     M2 = -sy.diff(u*d-v*b,x)
-    # print "M2", M2
+    print "M2", M2
     # params = [params[0],Mu_m,MU]
 
     F1 = -params[2]*L1 + P1 - params[0]*NS1 + A1
@@ -201,11 +201,11 @@ def ExactSol22(mesh, params):
 
     class u0(Expression):
         def __init__(self):
-            self.u = 1
+            self.u = 1.0
         def eval_cell(self, values, x, ufc_cell):
             # print u, v
-            values[0] = -99998.3333527776*np.cosh(0.01*x[1]) + 100003.333311111
-            values[1] = 0
+            values[0] = -99998.3333527776*cosh(0.01*x[1]) + 100003.333311111
+            values[1] = 0.0
         def value_shape(self):
             return (2,)
 
@@ -214,28 +214,29 @@ def ExactSol22(mesh, params):
             self.b = 1
         def eval_cell(self, values, x, ufc_cell):
             values[0] =  -10.0*x[1] + 999.983333527776*np.sinh(0.01*x[1])
-            values[1] = 1
+            values[1] = 1.0
         def value_shape(self):
             return (2,)
 
     class p0(Expression):
         def __init__(self):
-            self.p = 1
+            self.p = 1.0
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = -10.0*x[0] - 0.5*(-10.0*x[1] + 999.983333527776*np.sinh(0.01*x[1]))**2
+            values[0] = -10.0*x[0] - 50.0*(-x[1] + 99.9983333527776*sinh(0.01*x[1]))**2
+            # values[0] = -10.0*x[0] - 0.5*(-10.0*x[1] + 999.983333527776*np.sinh(0.01*x[1]))**2
 
     class r0(Expression):
         def __init__(self):
             self.M = 1
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = 0
+            values[0] = 0.0
 
     class F(Expression):
         def __init__(self):
             self.F1 = 1
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = 0
-            values[1] = 0
+            values[0] = 0.0
+            values[1] = 0.0
         def value_shape(self):
             return (2,)
 
@@ -243,8 +244,8 @@ def ExactSol22(mesh, params):
         def __init__(self):
             self.G1 = 1
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = 0
-            values[1] = 0
+            values[0] = 0.0
+            values[1] = 0.0
         def value_shape(self):
             return (2,)
 
@@ -280,13 +281,13 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
     a21 = -div(u)*q*dx(0)
     a = a11+a12+a21
 
-    L = inner(v, F)*dx(0) + inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
 
     pp = params[2]*inner(grad(v), grad(u))*dx(0)+ (1./params[2])*p*q*dx(0)
     def boundary(x, on_boundary):
         return on_boundary
 
-    bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
+    bcu = DirichletBC(W.sub(0), Expression(("0.0","0.0")), boundaries, 1)
     # bcu2 = DirichletBC(W.sub(0), u0, boundaries, 2)
     # bcu = [bcu1, bcu2]
     A, b = assemble_system(a, L, bcu)
@@ -358,9 +359,17 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries,HiptmairMatrices, Hiptmairtol):
 
     def boundary(x, on_boundary):
         return on_boundary
+    class b0(Expression):
+        def __init__(self):
+            self.p = 1
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = 0.0
+            values[1] = 1.0
+        def value_shape(self):
+            return (2,)
 
-    bcb = DirichletBC(W.sub(0), b0, boundary)
-    bcr = DirichletBC(W.sub(1), r0, boundary)
+    bcb = DirichletBC(W.sub(0), b0(), boundary)
+    bcr = DirichletBC(W.sub(1), Expression("0.0"), boundary)
     bc = [bcb, bcr]
 
     A, b = assemble_system(a, L, bc)
