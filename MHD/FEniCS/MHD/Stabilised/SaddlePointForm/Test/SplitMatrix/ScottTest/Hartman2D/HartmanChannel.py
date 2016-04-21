@@ -19,7 +19,7 @@ import time
 def Domain(n):
 
 
-    mesh = RectangleMesh(0., -1., 10., 1.,n,n)
+    mesh = RectangleMesh(0., -1., 10., 1.,1*n,n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
@@ -70,7 +70,7 @@ def ExactSol(mesh, params):
     print "b", b
     d = 1.0
     print "d", d
-    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+    p = 10+-G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
     print "\np", p
     u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
     print "\nu", u
@@ -263,12 +263,11 @@ def ExactSol22(mesh, params):
 
 
 # Sets up the initial guess for the MHD problem
-def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
+def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
     IS = MO.IndexSet(W)
-    mesh = W.mesh()
 
     (u, p) = TrialFunctions(W)
     (v, q) = TestFunctions(W)
@@ -276,6 +275,7 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+    ds = Measure("ds")[boundaries]
     a11 = params[2]*inner(grad(v), grad(u))*dx(0)
     a12 = -div(v)*p*dx(0)
     a21 = -div(u)*q*dx(0)
@@ -308,7 +308,7 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
     OptDB = PETSc.Options()
     if __version__ != '1.6.0':
         OptDB['pc_factor_mat_solver_package']  = "mumps"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
     ksp.setOperators(A,A)
 
@@ -328,7 +328,6 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
     del A
     start_time = time.time()
     ksp.solve(b,u)
-    print 333
     # Mits +=dodim
     u = u*scale
     print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
@@ -338,11 +337,11 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
     p_k.vector()[:] = u.getSubVector(IS[1]).array
     # ones = Function(Q)
     # ones.vector()[:]=(0*ones.vector().array()+1)
-    # p_k.vector()[:] += -assemble(p_k*dx('everywhere'))/assemble(ones*dx('everywhere'))
+    # p_k.vector()[:] += -assemble(p_k*dx)/assemble(ones*dx('everywhere'))
     return u_k, p_k
 
 
-def Maxwell(V, Q, F, b0, r0, params, boundaries,HiptmairMatrices, Hiptmairtol):
+def Maxwell(V, Q, F, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
@@ -351,25 +350,26 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries,HiptmairMatrices, Hiptmairtol):
     (b, r) = TrialFunctions(W)
     (c, s) = TestFunctions(W)
 
-    a11 = params[1]*params[2]*inner(curl(b), curl(c))*dx('everywhere')
-    a21 = inner(b,grad(s))*dx('everywhere')
-    a12 = inner(c,grad(r))*dx('everywhere')
-    L = inner(c, F)*dx('everywhere')
+    a11 = params[1]*params[2]*inner(curl(b), curl(c))*dx
+    a21 = inner(b,grad(s))*dx
+    a12 = inner(c,grad(r))*dx
+    # print F
+    L = inner(c, F)*dx
     a = a11+a12+a21
 
     def boundary(x, on_boundary):
         return on_boundary
-    class b0(Expression):
-        def __init__(self):
-            self.p = 1
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = 0.0
-            values[1] = 1.0
-        def value_shape(self):
-            return (2,)
+    # class b0(Expression):
+    #     def __init__(self):
+    #         self.p = 1
+    #     def eval_cell(self, values, x, ufc_cell):
+    #         values[0] = 0.0
+    #         values[1] = 1.0
+    #     def value_shape(self):
+    #         return (2,)
 
-    bcb = DirichletBC(W.sub(0), b0(), boundary)
-    bcr = DirichletBC(W.sub(1), Expression("0.0"), boundary)
+    bcb = DirichletBC(W.sub(0), b0, boundary)
+    bcr = DirichletBC(W.sub(1), r0, boundary)
     bc = [bcb, bcr]
 
     A, b = assemble_system(a, L, bc)
