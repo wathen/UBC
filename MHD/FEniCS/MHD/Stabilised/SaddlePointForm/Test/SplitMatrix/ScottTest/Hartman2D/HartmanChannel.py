@@ -70,7 +70,7 @@ def ExactSol(mesh, params):
     print "b", b
     d = 1.0
     print "d", d
-    p = 10+-G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
     print "\np", p
     u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
     print "\nu", u
@@ -107,9 +107,9 @@ def ExactSol(mesh, params):
     print "M2", M2
     # params = [params[0],Mu_m,MU]
 
-    F1 = -params[2]*L1 + P1 - params[0]*NS1 + A1
+    F1 = -params[2]*L1 + P1 #- params[0]*NS1 + A1
     print "F1", F1
-    F2 = -params[2]*L2 + P2 - params[0]*NS2 + A2
+    F2 = -params[2]*L2 + P2 #- params[0]*NS2 + A2
     print "F2", F2
 
     G1 = params[1]*params[2]*C1 - params[0]*M1
@@ -200,29 +200,37 @@ def ExactSol22(mesh, params):
     G = 10.
 
     class u0(Expression):
-        def __init__(self):
-            self.u = 1.0
+        def __init__(self, G, params, Ha):
+            self.G = G
+            self.params = params
+            self.Ha = Ha
         def eval_cell(self, values, x, ufc_cell):
             # print u, v
-            values[0] = -99998.3333527776*cosh(0.01*x[1]) + 100003.333311111
+            # values[0] = -99998.3333527776*np.cosh(0.01*x[1]) + 100003.333311111
+            values[0] = (self.G/(self.params[2]*self.Ha*np.tanh(self.Ha)))*(1-(np.cosh(x[1]*self.Ha)/np.cosh(self.Ha)))
             values[1] = 0.0
         def value_shape(self):
             return (2,)
-
     class b0(Expression):
-        def __init__(self):
-            self.b = 1
+        def __init__(self, G, params, Ha):
+            self.G = G
+            self.params = params
+            self.Ha = Ha
         def eval_cell(self, values, x, ufc_cell):
-            values[0] =  -10.0*x[1] + 999.983333527776*np.sinh(0.01*x[1])
+            # values[0] = 0.0
+            values[0] = (self.G/self.params[0])*(np.sinh(x[1]*self.Ha)/np.sinh(self.Ha)-x[1])
             values[1] = 1.0
         def value_shape(self):
             return (2,)
 
     class p0(Expression):
-        def __init__(self):
-            self.p = 1.0
+        def __init__(self, G, params, Ha):
+            self.G = G
+            self.params = params
+            self.Ha = Ha
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = -10.0*x[0] - 50.0*(-x[1] + 99.9983333527776*sinh(0.01*x[1]))**2
+            values[0] = -self.G*x[0] - ((self.G**2)/(2*self.params[0]))*(np.sinh(x[1]*self.Ha)/np.sinh(self.Ha)-x[1])**2
+            # values[0] = -10.0*x[0] - 50.0*(-x[1] + 99.9983333527776*np.sinh(0.01*x[1]))**2
             # values[0] = -10.0*x[0] - 0.5*(-10.0*x[1] + 999.983333527776*np.sinh(0.01*x[1]))**2
 
     class r0(Expression):
@@ -235,12 +243,14 @@ def ExactSol22(mesh, params):
         def __init__(self):
             self.F1 = 1
         def eval_cell(self, values, x, ufc_cell):
+            # values[0] = 9.99983333527776*np.cosh(0.01*x[1]) - 10.0
+            # values[1] = -50.0*(-x[1] + 99.9983333527776*np.sinh(0.01*x[1]))*(1.99996666705555*np.cosh(0.01*x[1]) - 2)
             values[0] = 0.0
             values[1] = 0.0
         def value_shape(self):
             return (2,)
 
-    class G(Expression):
+    class GG(Expression):
         def __init__(self):
             self.G1 = 1
         def eval_cell(self, values, x, ufc_cell):
@@ -249,12 +259,12 @@ def ExactSol22(mesh, params):
         def value_shape(self):
             return (2,)
 
-    u0 = u0()
-    b0 = b0()
-    p0 = p0()
+    u0 = u0(G, params, Ha)
+    b0 = b0(G, params, Ha)
+    p0 = p0(G, params, Ha)
     r0 = r0()
     F = F()
-    G = G()
+    G = GG()
     return u0, b0, p0, r0, F, G
 
 
@@ -275,7 +285,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
-    ds = Measure("ds")[boundaries]
+
     a11 = params[2]*inner(grad(v), grad(u))*dx(0)
     a12 = -div(v)*p*dx(0)
     a21 = -div(u)*q*dx(0)
@@ -288,17 +298,17 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
         return on_boundary
 
     bcu = DirichletBC(W.sub(0), Expression(("0.0","0.0")), boundaries, 1)
-    # bcu2 = DirichletBC(W.sub(0), u0, boundaries, 2)
+    # bcu = DirichletBC(W.sub(0), u0, boundary)
     # bcu = [bcu1, bcu2]
-    A, b = assemble_system(a, L, bcu)
+    A, b = assemble_system(a, L, bcu, exterior_facet_domains=boundaries)
     A, b = CP.Assemble(A, b)
     C = A.getSubMatrix(IS[1],IS[1])
     u = b.duplicate()
 
-    P, Pb = assemble_system(pp,L,bcu)
+    P, Pb = assemble_system(pp, L, bcu)
     # MO.StoreMatrix(P.sparray(),"P"+str(W.dim()))
     P =CP.Assemble(P)
-    M =  P.getSubMatrix(IS[1],IS[1])
+    M =  P.getSubMatrix(IS[1], IS[1])
     # print M
     ksp = PETSc.KSP()
     ksp.create(comm=PETSc.COMM_WORLD)
@@ -308,7 +318,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     OptDB = PETSc.Options()
     if __version__ != '1.6.0':
         OptDB['pc_factor_mat_solver_package']  = "mumps"
-    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
     ksp.setOperators(A,A)
 

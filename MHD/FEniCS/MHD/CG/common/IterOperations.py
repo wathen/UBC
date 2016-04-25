@@ -24,10 +24,10 @@ def Errors(X,mesh,FSpaces,ExactSolution,k,dim, FS = "CG"):
     Mdim = dim[2]
     Rdim = dim[3]
     # k +=2
-    VelocityE = VectorFunctionSpace(mesh,"CG",4)
+    VelocityE = VectorFunctionSpace(mesh,"CG",3)
     u = interpolate(ExactSolution[0],VelocityE)
 
-    PressureE = FunctionSpace(mesh,FS,3)
+    PressureE = FunctionSpace(mesh,FS,2)
     # parameters["form_compiler"]["quadrature_degree"] = 8
     # X = x.array()
     xu = X[0:Vdim]
@@ -70,8 +70,8 @@ def Errors(X,mesh,FSpaces,ExactSolution,k,dim, FS = "CG"):
 
     # parameters["form_compiler"]["quadrature_degree"] = -1
 
-    MagneticE = FunctionSpace(mesh,"N1curl",2)
-    LagrangeE = FunctionSpace(mesh,"CG",1)
+    MagneticE = FunctionSpace(mesh,"N1curl",3)
+    LagrangeE = FunctionSpace(mesh,"CG",2)
     b = interpolate(ExactSolution[2],MagneticE)
     r = interpolate(ExactSolution[3],LagrangeE)
 
