@@ -121,7 +121,7 @@ for xx in xrange(1,m):
 
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
 
-    kappa = 1.0*100
+    kappa = 1.0
     Mu_m = float(1e4)
     MU = 1.0
 
@@ -141,7 +141,7 @@ for xx in xrange(1,m):
     n = FacetNormal(mesh)
 
     trunc = 4
-    u0, b0, p0, r0, F_S, F_M = HartmanChannel.ExactSol22(mesh, params)
+    u0, b0, p0, r0, F_S, F_M, pN = HartmanChannel.ExactSol(mesh, params)
 
 
     class b(Expression):
@@ -172,8 +172,8 @@ for xx in xrange(1,m):
             return (2,)
     b = intial(mesh)
 
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, u0, p0, params, mesh, boundaries, domains)
-    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b, r0, params, mesh,HiptmairMatrices, Hiptmairtol)
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, u0, pN, params, mesh)#, boundaries, domains)
+    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol)
 
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
@@ -195,7 +195,7 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_S)*dx(0) #- inner(p0*n,v)*ds(2)
+    Lns  = inner(v, F_S)*dx(0) - inner(Expression("0.0")*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
 
     m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
@@ -246,49 +246,49 @@ for xx in xrange(1,m):
     Mits = 0
     TotalStart =time.time()
     SolutionTime = 0
-    while eps > tol  and iter < maxiter:
-        iter += 1
-        MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
+    # while eps > tol  and iter < maxiter:
+    #     iter += 1
+    #     MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
-        # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
-        bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
-        bcs = [bcu,bcb,bcr]
+    #     bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
+    #     # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+    #     bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
+    #     bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
+    #     bcs = [bcu,bcb,bcr]
 
-        A, b = assemble_system(a, L, bcs)
-        A, b = CP.Assemble(A,b)
-        u = b.duplicate()
-        print "                               Max rhs = ",np.max(b.array)
+    #     A, b = assemble_system(a, L, bcs)
+    #     A, b = CP.Assemble(A,b)
+    #     u = b.duplicate()
+    #     print "                               Max rhs = ",np.max(b.array)
 
-        n = FacetNormal(mesh)
-        b_t = TrialFunction(Velocity)
-        c_t = TestFunction(Velocity)
-        mat = as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(0)(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(0)(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(0)(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(0)(W.mesh())
-        ShiftedMass = assemble(aa)
-        bcu.apply(ShiftedMass)
-        ShiftedMass = CP.Assemble(ShiftedMass)
-        kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
+    #     n = FacetNormal(mesh)
+    #     b_t = TrialFunction(Velocity)
+    #     c_t = TestFunction(Velocity)
+    #     mat = as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+    #     aa = params[2]*inner(grad(b_t), grad(c_t))*dx(0)(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(0)(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(0)(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(0)(W.mesh())
+    #     ShiftedMass = assemble(aa)
+    #     bcu.apply(ShiftedMass)
+    #     ShiftedMass = CP.Assemble(ShiftedMass)
+    #     kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
 
-        stime = time.time()
-        # MO.StoreMatrix(PETSc2Scipy(A), "A")
-        # ssss
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
-        Soltime = time.time() - stime
-        MO.StrTimePrint("MHD solve, time: ", Soltime)
-        Mits += mits
-        NSits += nsits
-        SolutionTime += Soltime
+    #     stime = time.time()
+    #     # MO.StoreMatrix(PETSc2Scipy(A), "A")
+    #     # ssss
+    #     u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+    #     Soltime = time.time() - stime
+    #     MO.StrTimePrint("MHD solve, time: ", Soltime)
+    #     Mits += mits
+    #     NSits += nsits
+    #     SolutionTime += Soltime
 
-        u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
-        p1.vector()[:] += - assemble(p1*dx(0))/assemble(ones*dx(0))
-        u_k.assign(u1)
-        p_k.assign(p1)
-        b_k.assign(b1)
-        r_k.assign(r1)
-        uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-        x = IO.arrayToVec(uOld)
+    #     u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
+    #     p1.vector()[:] += - assemble(p1*dx(0))/assemble(ones*dx(0))
+    #     u_k.assign(u1)
+    #     p_k.assign(p1)
+    #     b_k.assign(b1)
+    #     r_k.assign(r1)
+    #     uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+    #     x = IO.arrayToVec(uOld)
     iter = 1
 
     SolTime[xx-1] = SolutionTime/iter
@@ -317,23 +317,6 @@ for xx in xrange(1,m):
        l2rorder[xx-1] =  np.abs(np.log2(errL2r[xx-2]/errL2r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./3)))
        H1rorder[xx-1] =  np.abs(np.log2(errH1r[xx-2]/errH1r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./3)))
 
-# p = plot(u_k)
-# p.write_png()
-# p = plot(p_k)
-# p.write_png()
-# p = plot(b_k)
-# p.write_png()
-# p = plot(r_k)
-# p.write_png()
-# p = plot(interpolate(u0,Velocity))
-# p.write_png()
-# p = plot(interpolate(p0,Pressure))
-# p.write_png()
-# p = plot(interpolate(b0,Magnetic))
-# p.write_png()
-# p = plot(interpolate(r0,Lagrange))
-# p.write_png()
-# sss
 
 import pandas as pd
 
@@ -381,6 +364,23 @@ import pandas as pd
 
 
 
+# p = plot(u_k)
+# p.write_png()
+# p = plot(p_k)
+# p.write_png()
+# p = plot(b_k)
+# p.write_png()
+# p = plot(r_k)
+# p.write_png()
+# p = plot(interpolate(u0,Velocity))
+# p.write_png()
+# p = plot(interpolate(p0,Pressure))
+# p.write_png()
+# p = plot(interpolate(b0,Magnetic))
+# p.write_png()
+# p = plot(interpolate(r0,Lagrange))
+# p.write_png()
+sss
 
 print "\n\n   Iteration table"
 if IterType == "Full":

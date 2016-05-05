@@ -19,7 +19,7 @@ import time
 def Domain(n):
 
 
-    mesh = RectangleMesh(0., -1., 10., 1.,1*n,n)
+    mesh = RectangleMesh(0., -1., 10., 1., 5*n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
@@ -48,10 +48,10 @@ def Domain(n):
     boundaries = FacetFunction("size_t", mesh)
     boundaries.set_all(0)
 
+    right.mark(boundaries, 2)
     left.mark(boundaries, 2)
     top.mark(boundaries, 1)
     bottom.mark(boundaries, 1)
-    right.mark(boundaries, 2)
 
     return mesh, boundaries, domains
 
@@ -67,16 +67,31 @@ def ExactSol(mesh, params):
     x = sy.Symbol('x')
     y = sy.Symbol('y')
     b = (G/params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)
-    print "b", b
-    d = 1.0
-    print "d", d
-    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
-    print "\np", p
-    u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
-    print "\nu", u
-    v = sy.diff(x,y)
-    print "v", v
 
+
+    # print "b", b
+    d = sy.diff(x,x)
+    # print "d", d
+    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+
+
+    # # print "\np", p
+    u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+
+    # # print "\nu", u
+    v = sy.diff(x,y)
+    # uu = y*x*sy.exp(x+y)
+    # u = sy.diff(uu,y)
+    # v = -sy.diff(uu,x)
+    # p = sy.sin(x)*sy.exp(y)
+    u = y
+    v = x
+    p = x
+    # print "v", v
+    J11 = p - params[2]*sy.diff(u,x)
+    J12 = - params[2]*sy.diff(u,y)
+    J21 = - params[2]*sy.diff(v,x)
+    J22 = p - params[2]*sy.diff(v,y)
 
     L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
     print "\nL1", L1
@@ -93,63 +108,83 @@ def ExactSol(mesh, params):
     P2 = sy.diff(p,y)
     print "P2", P2
     C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
-    print "C1", C1
+    # print "C1", C1
     C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
-    print "C2", C2
+    # print "C2", C2
     NS1 = -d*(sy.diff(d,x) - sy.diff(b,y))
-    print "NS1", NS1
+    # print "NS1", NS1
     NS2 = b*(sy.diff(d,x) - sy.diff(b,y))
-    print "NS2", NS2
+    # print "NS2", NS2
 
     M1 = sy.diff(u*d-v*b,y)
-    print "M1", M1
+    # print "M1", M1
     M2 = -sy.diff(u*d-v*b,x)
-    print "M2", M2
+    # print "M2", M2
     # params = [params[0],Mu_m,MU]
 
     F1 = -params[2]*L1 + P1 #- params[0]*NS1 + A1
+
+
     print "F1", F1
     F2 = -params[2]*L2 + P2 #- params[0]*NS2 + A2
+
+
     print "F2", F2
 
     G1 = params[1]*params[2]*C1 - params[0]*M1
+
+
     print "G1", G1
     G2 = params[1]*params[2]*C2 - params[0]*M2
     print "G2", G2
-    ssssss
+    print u
+    print v
+    print p
+    b = sy.lambdify((x, y), b, "numpy")
+    d = sy.lambdify((x, y), d, "numpy")
+    p = sy.lambdify((x, y), p, "numpy")
+    u = sy.lambdify((x, y), u, "numpy")
+    v = sy.lambdify((x, y), v, "numpy")
+    F1 = sy.lambdify((x, y), F1, "numpy")
+    F2 = sy.lambdify((x, y), F2, "numpy")
+    G1 = sy.lambdify((x, y), G1, "numpy")
+    G2 = sy.lambdify((x, y), G2, "numpy")
+    J11 = sy.lambdify((x, y), J11, "numpy")
+    J12 = sy.lambdify((x, y), J12, "numpy")
+    J21 = sy.lambdify((x, y), J21, "numpy")
+    J22 = sy.lambdify((x, y), J22, "numpy")
+ # print "G2", G2
+
     class u0(Expression):
-        def __init__(self, u ,v, X, Y):
+        def __init__(self, u ,v):
             self.u = u
             self.v = v
-            self.X = X
-            self.Y = Y
         def eval_cell(self, values, x, ufc_cell):
             # print u, v
-            values[0] = self.u.subs({self.X:x[0], self.Y:x[1]}).evalf()
-            values[1] = self.v.subs({self.X:x[0], self.Y:x[1]}).evalf()
+            values[0] = x[1]#self.u(x[0],x[1])
+            # values[1] = 0.0
+            values[1] = x[0]#self.v(x[0],x[1])
         def value_shape(self):
             return (2,)
 
     class b0(Expression):
-        def __init__(self, b, d, X, Y):
+        def __init__(self, b, d):
             self.b = b
             self.d = d
-            self.X = X
-            self.Y = Y
         def eval_cell(self, values, x, ufc_cell):
 
-            values[0] = self.b.subs({self.X:x[0], self.Y:x[1]}).evalf()
-            values[1] = self.d
+            # values[0] = self.b(x[0],x[1])
+            # values[0] = self.d(x[0],x[1])
+            values[0] = 0.0
+            values[1] = 1.0
         def value_shape(self):
             return (2,)
 
     class p0(Expression):
-        def __init__(self, p, X, Y):
+        def __init__(self, p):
             self.p = p
-            self.X = X
-            self.Y = Y
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.p.subs({self.X:x[0], self.Y:x[1]}).evalf()
+            values[0] = self.p(x[0],x[1])
 
     class r0(Expression):
         def __init__(self):
@@ -158,37 +193,52 @@ def ExactSol(mesh, params):
             values[0] = 0
 
     class F(Expression):
-        def __init__(self, F1, F2, X, Y):
+        def __init__(self, F1, F2):
             self.F1 = F1
             self.F2 = F2
-            self.X = X
-            self.Y = Y
+
         def eval_cell(self, values, x, ufc_cell):
 
-            values[0] = self.F1.subs({self.X:x[0], self.Y:x[1]}).evalf()
-            values[1] = self.F2.subs({self.X:x[0], self.Y:x[1]}).evalf()
+            values[0] = 1#self.F1(x[0],x[1])
+            values[1] = 0#self.F2(x[0],x[1])
         def value_shape(self):
             return (2,)
 
     class G(Expression):
-        def __init__(self, G1, G2, X, Y):
+        def __init__(self, G1, G2):
             self.G1 = G1
             self.G2 = G2
-            self.X = X
-            self.Y = Y
+
         def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.G1.subs({self.X:x[0], self.Y:x[1]}).evalf()
-            values[1] = self.G2.subs({self.X:x[0], self.Y:x[1]}).evalf()
+            values[0] = self.G1(x[0],x[1])
+            values[1] = self.G2(x[0],x[1])
         def value_shape(self):
             return (2,)
 
-    u0 = u0(u, v, x, y)
-    b0 = b0(b, d, x, y)
-    p0 = p0(p, x, y)
+    class J(Expression):
+        def __init__(self, J11, J12, J21, J22):
+            self.J11 = J11
+            self.J12 = J12
+            self.J21 = J21
+            self.J22 = J22
+
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = self.J11(x[0],x[1])
+            values[1] = self.J12(x[0],x[1])
+            values[2] = self.J21(x[0],x[1])
+            values[3] = self.J22(x[0],x[1])
+        def value_shape(self):
+            return (4,)
+    u0 = u0(u, v)
+    b0 = b0(b, d)
+    p0 = p0(p)
     r0 = r0()
-    F = F(F1,F2, x, y)
-    G = G(G1,G2, x, y)
-    return u0, b0, p0, r0, F, G
+    F = F(F1,F2)
+    G = G(G1,G2)
+    J = J(J11, J12, J21, J22)
+    pN = as_matrix(((J[0], J[1]), (J[2], J[3])))
+
+    return u0, b0, p0, r0, F, G, pN
 
 
 
@@ -217,8 +267,8 @@ def ExactSol22(mesh, params):
             self.params = params
             self.Ha = Ha
         def eval_cell(self, values, x, ufc_cell):
-            # values[0] = 0.0
-            values[0] = (self.G/self.params[0])*(np.sinh(x[1]*self.Ha)/np.sinh(self.Ha)-x[1])
+            values[0] = 0.0
+            # values[0] = (self.G/self.params[0])*(np.sinh(x[1]*self.Ha)/np.sinh(self.Ha)-x[1])
             values[1] = 1.0
         def value_shape(self):
             return (2,)
@@ -243,10 +293,10 @@ def ExactSol22(mesh, params):
         def __init__(self):
             self.F1 = 1
         def eval_cell(self, values, x, ufc_cell):
-            # values[0] = 9.99983333527776*np.cosh(0.01*x[1]) - 10.0
-            # values[1] = -50.0*(-x[1] + 99.9983333527776*np.sinh(0.01*x[1]))*(1.99996666705555*np.cosh(0.01*x[1]) - 2)
-            values[0] = 0.0
-            values[1] = 0.0
+            values[0] = 9.99983333527776*np.cosh(0.01*x[1]) - 10.0
+            values[1] = -50.0*(-x[1] + 99.9983333527776*np.sinh(0.01*x[1]))*(1.99996666705555*np.cosh(0.01*x[1]) - 2)
+            # values[0] = 0.0
+            # values[1] = 0.0
         def value_shape(self):
             return (2,)
 
@@ -273,7 +323,7 @@ def ExactSol22(mesh, params):
 
 
 # Sets up the initial guess for the MHD problem
-def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
+def Stokes(V, Q, F, u0, pN, params, mesh):#, boundaries, domains):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
@@ -283,24 +333,24 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     (v, q) = TestFunctions(W)
     n = FacetNormal(mesh)
 
-    dx = Measure('dx', domain=mesh, subdomain_data=domains)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+    # dx = Measure('dx', domain=mesh, subdomain_data=domains)
+    # ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
-    a11 = params[2]*inner(grad(v), grad(u))*dx(0)
-    a12 = -div(v)*p*dx(0)
-    a21 = -div(u)*q*dx(0)
+    a11 = params[2]*inner(grad(v), grad(u))*dx
+    a12 = -div(v)*p*dx
+    a21 = -div(u)*q*dx
     a = a11+a12+a21
 
-    L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx #- inner(pN*n,v)*ds(2)
 
-    pp = params[2]*inner(grad(v), grad(u))*dx(0)+ (1./params[2])*p*q*dx(0)
+    pp = params[2]*inner(grad(v), grad(u))*dx+ (1./params[2])*p*q*dx(0)
     def boundary(x, on_boundary):
         return on_boundary
 
-    bcu = DirichletBC(W.sub(0), Expression(("0.0","0.0")), boundaries, 1)
-    # bcu = DirichletBC(W.sub(0), u0, boundary)
+    # bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
+    bcu = DirichletBC(W.sub(0), u0, boundary)
     # bcu = [bcu1, bcu2]
-    A, b = assemble_system(a, L, bcu, exterior_facet_domains=boundaries)
+    A, b = assemble_system(a, L, bcu)
     A, b = CP.Assemble(A, b)
     C = A.getSubMatrix(IS[1],IS[1])
     u = b.duplicate()
