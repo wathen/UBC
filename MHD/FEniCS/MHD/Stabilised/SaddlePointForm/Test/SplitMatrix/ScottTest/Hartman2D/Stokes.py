@@ -34,7 +34,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import matplotlib.pyplot as plt
 #@profile
-m = 5
+m = 6
 
 
 set_log_active(False)
@@ -59,9 +59,9 @@ H1rorder = np.zeros((m-1,1))
 NN = np.zeros((m-1,1))
 DoF = np.zeros((m-1,1))
 Velocitydim = np.zeros((m-1,1))
-Magneticdim = np.zeros((m-1,1))
+Velocitydim = np.zeros((m-1,1))
 Pressuredim = np.zeros((m-1,1))
-Lagrangedim = np.zeros((m-1,1))
+Pressuredim = np.zeros((m-1,1))
 Wdim = np.zeros((m-1,1))
 iterations = np.zeros((m-1,1))
 SolTime = np.zeros((m-1,1))
@@ -89,8 +89,8 @@ for xx in xrange(1,m):
     L = 10.
     y0 = 2.
     z0 = 1.
-    mesh = RectangleMesh(Point(0., -1.), Point(10., 1.),5*n,n)
-    # mesh = RectangleMesh(0., -1., 10., 1., 5*nn, nn)
+    # mesh = RectangleMesh(Point(0., -1.), Point(10., 1.),nn,nn)
+    mesh = RectangleMesh(0., -1., 10., 1., 5*nn, nn)
     # mesh, boundaries, domains = HartmanChannel.Domain(nn)
     # mesh = UnitSquareMesh(nn,nn)
     # set_log_level(WARNING)
@@ -100,12 +100,12 @@ for xx in xrange(1,m):
     parameters['form_compiler']['quadrature_degree'] = -1
     order = 1
     parameters['reorder_dofs_serial'] = False
-    Magnetic = VectorFunctionSpace(mesh, "CG", order+1)
-    Lagrange = FunctionSpace(mesh, "CG", order)
+    Velocity = VectorFunctionSpace(mesh, "CG", 2)
+    Pressure = FunctionSpace(mesh, "CG", 1)
 
     parameters['reorder_dofs_serial'] = False
 
-    W = Magnetic*Lagrange
+    W = Velocity*Pressure
     IS = MO.IndexSet(W)
 
     (u, p) = TrialFunctions(W)
@@ -126,33 +126,33 @@ for xx in xrange(1,m):
     def boundary(x, on_boundary):
         return on_boundary
 
-    u = Expression(("x[1]","x[0]"))
-    f = Expression(("1","0"))
-    p = Expression("x[0]")
+    # u0 = Expression(("x[1]","x[0]"))
+    # F = Expression(("1.0","0.0"))
+    # p0 = Expression("x[0]")
 
-    # class u_in(Expression):
-    #     def __init__(self):
-    #         self.p = 1
-    #     def eval_cell(self, values, x, ufc_cell):
-    #         values[0] = x[1]
-    #         values[1] = x[0]
-    #     def value_shape(self):
-    #         return (2,)
+    class u_in(Expression):
+        def __init__(self):
+            self.p = 1
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = x[1]*x[1]
+            values[1] = x[0]*x[0]
+        def value_shape(self):
+            return (2,)
 
-    # class p_in(Expression):
-    #     def __init__(self):
-    #         self.p = 1
-    #     def eval_cell(self, values, x, ufc_cell):
-    #         values[0] = x[0]
+    class p_in(Expression):
+        def __init__(self):
+            self.p = 1
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = x[0]
 
-    # class f_in(Expression):
-    #     def __init__(self):
-    #         self.p = 1
-    #     def eval_cell(self, values, x, ufc_cell):
-    #         values[0] = 1.0
-    #         values[1] = 0.0
-    #     def value_shape(self):
-    #         return (2,)
+    class f_in(Expression):
+        def __init__(self):
+            self.p = 1
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = -1.0
+            values[1] = 2.0
+        def value_shape(self):
+            return (2,)
 
     F = f_in()
     u = u_in()
@@ -160,12 +160,13 @@ for xx in xrange(1,m):
     print F, v
     L = inner(v, F)*dx
 
-    bc = DirichletBC(W.sub(0), u, boundary)
+    bc = DirichletBC(W.sub(0), u0, boundary)
 
 
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A, b)
     x = b.duplicate()
+
 
     ksp = PETSc.KSP()
     ksp.create(comm=PETSc.COMM_WORLD)
@@ -174,7 +175,7 @@ for xx in xrange(1,m):
     pc.setType('lu')
     OptDB = PETSc.Options()
     # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "mumps"
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
 
@@ -194,61 +195,78 @@ for xx in xrange(1,m):
     print ("{:40}").format("Maxwell solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     x = x*scale
 
-    b_k = Function(Magnetic)
-    r_k = Function(Lagrange)
-    b_k.vector()[:] = x.getSubVector(IS[0]).array
+    b_k = Function(Velocity)
+    r_k = Function(Pressure)
     r_k.vector()[:] = x.getSubVector(IS[1]).array
+    ones = Function(Pressure)
+    ones.vector()[:]=(0*ones.vector().array()+1)
+    # pConst = - assemble(p_k*dx)/assemble(ones*dx)
+    r_k.vector()[:] += - assemble(r_k*dx)/assemble(ones*dx)
+    b_k.vector()[:] = x.getSubVector(IS[0]).array
 
-    MagneticE = VectorFunctionSpace(mesh,"CG", 3)
-    LagrangeE = FunctionSpace(mesh,"CG", 2)
+    VelocityE = VectorFunctionSpace(mesh,"CG", 4)
+    PressureE = FunctionSpace(mesh,"CG", 3)
 
-    b = interpolate(u,MagneticE)
-    r = interpolate(p,LagrangeE)
+    b = interpolate(u0,VelocityE)
+    r = interpolate(p0,PressureE)
+    ones = Function(PressureE)
+    ones.vector()[:]=(0*ones.vector().array()+1)
+    # pConst = - assemble(p_k*dx)/assemble(ones*dx)
+    r.vector()[:] += - assemble(r*dx)/assemble(ones*dx)
+    ErrorB = Function(Velocity)
+    ErrorR = Function(Pressure)
 
-    ErrorB = Function(Magnetic)
-    ErrorR = Function(Lagrange)
 
-
-    ErrorB = u-b_k
-    ErrorR = p-r_k
+    ErrorB = b-b_k
+    ErrorR = r-r_k
 
     # print b_k.vector().array()
     # print b.vector().array()
-    # print grad(ErrorB).shape()
-    # print (inner(grad(ErrorB), grad(ErrorB))*dx)
-    # print inner((ErrorB), (ErrorB))*dx
-    # sss
-    tic()
-    errL2b[xx-1] = sqrt(abs(assemble(inner(ErrorB, ErrorB)*dx)))
-    MO.StrTimePrint("Magnetic L2 error, time: ", toc())
-    tic()
-    errCurlb [xx-1] = errornorm(b, b_k, norm_type='H10', degree_rise=4) #sqrt(abs(assemble(inner(grad(ErrorB), grad(ErrorB))*dx)))
-    MO.StrTimePrint("Magnetic Curl error, time: ", toc())
-    tic()
-    errL2r[xx-1] = sqrt(abs(assemble(inner(ErrorR, ErrorR)*dx)))
-    MO.StrTimePrint("Multiplier L2 error, time: ", toc())
 
+
+    errL2b[xx-1] = sqrt(abs(assemble(inner(ErrorB, ErrorB)*dx)))
+    errCurlb [xx-1] = errornorm(b, b_k, norm_type='H10', degree_rise=4)
+    errL2r[xx-1] = sqrt(abs(assemble(inner(ErrorR, ErrorR)*dx)))
+
+# p = plot(u_k)
+# p.write_png()
+# p = plot(p_k)
+# p.write_png()
+# p = plot(b_k)
+# p.write_png()
+p = plot(r_k)
+# p.write_png()
+# p = plot(interpolate(u0,Velocity))
+# p.write_png()
+
+p = plot(r)
+# p.write_png()
+# p = plot(interpolate(b0,Magnetic))
+# p.write_png()
+# p = plot(interpolate(r0,Lagrange))
+# p.write_png()
+# sss
 
 import pandas as pd
-print "\n\n   Magnetic convergence"
-MagneticTitles = ["l","B DoF","R DoF","B-L2","L2-order","B-Curl","HCurl-order"]
-MagneticValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2b,l2border,errCurlb,Curlborder),axis=1)
-MagneticTable= pd.DataFrame(MagneticValues, columns = MagneticTitles)
+print "\n\n   Velocity convergence"
+VelocityTitles = ["l","U DoF","P DoF","U-L2","L2-order","U-Grad","HGrad-order"]
+VelocityValues = np.concatenate((level,Velocitydim,Pressuredim,errL2b,l2border,errCurlb,Curlborder),axis=1)
+VelocityTable= pd.DataFrame(VelocityValues, columns = VelocityTitles)
 pd.set_option('precision',3)
-MagneticTable = MO.PandasFormat(MagneticTable,"B-Curl","%2.4e")
-MagneticTable = MO.PandasFormat(MagneticTable,'B-L2',"%2.4e")
-MagneticTable = MO.PandasFormat(MagneticTable,"L2-order","%1.2f")
-MagneticTable = MO.PandasFormat(MagneticTable,'HCurl-order',"%1.2f")
-print MagneticTable.to_latex()
+VelocityTable = MO.PandasFormat(VelocityTable,"U-Grad","%2.4e")
+VelocityTable = MO.PandasFormat(VelocityTable,'U-L2',"%2.4e")
+VelocityTable = MO.PandasFormat(VelocityTable,"L2-order","%1.2f")
+VelocityTable = MO.PandasFormat(VelocityTable,'HGrad-order',"%1.2f")
+print VelocityTable.to_latex()
 
-print "\n\n   Lagrange convergence"
-LagrangeTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
-LagrangeValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
-LagrangeTable= pd.DataFrame(LagrangeValues, columns = LagrangeTitles)
+print "\n\n   Pressure convergence"
+PressureTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
+PressureValues = np.concatenate((level,Velocitydim,Pressuredim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
+PressureTable= pd.DataFrame(PressureValues, columns = PressureTitles)
 pd.set_option('precision',3)
-LagrangeTable = MO.PandasFormat(LagrangeTable,"R-L2","%2.4e")
-LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
-LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
-LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
-print LagrangeTable.to_latex()
-
+PressureTable = MO.PandasFormat(PressureTable,"R-L2","%2.4e")
+PressureTable = MO.PandasFormat(PressureTable,'R-H1',"%2.4e")
+PressureTable = MO.PandasFormat(PressureTable,"L2-order","%1.2f")
+PressureTable = MO.PandasFormat(PressureTable,'H1-order',"%1.2f")
+print PressureTable.to_latex()
+interactive()
