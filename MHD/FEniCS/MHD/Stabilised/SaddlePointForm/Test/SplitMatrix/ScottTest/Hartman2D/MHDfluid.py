@@ -34,7 +34,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import matplotlib.pyplot as plt
 #@profile
-m = 5
+m = 6
 
 
 set_log_active(False)
@@ -137,11 +137,11 @@ for xx in xrange(1,m):
     params = [kappa,Mu_m,MU]
 
     # F_M = Expression(("0.0","0.0"))
-    # F_S = Expression(("0.0","0.0"))
+    # F_NS = Expression(("0.0","0.0"))
     n = FacetNormal(mesh)
 
     trunc = 4
-    u0, b0, p0, r0, F_S, F_M, pN = HartmanChannel.ExactSol(mesh, params)
+    u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple = HartmanChannel.ExactSolution(mesh, params)
 
 
     # class b(Expression):
@@ -153,12 +153,12 @@ for xx in xrange(1,m):
     #     def value_shape(self):
     #         return (2,)
     # b = b()
-    MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
-    BCtime = time.time()
-    BC = MHDsetup.BoundaryIndices(mesh)
-    MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
-    Hiptmairtol = 1e-6
-    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+    # MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
+    # BCtime = time.time()
+    # BC = MHDsetup.BoundaryIndices(mesh)
+    # MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
+    # Hiptmairtol = 1e-6
+    # HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
@@ -171,9 +171,10 @@ for xx in xrange(1,m):
     #     def value_shape(self):
     #         return (2,)
     # b = intial(mesh)
-
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, u0, pN, params, mesh, boundaries, domains)
-    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol)
+    F_NS = -MU*Laplacian+Advection+gradPres-kappa*NScouple
+    F_M = Mu_m*kappa*CurlCurl+gradLagr -kappa*Mcouple
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
+    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh)
 
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
@@ -186,28 +187,28 @@ for xx in xrange(1,m):
     m21 = inner(c,grad(r))*dx(0)
     m12 = inner(b,grad(s))*dx(0)
 
-    a11 = params[2]*inner(grad(v), grad(u))*dx(0) + inner((grad(u)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u,v)*ds
+    a11 = params[2]*inner(grad(v), grad(u))*dx(0) + inner((grad(u)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u,v)*ds(0)
     a12 = -div(v)*p*dx(0)
     a21 = -div(u)*q*dx(0)
 
-    CoupleT = 0*params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx(0)
-    Couple = -0*params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx(0)
+    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx(0)
+    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx(0)
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_S)*dx(0) - inner(Expression(("0.0"))*n,v)*ds(2)
+    Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
 
     m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
     m21 = inner(c,grad(r_k))*dx(0)
     m12 = inner(b_k,grad(s))*dx(0)
 
-    a11 = params[2]*inner(grad(v), grad(u_k))*dx(0) + inner((grad(u_k)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u_k,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
+    a11 = params[2]*inner(grad(v), grad(u_k))*dx(0) + inner((grad(u_k)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u_k,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u_k,v)*ds(0)
     a12 = -div(v)*p_k*dx(0)
     a21 = -div(u_k)*q*dx(0)
 
-    CoupleT = 0*params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx(0)
-    Couple = -0*params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx(0)
+    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx(0)
+    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx(0)
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
@@ -219,17 +220,17 @@ for xx in xrange(1,m):
     p_k.vector()[:] += - assemble(p_k*dx(0))/assemble(ones*dx(0))
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
-    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
+    # KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
+    # kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
 
     IS = MO.IndexSet(W, 'Blocks')
 
-    parameters['linear_algebra_backend'] = 'uBLAS'
+    # parameters['linear_algebra_backend'] = 'uBLAS'
 
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4     # tolerance
     iter = 0            # iteration counter
-    maxiter = 10       # max no of iterations allowed
+    maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -274,7 +275,7 @@ for xx in xrange(1,m):
         stime = time.time()
         # MO.StoreMatrix(PETSc2Scipy(A), "A")
         # ssss
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits

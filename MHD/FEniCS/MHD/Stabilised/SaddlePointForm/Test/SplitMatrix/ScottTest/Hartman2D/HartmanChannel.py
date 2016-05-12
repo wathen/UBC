@@ -16,43 +16,46 @@ import MaxwellPrecond as MP
 import StokesPrecond as SP
 import time
 
+def myCCode(A):
+    return sy.ccode(A).replace('M_PI','pi')
+
 def Domain(n):
 
     # mesh = RectangleMesh(0., -1., 2., 1., n, n)
     # mesh = RectangleMesh(0., 0., 1.0, 1.0, n, n)
-    mesh = UnitSquareMesh(n, n)
-    class Left(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[0], 0.0)
-
-    class Right(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[0], 1.0)
-
-    class Bottom(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[1], 0.0)
-
-    class Top(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[1], 1.0)
-
-    # mesh = RectangleMesh(0., -1., 2., 1., n, n)
+    # mesh = UnitSquareMesh(n, n)
     # class Left(SubDomain):
     #     def inside(self, x, on_boundary):
     #         return near(x[0], 0.0)
 
     # class Right(SubDomain):
     #     def inside(self, x, on_boundary):
-    #         return near(x[0], 2.0)
+    #         return near(x[0], 1.0)
 
     # class Bottom(SubDomain):
     #     def inside(self, x, on_boundary):
-    #         return near(x[1], -1.0)
+    #         return near(x[1], 0.0)
 
     # class Top(SubDomain):
     #     def inside(self, x, on_boundary):
     #         return near(x[1], 1.0)
+
+    mesh = RectangleMesh(Point(0., -3.), Point(30., 3.), n, n)
+    class Left(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[0], 0.0)
+
+    class Right(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[0], 30.0)
+
+    class Bottom(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[1], -3.0)
+
+    class Top(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[1], 3.0)
 
     left = Left()
     top = Top()
@@ -150,113 +153,78 @@ def ExactSol(mesh, params):
     print "G1", G1
     G2 = params[1]*params[2]*C2 - params[0]*M2 + R2
 
-    print "G2", G2
-    print u
-    print v
-    print p
-    b = sy.lambdify((x, y), b, "numpy")
-    d = sy.lambdify((x, y), d, "numpy")
-    p = sy.lambdify((x, y), p, "numpy")
-    u = sy.lambdify((x, y), u, "numpy")
-    v = sy.lambdify((x, y), v, "numpy")
-    r = sy.lambdify((x, y), r, "numpy")
-    F1 = sy.lambdify((x, y), F1, "numpy")
-    F2 = sy.lambdify((x, y), F2, "numpy")
-    G1 = sy.lambdify((x, y), G1, "numpy")
-    G2 = sy.lambdify((x, y), G2, "numpy")
-    J11 = sy.lambdify((x, y), J11, "numpy")
-    J12 = sy.lambdify((x, y), J12, "numpy")
-    J21 = sy.lambdify((x, y), J21, "numpy")
-    J22 = sy.lambdify((x, y), J22, "numpy")
-    # print "G2", G2
 
-    class u0(Expression):
-        def __init__(self, u ,v):
-            self.u = u
-            self.v = v
-        def eval_cell(self, values, x, ufc_cell):
-            # print u, v
-            values[0] = self.u(x[0],x[1])
-            # values[1] = 0.0
-            values[1] = self.v(x[0],x[1])
-        def value_shape(self):
-            return (2,)
-
-    class b0(Expression):
-        def __init__(self, b, d):
-            self.b = b
-            self.d = d
-        def eval_cell(self, values, x, ufc_cell):
-
-            values[0] = self.b(x[0],x[1])
-            values[0] = self.d(x[0],x[1])
-            # values[0] = 0.0
-            # values[1] = 1.0
-        def value_shape(self):
-            return (2,)
-
-    class p0(Expression):
-        def __init__(self, p):
-            self.p = p
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.p(x[0],x[1])
-
-    class r0(Expression):
-        def __init__(self, r):
-            self.r = r
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.r(x[0],x[1])
-
-    class F(Expression):
-        def __init__(self, F1, F2):
-            self.F1 = F1
-            self.F2 = F2
-
-        def eval_cell(self, values, x, ufc_cell):
-
-            values[0] = self.F1(x[0],x[1])
-            values[1] = self.F2(x[0],x[1])
-        def value_shape(self):
-            return (2,)
-
-    class G(Expression):
-        def __init__(self, G1, G2):
-            self.G1 = G1
-            self.G2 = G2
-
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.G1(x[0],x[1])
-            values[1] = self.G2(x[0],x[1])
-        def value_shape(self):
-            return (2,)
-
-    class J(Expression):
-        def __init__(self, J11, J12, J21, J22):
-            self.J11 = J11
-            self.J12 = J12
-            self.J21 = J21
-            self.J22 = J22
-
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.J11(x[0],x[1])
-            values[1] = self.J12(x[0],x[1])
-            values[2] = self.J21(x[0],x[1])
-            values[3] = self.J22(x[0],x[1])
-        def value_shape(self):
-            return (4,)
-    u0 = u0(u, v)
-    b0 = b0(b, d)
-    p0 = p0(p)
-    r0 = r0(r)
-    F = F(F1,F2)
-    G = G(G1,G2)
-    J = J(J11, J12, J21, J22)
-    pN = as_matrix(((J[0], J[1]), (J[2], J[3])))
 
     return u0, b0, p0, r0, F, G, pN
 
+def ExactSolution(mesh, params):
+    Re = 1./params[2]
+    Ha = sqrt(params[0]/(params[1]*params[2]))
+    G = 10.
 
+    x = sy.Symbol('x[0]')
+    y = sy.Symbol('x[1]')
 
+    b = (G/params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)
+    d = sy.diff(x,x)
+
+    p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+
+    u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+    v = sy.diff(x,y)
+    r = sy.diff(x,y)
+
+    # uu = y*x*sy.exp(x+y)
+    # u = sy.diff(uu,y)
+    # v = -sy.diff(uu,x)
+    # p = sy.sin(x)*sy.exp(y)
+    # uu = x*y*sy.cos(x)
+    # b = sy.diff(uu,y)
+    # d = -sy.diff(uu,x)
+    # r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
+
+    J11 = p - params[2]*sy.diff(u,x)
+    J12 = - params[2]*sy.diff(u,y)
+    J21 = - params[2]*sy.diff(v,x)
+    J22 = p - params[2]*sy.diff(v,y)
+
+    L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
+    L2 = sy.diff(v,x,x)+sy.diff(v,y,y)
+
+    A1 = u*sy.diff(u,x)+v*sy.diff(u,y)
+    A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
+
+    P1 = sy.diff(p,x)
+    P2 = sy.diff(p,y)
+
+    C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
+    C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
+
+    NS1 = -d*(sy.diff(d,x) - sy.diff(b,y))
+    NS2 = b*(sy.diff(d,x) - sy.diff(b,y))
+
+    R1 = sy.diff(r,x)
+    R2 = sy.diff(r,y)
+
+    M1 = sy.diff(u*d-v*b,y)
+    M2 = -sy.diff(u*d-v*b,x)
+    print myCCode(r)
+    u0 = Expression((myCCode(u),myCCode(v)))
+    p0 = Expression(myCCode(p))
+    b0 = Expression((myCCode(b),myCCode(d)))
+    r0 = Expression(myCCode(r))
+
+    Laplacian = Expression((myCCode(L1),myCCode(L2)))
+    Advection = Expression((myCCode(A1),myCCode(A2)))
+    gradPres = Expression((myCCode(P1),myCCode(P2)))
+    NScouple = Expression((myCCode(NS1),myCCode(NS2)))
+
+    CurlCurl = Expression((myCCode(C1),myCCode(C2)))
+    gradLagr = Expression((myCCode(R1),myCCode(R2)))
+    Mcouple = Expression((myCCode(M1),myCCode(M2)))
+
+    pN = as_matrix(((Expression(myCCode(J11)),Expression(myCCode(J12))), (Expression(myCCode(J21)),Expression(myCCode(J22)))))
+    return u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple
 
 def ExactSol22(mesh, params):
 
@@ -270,7 +238,7 @@ def ExactSol22(mesh, params):
             self.params = params
             self.Ha = Ha
         def eval_cell(self, values, x, ufc_cell):
-            # print u, v
+
             # values[0] = -99998.3333527776*np.cosh(0.01*x[1]) + 100003.333311111
             values[0] = (self.G/(self.params[2]*self.Ha*np.tanh(self.Ha)))*(1-(np.cosh(x[1]*self.Ha)/np.cosh(self.Ha)))
             values[1] = 0.0
@@ -381,8 +349,8 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     ksp.setType('preonly')
     pc.setType('lu')
     OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
+    # if __version__ != '1.6.0':
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
     ksp.setOperators(A,A)
@@ -416,7 +384,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     return u_k, p_k
 
 
-def Maxwell(V, Q, F, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol):
+def Maxwell(V, Q, F, b0, r0, params, mesh):#HiptmairMatrices, Hiptmairtol):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q

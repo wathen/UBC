@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 import sympy as sy
 import ExactSol
 #@profile
-m = 5
+m = 7
 
 
 set_log_active(False)
@@ -78,8 +78,8 @@ ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0]= 1e0
 
-x = sy.Symbol('x')
-y = sy.Symbol('y')
+x = sy.Symbol('x[0]')
+y = sy.Symbol('x[1]')
 
 # u = sy.diff(x,x)
 # v = sy.diff(x,x)
@@ -87,7 +87,7 @@ y = sy.Symbol('y')
 
 u = y**2
 v = x**2
-p = x*y
+p = x
 p = sy.sin(x)*sy.exp(y)
 uu = y*x*sy.exp(x+y)
 u = sy.diff(uu,y)
@@ -120,79 +120,26 @@ A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
 
 F1 = -L1 + P1 + A1
 F2 = -L2 + P2 + A1
-print F1
-print F2
+
 J11 = p - sy.diff(u,x)
 J12 = - sy.diff(u,y)
 J21 = - sy.diff(v,x)
 J22 = p - sy.diff(v,y)
-# sss
-p = sy.lambdify((x, y), p, "numpy")
-u = sy.lambdify((x, y), u, "numpy")
-v = sy.lambdify((x, y), v, "numpy")
 
-F1 = sy.lambdify((x, y), F1, "numpy")
-F2 = sy.lambdify((x, y), F2, "numpy")
-J11 = sy.lambdify((x, y), J11, "numpy")
-J12 = sy.lambdify((x, y), J12, "numpy")
-J21 = sy.lambdify((x, y), J21, "numpy")
-J22 = sy.lambdify((x, y), J22, "numpy")
+u0 = Expression((sy.ccode(u),sy.ccode(v)))
+p0 = Expression(sy.ccode(p))
+# Laplacian = Vec(L1, L2, x, y)
+# Advection = Vec(A1, A2, x, y)
+# gradPres = Vec(P1, P2, x, y)
+Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)))
+Advection = Expression((sy.ccode(A1),sy.ccode(A2)))
+gradPres = Expression((sy.ccode(P1),sy.ccode(P2)))
 
-class u_in(Expression):
-    def __init__(self, u ,v):
-        self.u = u
-        self.v = v
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1])
-        values[1] = -x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1])
-        # values[0] = self.u(x[0],x[1])
-        # values[1] = self.v(x[0],x[1])
-
-    def value_shape(self):
-        return (2,)
-
-
-class p_in(Expression):
-    def __init__(self, p):
-        self.p = p
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = exp(x[1])*sin(x[0])
-        # values[0] = self.p(x[0],x[1])
-
-class f_in(Expression):
-    def __init__(self, F1, F2):
-        self.F1 = F1
-        self.F2 = F2
-
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = -x[0]*(x[1] + 3)*exp(x[0] + x[1]) + (-x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + 2*x[0]*exp(x[0] + x[1])) + (x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]) + x[1]*exp(x[0] + x[1]) + exp(x[0] + x[1])) - (x[0]*x[1] + x[0] + 2*x[1] + 2)*exp(x[0] + x[1]) + exp(x[1])*cos(x[0])
-
-        values[1] = x[1]*(x[0] + 3)*exp(x[0] + x[1]) + (-x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + 2*x[0]*exp(x[0] + x[1])) + (x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]) + x[1]*exp(x[0] + x[1]) + exp(x[0] + x[1])) + (x[0]*x[1] + 2*x[0] + x[1] + 2)*exp(x[0] + x[1]) + exp(x[1])*sin(x[0])
-        # values[0] = self.F1(x[0],x[1])
-        # values[1] = self.F2(x[0],x[1])
-    def value_shape(self):
-        return (2,)
-
-class J(Expression):
-    def __init__(self, J11, J12, J21, J22):
-        self.J11 = J11
-        self.J12 = J12
-        self.J21 = J21
-        self.J22 = J22
-
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = self.J11(x[0],x[1])
-        values[1] = self.J12(x[0],x[1])
-        values[2] = self.J21(x[0],x[1])
-        values[3] = self.J22(x[0],x[1])
-    def value_shape(self):
-        return (4,)
-
-F = f_in(F1, F2)
-u0 = u_in(u, v)
-p0 = p_in(p)
-J = J(J11, J12, J21, J22)
-pN = as_matrix(((J[0], J[1]), (J[2], J[3])))
+# F = f_in(F1, F2)
+# u0 = u_in(u, v)
+# p0 = p_in(p)
+# J = J(J11, J12, J21, J22)
+pN = as_matrix(((Expression(sy.ccode(J11)),Expression(sy.ccode(J12))), (Expression(sy.ccode(J21)),Expression(sy.ccode(J22)))))
 for xx in xrange(1,m):
     print xx
     level[xx-1] = xx+1
@@ -223,9 +170,9 @@ for xx in xrange(1,m):
     kappa = 1.0
     Mu_m = float(1e4)
     MU = 1.0
-    u0, p0, Laplacian, Advection, gradPres = ExactSol.NS2D(4, mesh)
+    # u0, p0, Laplacian, Advection, gradPres = ExactSol.NS2D(1, mesh)
 
-    F = -Laplacian+Advection+gradPres
+    F = -Laplacian + Advection + gradPres
 
 
     params = [kappa,Mu_m,MU]
@@ -241,9 +188,9 @@ for xx in xrange(1,m):
         return on_boundary
     n = FacetNormal(mesh)
 
-    L = inner(v, F)*dx(0) #- inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
 
-    bc = DirichletBC(W.sub(0), u0, boundary)
+    bc = DirichletBC(W.sub(0), u0, boundaries, 1)
 
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A, b)
@@ -284,7 +231,7 @@ for xx in xrange(1,m):
     maxiter = 20
     eps = 1
     iter = 0
-    L = inner(v, F)*dx(0) #- inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
     a11 = inner(grad(v), grad(u))*dx(0) + inner((grad(u)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u,v)*ds(0)
     a12 = -div(v)*p*dx(0)
     a21 = -div(u)*q*dx(0)
@@ -294,8 +241,8 @@ for xx in xrange(1,m):
 
     while eps > tol  and iter < maxiter:
         iter += 1
-        # bc = DirichletBC(W.sub(0), Expression(("0.0", "0.0")), boundaries, 1)
-        bc = DirichletBC(W.sub(0), Expression(("0.0", "0.0")), boundary)
+        bc = DirichletBC(W.sub(0), Expression(("0.0", "0.0")), boundaries, 1)
+        # bc = DirichletBC(W.sub(0), Expression(("0.0", "0.0")), boundary)
         print "Iteration = ", iter
         A, b = assemble_system(a, L-rhs, bc)
         A, b = CP.Assemble(A,b)
