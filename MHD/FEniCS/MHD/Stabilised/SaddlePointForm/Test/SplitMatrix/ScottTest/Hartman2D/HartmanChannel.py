@@ -23,39 +23,39 @@ def Domain(n):
 
     # mesh = RectangleMesh(0., -1., 2., 1., n, n)
     # mesh = RectangleMesh(0., 0., 1.0, 1.0, n, n)
-    # mesh = UnitSquareMesh(n, n)
-    # class Left(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 0.0)
-
-    # class Right(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 1.0)
-
-    # class Bottom(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], 0.0)
-
-    # class Top(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], 1.0)
-
-    mesh = RectangleMesh(Point(0., -3.), Point(30., 3.), n, n)
+    mesh = UnitSquareMesh(n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], 30.0)
+            return near(x[0], 1.0)
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], -3.0)
+            return near(x[1], 0.0)
 
     class Top(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], 3.0)
+            return near(x[1], 1.0)
+
+    # mesh = RectangleMesh(Point(0., -2.), Point(20., 2.), n, n)
+    # class Left(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[0], 0.0)
+
+    # class Right(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[0], 20.0)
+
+    # class Bottom(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[1], -2.0)
+
+    # class Top(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[1], 2.0)
 
     left = Left()
     top = Top()
@@ -171,59 +171,69 @@ def ExactSolution(mesh, params):
     p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
 
     u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
-    v = sy.diff(x,y)
-    r = sy.diff(x,y)
+    v = sy.diff(x, y)
+    r = sy.diff(x, y)
 
-    # uu = y*x*sy.exp(x+y)
-    # u = sy.diff(uu,y)
-    # v = -sy.diff(uu,x)
-    # p = sy.sin(x)*sy.exp(y)
-    # uu = x*y*sy.cos(x)
-    # b = sy.diff(uu,y)
-    # d = -sy.diff(uu,x)
+    uu = y*x*sy.exp(x+y)
+    u = sy.diff(uu, y)
+    v = -sy.diff(uu, x)
+    p = sy.sin(x)*sy.exp(y)
+    bb = x*y*sy.cos(x)
+    b = sy.diff(bb, y)
+    d = -sy.diff(bb, x)
     # r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
+    r = sy.diff(x, y)
 
-    J11 = p - params[2]*sy.diff(u,x)
-    J12 = - params[2]*sy.diff(u,y)
-    J21 = - params[2]*sy.diff(v,x)
-    J22 = p - params[2]*sy.diff(v,y)
+    b = y**2
+    d = x**2
+    r = x
+    J11 = p - params[2]*sy.diff(u, x)
+    J12 = - params[2]*sy.diff(u, y)
+    J21 = - params[2]*sy.diff(v, x)
+    J22 = p - params[2]*sy.diff(v, y)
 
-    L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
-    L2 = sy.diff(v,x,x)+sy.diff(v,y,y)
+    L1 = sy.diff(u, x, x)+sy.diff(u, y, y)
+    L2 = sy.diff(v, x, x)+sy.diff(v, y, y)
 
-    A1 = u*sy.diff(u,x)+v*sy.diff(u,y)
-    A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
+    A1 = u*sy.diff(u, x)+v*sy.diff(u, y)
+    A2 = u*sy.diff(v, x)+v*sy.diff(v, y)
 
-    P1 = sy.diff(p,x)
-    P2 = sy.diff(p,y)
+    P1 = sy.diff(p, x)
+    P2 = sy.diff(p, y)
 
-    C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
-    C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
+    C1 = sy.diff(d, x, y) - sy.diff(b, y, y)
+    C2 = sy.diff(b, x, y) - sy.diff(d, x, x)
 
-    NS1 = -d*(sy.diff(d,x) - sy.diff(b,y))
-    NS2 = b*(sy.diff(d,x) - sy.diff(b,y))
+    NS1 = -d*(sy.diff(d, x) - sy.diff(b, y))
+    NS2 = b*(sy.diff(d, x) - sy.diff(b, y))
 
-    R1 = sy.diff(r,x)
-    R2 = sy.diff(r,y)
+    R1 = sy.diff(r, x)
+    R2 = sy.diff(r, y)
 
-    M1 = sy.diff(u*d-v*b,y)
-    M2 = -sy.diff(u*d-v*b,x)
-    print myCCode(r)
-    u0 = Expression((myCCode(u),myCCode(v)))
+    M1 = sy.diff(u*d-v*b, y)
+    M2 = -sy.diff(u*d-v*b, x)
+
+    u0 = Expression((myCCode(u), myCCode(v)))
     p0 = Expression(myCCode(p))
-    b0 = Expression((myCCode(b),myCCode(d)))
+    b0 = Expression((myCCode(b), myCCode(d)))
     r0 = Expression(myCCode(r))
 
-    Laplacian = Expression((myCCode(L1),myCCode(L2)))
-    Advection = Expression((myCCode(A1),myCCode(A2)))
-    gradPres = Expression((myCCode(P1),myCCode(P2)))
-    NScouple = Expression((myCCode(NS1),myCCode(NS2)))
+    print "  u = (", str(u).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(v).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
+    print "  p = (", str(p).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
+    print "  b = (", str(b).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(d).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
+    print "  r = (", str(r).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
 
-    CurlCurl = Expression((myCCode(C1),myCCode(C2)))
-    gradLagr = Expression((myCCode(R1),myCCode(R2)))
-    Mcouple = Expression((myCCode(M1),myCCode(M2)))
+    Laplacian = Expression((myCCode(L1), myCCode(L2)))
+    Advection = Expression((myCCode(A1), myCCode(A2)))
+    gradPres = Expression((myCCode(P1), myCCode(P2)))
+    NScouple = Expression((myCCode(NS1), myCCode(NS2)))
 
-    pN = as_matrix(((Expression(myCCode(J11)),Expression(myCCode(J12))), (Expression(myCCode(J21)),Expression(myCCode(J22)))))
+    CurlCurl = Expression((myCCode(C1), myCCode(C2)))
+    gradLagr = Expression((myCCode(R1), myCCode(R2)))
+    Mcouple = Expression((myCCode(M1), myCCode(M2)))
+    print C1+R1, C2+R2
+    ssss
+    pN = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
     return u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple
 
 def ExactSol22(mesh, params):
@@ -425,8 +435,7 @@ def Maxwell(V, Q, F, b0, r0, params, mesh):#HiptmairMatrices, Hiptmairtol):
     ksp.setType('preonly')
     pc.setType('lu')
     OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
 
