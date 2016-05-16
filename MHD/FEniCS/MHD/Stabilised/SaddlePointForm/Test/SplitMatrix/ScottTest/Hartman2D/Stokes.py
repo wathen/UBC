@@ -80,109 +80,69 @@ ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0]= 1e0
 
-x = sy.Symbol('x')
-y = sy.Symbol('y')
+x = sy.Symbol('x[0]')
+y = sy.Symbol('x[1]')
 
+# u = sy.diff(x,x)
+# v = sy.diff(x,x)
+# p = sy.diff(x,x)
+
+u = y**2
+v = x**2
+p = x
 p = sy.sin(x)*sy.exp(y)
-# u = y**3
-# v = x**3
 uu = y*x*sy.exp(x+y)
 u = sy.diff(uu,y)
 v = -sy.diff(uu,x)
-
-    # print "d", d
-
 
 kappa = 1.0
 Mu_m = float(1e4)
 MU = 1.0
 params = [kappa,Mu_m,MU]
 
-G = 10.
-Re = 1./params[2]
-Ha = sqrt(params[0]/(params[1]*params[2]))
+# G = 10.
+# Re = 1./params[2]
+# Ha = sqrt(params[0]/(params[1]*params[2]))
 
-p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
-u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
-v = sy.diff(x,y)
+# p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+# u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+# v = sy.diff(x,y)
 
 L1 = sy.diff(u,x,x) + sy.diff(u,y,y)
 L2 = sy.diff(v,x,x) + sy.diff(v,y,y)
 
-print "u=(", u,",",v,")"
-print "p=(",p,")"
+print "u=(", u,",", v,")"
+print "p=(", p,")"
+
 P1 = sy.diff(p,x)
 P2 = sy.diff(p,y)
 
-F1 = -L1 + P1 #- params[0]*NS1 + A1
-F2 = -L2 + P2 #- params[0]*NS2 + A2
+A1 = u*sy.diff(u,x)+v*sy.diff(u,y)
+A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
+
+F1 = -L1 + P1 + A1
+F2 = -L2 + P2 + A1
 
 J11 = p - sy.diff(u,x)
 J12 = - sy.diff(u,y)
 J21 = - sy.diff(v,x)
 J22 = p - sy.diff(v,y)
 
-p = sy.lambdify((x, y), p, "numpy")
-u = sy.lambdify((x, y), u, "numpy")
-v = sy.lambdify((x, y), v, "numpy")
+u0 = Expression((sy.ccode(u),sy.ccode(v)))
+p0 = Expression(sy.ccode(p))
+# Laplacian = Vec(L1, L2, x, y)
+# Advection = Vec(A1, A2, x, y)
+# gradPres = Vec(P1, P2, x, y)
+Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)))
+Advection = Expression((sy.ccode(A1),sy.ccode(A2)))
+gradPres = Expression((sy.ccode(P1),sy.ccode(P2)))
 
-F1 = sy.lambdify((x, y), F1, "numpy")
-F2 = sy.lambdify((x, y), F2, "numpy")
-J11 = sy.lambdify((x, y), J11, "numpy")
-J12 = sy.lambdify((x, y), J12, "numpy")
-J21 = sy.lambdify((x, y), J21, "numpy")
-J22 = sy.lambdify((x, y), J22, "numpy")
+# F = f_in(F1, F2)
+# u0 = u_in(u, v)
+# p0 = p_in(p)
+# J = J(J11, J12, J21, J22)
+pN = as_matrix(((Expression(sy.ccode(J11)),Expression(sy.ccode(J12))), (Expression(sy.ccode(J21)),Expression(sy.ccode(J22)))))
 
-class u_in(Expression):
-    def __init__(self, u ,v):
-        self.u = u
-        self.v = v
-    def eval_cell(self, values, x, ufc_cell):
-        # values[0] = 1#x[1]*x[1]*x[1]
-        # values[1] = 1#x[0]*x[0]*x[0]
-        values[0] = self.u(x[0],x[1])
-        values[1] = self.v(x[0],x[1])
-
-    def value_shape(self):
-        return (2,)
-
-class p_in(Expression):
-    def __init__(self, p):
-        self.p = p
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = self.p(x[0],x[1])
-
-class f_in(Expression):
-    def __init__(self, F1, F2):
-        self.F1 = F1
-        self.F2 = F2
-
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = self.F1(x[0],x[1])
-        values[1] = self.F2(x[0],x[1])
-    def value_shape(self):
-        return (2,)
-
-class J(Expression):
-    def __init__(self, J11, J12, J21, J22):
-        self.J11 = J11
-        self.J12 = J12
-        self.J21 = J21
-        self.J22 = J22
-
-    def eval_cell(self, values, x, ufc_cell):
-        values[0] = self.J11(x[0],x[1])
-        values[1] = self.J12(x[0],x[1])
-        values[2] = self.J21(x[0],x[1])
-        values[3] = self.J22(x[0],x[1])
-    def value_shape(self):
-        return (4,)
-
-F = f_in(F1, F2)
-u0 = u_in(u, v)
-p0 = p_in(p)
-J = J(J11, J12, J21, J22)
-pN = as_matrix(((J[0], J[1]), (J[2], J[3])))
 for xx in xrange(1,m):
     print xx
     level[xx-1] = xx+1
@@ -240,7 +200,7 @@ for xx in xrange(1,m):
     # F = Expression(("1.0","0.0"))
     # p0 = Expression("x[0]")
 
-
+    F = -Laplacian + gradPres
     n = FacetNormal(mesh)
 
     L = inner(v, F)*dx(0)
@@ -265,7 +225,7 @@ for xx in xrange(1,m):
     pc.setType('lu')
     OptDB = PETSc.Options()
     # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "mumps"
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
 
