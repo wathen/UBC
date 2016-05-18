@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1463512910 "Neumann.tex" "Neumann.pdf" "Neumann" 1463512910
-  "/opt/local/etc/texmf/texmf.cnf" 1449896479 30201 366bbc44267e480c71481b47c65e8e90 ""
+["pdflatex"] 1463613534 "Neumann.tex" "Neumann.pdf" "Neumann" 1463613534
+  "/opt/local/etc/texmf/texmf.cnf" 1463507892 30201 a2f93cf309b6ff68dabf8f6f2a3042be ""
   "/opt/local/share/texmf-texlive/fonts/map/fontname/texfonts.map" 1400541555 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/opt/local/share/texmf-texlive/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1400541829 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/opt/local/share/texmf-texlive/fonts/tfm/public/amsfonts/cmextra/cmbsy7.tfm" 1400541829 1120 7f9f170e8aa57527ad6c49feafd45d54 ""
@@ -61,6 +61,7 @@
   "/opt/local/share/texmf-texlive/tex/latex/amsmath/amstext.sty" 1400536173 2637 846ebe982d3549c7ede7ce135456f54a ""
   "/opt/local/share/texmf-texlive/tex/latex/base/article.cls" 1431313427 20708 96f8bca6e380179cada1d49716376167 ""
   "/opt/local/share/texmf-texlive/tex/latex/base/ifthen.sty" 1431313427 5159 bb529586d444e85eb00179221b678119 ""
+  "/opt/local/share/texmf-texlive/tex/latex/base/omscmr.fd" 1431313427 2256 09a793cb810c26c97ed035dcd724a0d0 ""
   "/opt/local/share/texmf-texlive/tex/latex/base/size10.clo" 1431313427 9179 632e23fed01c842f2eaef1dd9953a446 ""
   "/opt/local/share/texmf-texlive/tex/latex/caption/caption.sty" 1400536181 65148 c61accbd2b9a5316d9be0887ec48d722 ""
   "/opt/local/share/texmf-texlive/tex/latex/caption/caption3.sty" 1400536181 62748 b02c0dc118f5f35146d37cec569e83b1 ""
@@ -92,12 +93,13 @@
   "/opt/local/share/texmf-texlive/tex/latex/tools/longtable.sty" 1431313414 12083 b47235b9e530708f74984b3dda65e60d ""
   "/opt/local/share/texmf-texlive/tex/latex/units/nicefrac.sty" 1400536220 4029 0462ee5ab265cf59dc15a41a3b883101 ""
   "/opt/local/share/texmf-texlive/tex/latex/xcolor/xcolor.sty" 1400536195 55224 a43bab84e0ac5e6efcaf9a98bde73a94 ""
-  "/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map" 1462383114 1631313 56f88aa9b4823690aeb44cbea5d1f97d ""
-  "/opt/local/var/db/texmf/web2c/pdftex/pdflatex.fmt" 1455232621 3252608 7127bff291b465d88a01968483f9f0c3 ""
-  "Neumann.aux" 1463512910 691 dd478f9d10c2ba2dd231eb546e4e222a ""
-  "Neumann.tex" 1463512910 5730 9b2bfec0be97dba09d9b6106ed0918fd ""
-  "Solution.png" 1463507149 36152 795e5c3b9a42438165835082bf54575c ""
+  "/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map" 1463510861 1631313 56f88aa9b4823690aeb44cbea5d1f97d ""
+  "/opt/local/var/db/texmf/web2c/pdftex/pdflatex.fmt" 1463510522 3252609 93fc0b53361e4728021edaea5e98c2bd ""
+  "HartmannSol.png" 1463609791 38904 4dddba54d00a6b25d770475a1c9c1e89 ""
+  "Neumann.aux" 1463613534 1828 2a7a41a819cf963ff9da1713f6b0b339 ""
+  "Neumann.tex" 1463613534 12863 fff209dc6ea12a35735a939d2c962185 ""
+  "Solution.png" 1463609609 36152 795e5c3b9a42438165835082bf54575c ""
   (generated)
-  "Neumann.aux"
   "Neumann.log"
+  "Neumann.aux"
   "Neumann.pdf"
