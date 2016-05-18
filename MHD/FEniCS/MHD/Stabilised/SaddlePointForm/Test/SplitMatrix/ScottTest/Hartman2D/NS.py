@@ -128,17 +128,11 @@ J22 = p - sy.diff(v,y)
 
 u0 = Expression((sy.ccode(u),sy.ccode(v)))
 p0 = Expression(sy.ccode(p))
-# Laplacian = Vec(L1, L2, x, y)
-# Advection = Vec(A1, A2, x, y)
-# gradPres = Vec(P1, P2, x, y)
+
 Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)))
 Advection = Expression((sy.ccode(A1),sy.ccode(A2)))
 gradPres = Expression((sy.ccode(P1),sy.ccode(P2)))
 
-# F = f_in(F1, F2)
-# u0 = u_in(u, v)
-# p0 = p_in(p)
-# J = J(J11, J12, J21, J22)
 pN = as_matrix(((Expression(sy.ccode(J11)),Expression(sy.ccode(J12))), (Expression(sy.ccode(J21)),Expression(sy.ccode(J22)))))
 for xx in xrange(1,m):
     print xx

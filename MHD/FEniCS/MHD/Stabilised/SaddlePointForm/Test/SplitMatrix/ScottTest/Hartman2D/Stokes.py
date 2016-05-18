@@ -35,7 +35,7 @@ import HartmanChannel
 import matplotlib.pyplot as plt
 import sympy as sy
 #@profile
-m = 7
+m = 5
 
 
 set_log_active(False)

@@ -40,14 +40,14 @@ def Domain(n):
         def inside(self, x, on_boundary):
             return near(x[1], 1.0)
 
-    # mesh = RectangleMesh(Point(0., -1.), Point(10., 1.), n, n)
+    # mesh = RectangleMesh(Point(0., -1.), Point(20., 1.), 10*n, n)
     # class Left(SubDomain):
     #     def inside(self, x, on_boundary):
     #         return near(x[0], 0.0)
 
     # class Right(SubDomain):
     #     def inside(self, x, on_boundary):
-    #         return near(x[0], 10.0)
+    #         return near(x[0], 20.0)
 
     # class Bottom(SubDomain):
     #     def inside(self, x, on_boundary):
@@ -94,14 +94,14 @@ def ExactSolution(mesh, params):
     v = sy.diff(x, y)
     r = sy.diff(x, y)
 
-    uu = y*x*sy.exp(x+y)
-    u = sy.diff(uu, y)
-    v = -sy.diff(uu, x)
-    p = sy.sin(x)*sy.exp(y)
-    bb = x*y*sy.cos(x)
-    b = sy.diff(bb, y)
-    d = -sy.diff(bb, x)
-    r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
+#    uu = y*x*sy.exp(x+y)
+#    u = sy.diff(uu, y)
+#    v = -sy.diff(uu, x)
+#    p = sy.sin(x)*sy.exp(y)
+#    bb = x*y*sy.cos(x)
+#    b = sy.diff(bb, y)
+#    d = -sy.diff(bb, x)
+#    r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
     # r = sy.diff(x, y)
 
     # b = y
