@@ -23,39 +23,39 @@ def Domain(n):
 
     # mesh = RectangleMesh(0., -1., 2., 1., n, n)
     # mesh = RectangleMesh(0., 0., 1.0, 1.0, n, n)
-    mesh = UnitSquareMesh(n, n)
+#    mesh = UnitSquareMesh(n, n)
+#    class Left(SubDomain):
+#        def inside(self, x, on_boundary):
+#            return near(x[0], 0.0)
+#
+#    class Right(SubDomain):
+#        def inside(self, x, on_boundary):
+#            return near(x[0], 1.0)
+#
+#    class Bottom(SubDomain):
+#        def inside(self, x, on_boundary):
+#            return near(x[1], 0.0)
+#
+#    class Top(SubDomain):
+#        def inside(self, x, on_boundary):
+#            return near(x[1], 1.0)
+
+    mesh = RectangleMesh(Point(0., -1.), Point(10., 1.), 5*n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], 1.0)
+            return near(x[0], 10.0)
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], 0.0)
+            return near(x[1], -1.)
 
     class Top(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], 1.0)
-
-    # mesh = RectangleMesh(Point(0., -1.), Point(20., 1.), 10*n, n)
-    # class Left(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 0.0)
-
-    # class Right(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 20.0)
-
-    # class Bottom(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], -1.0)
-
-    # class Top(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], 1.0)
+            return near(x[1], 1.)
 
     left = Left()
     top = Top()

@@ -29,7 +29,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         ksp.setType('preonly')
         pc.setType('lu')
         OptDB = PETSc.Options()
-        OptDB['pc_factor_mat_solver_package']  = "superlu"
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
         OptDB['pc_factor_mat_ordering_type']  = "rcm"
         ksp.setFromOptions()
         scale = b.norm()

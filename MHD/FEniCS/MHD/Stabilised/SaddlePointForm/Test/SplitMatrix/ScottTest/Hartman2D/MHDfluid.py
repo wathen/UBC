@@ -34,7 +34,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import matplotlib.pyplot as plt
 #@profile
-m = 8
+m = 6
 
 
 set_log_active(False)
@@ -194,7 +194,7 @@ for xx in xrange(1,m):
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-6     # tolerance
+    tol = 1.0E-10     # tolerance
     iter = 0            # iteration counter
     maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
