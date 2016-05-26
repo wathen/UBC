@@ -32,6 +32,7 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
+import PCD
 # import matplotlib.pyplot as plt
 #@profile
 m = 7
@@ -246,7 +247,7 @@ for xx in xrange(1,m):
         ShiftedMass = CP.Assemble(ShiftedMass)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
-
+        PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
         stime = time.time()
         # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
         # MO.StoreMatrix(b.array, "b_"+str(int(level[xx-1][0])))
