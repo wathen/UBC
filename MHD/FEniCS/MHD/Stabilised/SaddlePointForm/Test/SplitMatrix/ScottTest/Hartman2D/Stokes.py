@@ -32,10 +32,10 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import sympy as sy
 #@profile
-m = 5
+m = 8
 
 
 set_log_active(False)
@@ -207,8 +207,7 @@ for xx in xrange(1,m):
 
     bc = DirichletBC(W.sub(0), u0, boundaries, 1)
 
-    # A, b = assemble_system(a, L, bc)
-    # A, b = CP.Assemble(A, b)
+
     # r1 = b.array
     L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
 
@@ -218,15 +217,18 @@ for xx in xrange(1,m):
     # print r1
     x = b.duplicate()
 
+    P, Pb = assemble_system(a11 + inner(p ,q)*dx, L, bc)
+    P, Pb = CP.Assemble(P, Pb)
+
     ksp = PETSc.KSP()
     ksp.create(comm=PETSc.COMM_WORLD)
     pc = ksp.getPC()
-    ksp.setType('preonly')
+    ksp.setType('minres')
     pc.setType('lu')
     OptDB = PETSc.Options()
     # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
 
     # ksp = PETSc.KSP().create()
@@ -238,7 +240,7 @@ for xx in xrange(1,m):
     # pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
     scale = b.norm()
     b = b/scale
-    ksp.setOperators(A,A)
+    ksp.setOperators(A,P)
     del A
     start_time = time.time()
     ksp.solve(b,x)
@@ -253,7 +255,7 @@ for xx in xrange(1,m):
     # pConst = - assemble(p_k*dx)/assemble(ones*dx)
     r_k.vector()[:] += - assemble(r_k*dx)/assemble(ones*dx)
     b_k.vector()[:] = x.getSubVector(IS[0]).array
-
+    print "                                     its = ", ksp.its
     # parameters['form_compiler']['quadrature_degree'] = -1
 
     VelocityE = VectorFunctionSpace(mesh,"CG", 3)

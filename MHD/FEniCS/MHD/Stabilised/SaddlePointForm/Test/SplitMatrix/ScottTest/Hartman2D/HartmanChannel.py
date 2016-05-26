@@ -23,39 +23,39 @@ def Domain(n):
 
     # mesh = RectangleMesh(0., -1., 2., 1., n, n)
     # mesh = RectangleMesh(0., 0., 1.0, 1.0, n, n)
-#    mesh = UnitSquareMesh(n, n)
-#    class Left(SubDomain):
-#        def inside(self, x, on_boundary):
-#            return near(x[0], 0.0)
-#
-#    class Right(SubDomain):
-#        def inside(self, x, on_boundary):
-#            return near(x[0], 1.0)
-#
-#    class Bottom(SubDomain):
-#        def inside(self, x, on_boundary):
-#            return near(x[1], 0.0)
-#
-#    class Top(SubDomain):
-#        def inside(self, x, on_boundary):
-#            return near(x[1], 1.0)
-
-    mesh = RectangleMesh(Point(0., -1.), Point(10., 1.), 5*n, n)
+    mesh = UnitSquareMesh(n, n)
     class Left(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[0], 0.0)
+       def inside(self, x, on_boundary):
+           return near(x[0], 0.0)
 
     class Right(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[0], 10.0)
+       def inside(self, x, on_boundary):
+           return near(x[0], 1.0)
 
     class Bottom(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[1], -1.)
+       def inside(self, x, on_boundary):
+           return near(x[1], 0.0)
 
     class Top(SubDomain):
-        def inside(self, x, on_boundary):
-            return near(x[1], 1.)
+       def inside(self, x, on_boundary):
+           return near(x[1], 1.0)
+
+    # mesh = RectangleMesh(Point(0., -1.), Point(7*10., 1.), 7*5*n, n)
+    # class Left(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[0], 0.0)
+
+    # class Right(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[0], 7*10.0)
+
+    # class Bottom(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[1], -1.)
+
+    # class Top(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return near(x[1], 1.)
 
     left = Left()
     top = Top()
@@ -94,14 +94,14 @@ def ExactSolution(mesh, params):
     v = sy.diff(x, y)
     r = sy.diff(x, y)
 
-#    uu = y*x*sy.exp(x+y)
-#    u = sy.diff(uu, y)
-#    v = -sy.diff(uu, x)
-#    p = sy.sin(x)*sy.exp(y)
-#    bb = x*y*sy.cos(x)
-#    b = sy.diff(bb, y)
-#    d = -sy.diff(bb, x)
-#    r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
+    uu = y*x*sy.exp(x+y)
+    u = sy.diff(uu, y)
+    v = -sy.diff(uu, x)
+    p = sy.sin(x)*sy.exp(y)
+    bb = x*y*sy.cos(x)
+    b = sy.diff(bb, y)
+    d = -sy.diff(bb, x)
+    r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
     # r = sy.diff(x, y)
 
     # b = y

@@ -32,9 +32,9 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 #@profile
-m = 6
+m = 7
 
 
 set_log_active(False)
@@ -71,6 +71,7 @@ level = np.zeros((m-1,1))
 NSave = np.zeros((m-1,1))
 Mave = np.zeros((m-1,1))
 TotalTime = np.zeros((m-1,1))
+DimSave = np.zeros((m-1,4))
 def PETSc2Scipy(A):
     row, col, value = A.getValuesCSR()
     return sp.csr_matrix((value, col, row), shape=A.size)
@@ -115,6 +116,7 @@ for xx in xrange(1,m):
         return on_boundary
 
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
+    DimSave[xx-1,:] = np.array(dim)
 
     kappa = 1.0
     Mu_m = float(1e4)
@@ -133,12 +135,12 @@ for xx in xrange(1,m):
     trunc = 4
     u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple = HartmanChannel.ExactSolution(mesh, params)
 
-    # MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
-    # BCtime = time.time()
-    # BC = MHDsetup.BoundaryIndices(mesh)
-    # MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
-    # Hiptmairtol = 1e-6
-    # HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+    MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
+    BCtime = time.time()
+    BC = MHDsetup.BoundaryIndices(mesh)
+    MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
+    Hiptmairtol = 1e-6
+    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
 
@@ -188,13 +190,13 @@ for xx in xrange(1,m):
     p_k.vector()[:] += - assemble(p_k*dx(0))/assemble(ones*dx(0))
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    # KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
-    # kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh, boundaries, domains)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
 
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-10     # tolerance
+    tol = 1.0E-3     # tolerance
     iter = 0            # iteration counter
     maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
@@ -227,20 +229,41 @@ for xx in xrange(1,m):
         A, b = CP.Assemble(A,b)
         u = b.duplicate()
         print "                               Max rhs = ",np.max(b.array)
+        # A = IO.matToSparse(A)
+        # b = b.array
+        # j = scipy.sparse.csgraph.reverse_cuthill_mckee(A)
+        # A = A[j,j]
+        # b = b[j]
+        # print j
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
+        b_t = TrialFunction(Velocity)
+        c_t = TestFunction(Velocity)
+        n = FacetNormal(mesh)
+        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        ShiftedMass = assemble(aa)
+        bcu.apply(ShiftedMass)
+        ShiftedMass = CP.Assemble(ShiftedMass)
+        kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
+        Options = 'p4'
 
         stime = time.time()
-        #MO.StoreMatrix(PETSc2Scipy(A), "A")
-        #ssss
+        # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
+        # MO.StoreMatrix(b.array, "b_"+str(int(level[xx-1][0])))
+
         # u1, mits,nsits = S.solve(A.getSubMatrix(NS_is,NS_is),b.getSubVector(NS_is), u.getSubVector(NS_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
         # u2, mits,nsits = S.solve(A.getSubMatrix(M_is,M_is),b.getSubVector(M_is), u.getSubVector(M_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
         # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
-        u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
+        # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
+        # u = scipy.sparse.linalg.spsolve(A,b)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
         NSits += nsits
         SolutionTime += Soltime
-
+        # u = IO.arrayToVec(  u)
         u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx(0))/assemble(ones*dx(0))
         u_k.assign(u1)
@@ -324,23 +347,23 @@ import pandas as pd
 
 
 
-p = plot(u_k)
-p.write_png()
-p = plot(p_k)
-p.write_png()
-# p = plot(b_k)
+# p = plot(u_k)
 # p.write_png()
-# p = plot(r_k)
+# p = plot(p_k)
 # p.write_png()
-p = plot(interpolate(u0,Velocity))
-p.write_png()
-p = plot(interpolate(p0,Pressure))
-p.write_png()
-# p = plot(interpolate(b0,Magnetic))
+# # p = plot(b_k)
+# # p.write_png()
+# # p = plot(r_k)
+# # p.write_png()
+# p = plot(interpolate(u0,Velocity))
 # p.write_png()
-# p = plot(interpolate(r0,Lagrange))
+# p = plot(interpolate(p0,Pressure))
 # p.write_png()
-sss
+# # p = plot(interpolate(b0,Magnetic))
+# # p.write_png()
+# # p = plot(interpolate(r0,Lagrange))
+# # p.write_png()
+# sss
 
 print "\n\n   Iteration table"
 if IterType == "Full":
@@ -356,6 +379,7 @@ else:
     IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
     IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
 print IterTable
+MO.StoreMatrix(DimSave, "dim")
 # print " \n  Outer Tol:  ",OuterTol, "Inner Tol:   ", InnerTol
 
 # tableName = "2d_Lshaped_nu="+str(MU)+"_nu_m="+str(Mu_m)+"_kappa="+str(kappa)+"_l="+str(np.min(level))+"-"+str(np.max(level))+"Approx.tex"

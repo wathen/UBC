@@ -16,7 +16,7 @@ import P as PrecondMulti
 import MHDprec
 import scipy.sparse as sp
 from scipy.linalg import svd
-import matplotlib.pylab as plt
+# import matplotlib.pylab as plt
 from scipy.sparse.linalg.dsolve import spsolve
 
 
@@ -70,14 +70,14 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             pc.setType(PETSc.PC.Type.PYTHON)
 
             OptDB = PETSc.Options()
-            OptDB['ksp_gmres_restart'] = 200
+            OptDB['ksp_fgmres_restart'] = 20
             # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
             reshist = {}
             def monitor(ksp, its, fgnorm):
                 reshist[its] = fgnorm
                 print its,"    OUTER:", fgnorm
             # ksp.setMonitor(monitor)
-            ksp.max_it = 100
+            ksp.max_it = 1000
             W = Fspace
             FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
             pc.setPythonContext(MHDprec.InnerOuterMAGNETICinverse(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))

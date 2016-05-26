@@ -14,7 +14,7 @@ Print = PETSc.Sys.Print
 # from MatrixOperations import *
 import numpy as np
 import PETScIO as IO
-import common
+# import common
 import scipy
 import scipy.io
 import time
@@ -32,11 +32,13 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import sympy as sy
 import ExactSol
+import NSpreconditioner
+
 #@profile
-m = 7
+m = 5
 
 
 set_log_active(False)
@@ -98,13 +100,13 @@ Mu_m = float(1e4)
 MU = 1.0
 params = [kappa,Mu_m,MU]
 
-# G = 10.
-# Re = 1./params[2]
-# Ha = sqrt(params[0]/(params[1]*params[2]))
+G = 10.
+Re = 1./params[2]
+Ha = sqrt(params[0]/(params[1]*params[2]))
 
-# p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
-# u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
-# v = sy.diff(x,y)
+p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+v = sy.diff(x,y)
 
 L1 = sy.diff(u,x,x) + sy.diff(u,y,y)
 L2 = sy.diff(v,x,x) + sy.diff(v,y,y)
@@ -157,6 +159,7 @@ for xx in xrange(1,m):
 
     W = Velocity*Pressure
     IS = MO.IndexSet(W)
+    Wdim[xx-1] = W.dim()
 
     (u, p) = TrialFunctions(W)
     (v, q) = TestFunctions(W)
@@ -232,7 +235,14 @@ for xx in xrange(1,m):
     a = a11+a12+a21
 
     rhs = inner(grad(v), grad(u_k))*dx(0) + inner((grad(u_k)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u_k,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u_k,v)*ds(0) - div(v)*p_k*dx(0) - div(u_k)*q*dx(0)
+    u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
 
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU,mesh, boundaries, domains)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
+
+    NSits = 0
+    SolutionTime = 0
+    TotalStart = time.time()
     while eps > tol  and iter < maxiter:
         iter += 1
         bc = DirichletBC(W.sub(0), Expression(("0.0", "0.0")), boundaries, 1)
@@ -240,17 +250,32 @@ for xx in xrange(1,m):
         print "Iteration = ", iter
         A, b = assemble_system(a, L-rhs, bc)
         A, b = CP.Assemble(A,b)
+        kspF = NSprecondSetup.LSCKSPnonlinear(A.getSubMatrix(u_is, u_is))
+
         x = b.duplicate()
+
+        # ksp = PETSc.KSP()
+        # ksp.create(comm=PETSc.COMM_WORLD)
+        # pc = ksp.getPC()
+        # ksp.setType('preonly')
+        # pc.setType('lu')
+        # OptDB = PETSc.Options()
+        # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        # ksp.setFromOptions()
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
 
         ksp = PETSc.KSP()
         ksp.create(comm=PETSc.COMM_WORLD)
+        ksp.setType('fgmres')
         pc = ksp.getPC()
-        ksp.setType('preonly')
-        pc.setType('lu')
+        pc.setType(PETSc.PC.Type.PYTHON)
+        pc.setPythonContext(NSpreconditioner.NSPCD(W, kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp))
+        ksp.setOperators(A)
         OptDB = PETSc.Options()
-        OptDB['pc_factor_mat_solver_package']  = "umfpack"
-        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        ksp.max_it = 1000
         ksp.setFromOptions()
+
 
         scale = b.norm()
         b = b/scale
@@ -259,11 +284,11 @@ for xx in xrange(1,m):
         start_time = time.time()
         ksp.solve(b,x)
         print ("{:40}").format("Navier-Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
-
+        SolutionTime += time.time() - start_time
         x = x*scale
         b1 = Function(Velocity)
         r1 = Function(Pressure)
-
+        NSits += ksp.its
         r1.vector()[:] = x.getSubVector(IS[1]).array
         r1.vector()[:] += - assemble(r1*dx)/assemble(ones*dx)
         b1.vector()[:] = x.getSubVector(IS[0]).array
@@ -275,7 +300,10 @@ for xx in xrange(1,m):
         p_k.assign(p_k+r1)
         del A, b, b1, r1
 
-
+    SolTime[xx-1] = SolutionTime/iter
+    NSave[xx-1] = (float(NSits)/iter)
+    iterations[xx-1] = iter
+    TotalTime[xx-1] = time.time() - TotalStart
     VelocityE = VectorFunctionSpace(mesh,"CG", 4)
     PressureE = FunctionSpace(mesh,"CG", 3)
 
@@ -333,13 +361,21 @@ PressureTable = MO.PandasFormat(PressureTable,"P-L2","%2.4e")
 PressureTable = MO.PandasFormat(PressureTable,"L2-order","%1.2f")
 print PressureTable.to_latex()
 
-p1 = plot(u_k)
-p1.write_png()
-p1 = plot(p_k)
-p1.write_png()
-p1 = plot(u)
-p1.write_png()
-p1 = plot(p)
-p1.write_png()
-sss
-interactive()
+
+print "\n\n   Iteration table"
+IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av NS iters"]
+IterValues = np.concatenate((level,Wdim,SolTime,TotalTime,iterations,NSave),axis=1)
+IterTable= pd.DataFrame(IterValues, columns = IterTitles)
+IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
+print IterTable
+
+# p1 = plot(u_k)
+# p1.write_png()
+# p1 = plot(p_k)
+# p1.write_png()
+# p1 = plot(u)
+# p1.write_png()
+# p1 = plot(p)
+# p1.write_png()
+# sss
+# interactive()

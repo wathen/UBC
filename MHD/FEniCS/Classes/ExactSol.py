@@ -70,10 +70,10 @@ def polary(u, rho, phi):
 
 
 def NS2D(case,MESH,Show="no",type = 'no'):
-    x = symbols('X')
-    y = symbols('Y')
+    x = symbols('x[0]')
+    y = symbols('x[1]')
 
-    PrintStr("NS Exact Solution:",3,"-")
+    # PrintStr("NS Exact Solution:",3,"-")
     if Show == "yes":
         case = 1
 
@@ -188,18 +188,18 @@ def NS2D(case,MESH,Show="no",type = 'no'):
         def eval_cell(self, values, x, ufc_cell):
             values[0] = self.p.subs({self.X:x[0], self.Y:x[1]}).evalf()
 
-    u0 = Vec(u ,v, x, y)
-    p0 = Scal(p, x, y)
-    # u0 = Expression((ccode(u),ccode(v)))
-    # p0 = Expression(ccode(p))
-    Laplacian = Vec(L1, L2, x, y)
-    Advection = Vec(A1, A2, x, y)
-    gradPres = Vec(P1, P2, x, y)
-    # Laplacian = Expression((ccode(L1),ccode(L2)))
-    # Advection = Expression((ccode(A1),ccode(A2)))
-    # gradPres = Expression((ccode(P1),ccode(P2)))
-    if Show == "no":
-        Print2D(u,v,p,"NS")
+    # u0 = Vec(u ,v, x, y)
+    # p0 = Scal(p, x, y)
+    u0 = Expression((ccode(u),ccode(v)))
+    p0 = Expression(ccode(p))
+    # Laplacian = Vec(L1, L2, x, y)
+    # Advection = Vec(A1, A2, x, y)
+    # gradPres = Vec(P1, P2, x, y)
+    Laplacian = Expression((ccode(L1),ccode(L2)))
+    Advection = Expression((ccode(A1),ccode(A2)))
+    gradPres = Expression((ccode(P1),ccode(P2)))
+    # if Show == "no":
+    #     Print2D(u,v,p,"NS")
     if type == "MHD":
         return u, v, p, u0, p0, Laplacian, Advection, gradPres
     else:
@@ -326,8 +326,8 @@ def NS3D(case,Show="no",type="no"):
     Advection = Expression((ccode(A1),ccode(A2),ccode(A3)))
     gradPres = Expression((ccode(P1),ccode(P2),ccode(P3)))
 
-    if Show == 'no':
-        Print3D(u,v,w,p,"NS")
+    # if Show == 'no':
+    #     Print3D(u,v,w,p,"NS")
     if type == "MHD":
         return u,v,w,p,u0, p0, Laplacian, Advection, gradPres
     else:
@@ -353,7 +353,7 @@ def M2D(case,MESH, Show="no",type="no", Mass = 0):
         case = 1
 
 
-    PrintStr("Maxwell Exact Solution:",3,"-")
+    # PrintStr("Maxwell Exact Solution:",3,"-")
     if case == 1:
         uu = cos(x)*exp(x+y)
         u = diff(uu,y)
@@ -445,9 +445,9 @@ def M2D(case,MESH, Show="no",type="no", Mass = 0):
     # print latex(v)
     # print latex(w)
     # print latex(p)
-    if Show == 'no':
-        print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y'),",",str(v).replace('x[0]','x').replace('x[1]','y'),")\n"
-        print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y'),")\n"
+    # if Show == 'no':
+    #     print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y'),",",str(v).replace('x[0]','x').replace('x[1]','y'),")\n"
+    #     print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y'),")\n"
     if type == "MHD":
         if Mass == 0:
             return u,v,p,u0, p0, CurlCurl, gradPres
@@ -469,7 +469,7 @@ def M3D(case,Show="no",type="no",Mass=0):
     y = symbols('x[1]')
     z = symbols('x[2]')
 
-    PrintStr("Maxwell Exact Solution:",3,"-")
+    # PrintStr("Maxwell Exact Solution:",3,"-")
     if case == 1:
         uu = sin(x)*exp(x+y+z)
         uv = sin(y)*exp(x+y+z)
@@ -549,10 +549,10 @@ def M3D(case,Show="no",type="no",Mass=0):
     CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2),ccode(Mass*w+L3)))
 
 
-    if Show == 'no':
-        PrintStr("Maxwell Exact Solution:",3,"-")
-        print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(v).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(w).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
-        print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
+    # if Show == 'no':
+    #     PrintStr("Maxwell Exact Solution:",3,"-")
+    #     print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(v).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(w).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
+    #     print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
 
     if type == "MHD":
         if Mass == 0:
@@ -582,7 +582,7 @@ def M3D(case,Show="no",type="no",Mass=0):
 
 def MHD2D(NScase,Mcase,MESH, Show="no"):
 
-    PrintStr("MHD 2D Exact Solution:",5,">","\n","\n")
+    # PrintStr("MHD 2D Exact Solution:",5,">","\n","\n")
 
     x = symbols('x[0]')
     y = symbols('x[1]')
@@ -606,7 +606,7 @@ def MHD2D(NScase,Mcase,MESH, Show="no"):
 
 
 def MHD3D(NScase,Mcase,Show="no"):
-    PrintStr("MHD 3D Exact Solution:",5,">","\n","\n")
+    # PrintStr("MHD 3D Exact Solution:",5,">","\n","\n")
 
     x = symbols('x[0]')
     y = symbols('x[1]')

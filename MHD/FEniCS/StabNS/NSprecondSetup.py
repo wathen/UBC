@@ -25,9 +25,9 @@ def PCDKSPlinear(Q, A):
     kspA = PETSc.KSP()
     kspA.create(comm=PETSc.COMM_WORLD)
     pcA = kspA.getPC()
-    kspA.setType('richardson')
+    kspA.setType('preonly')
     kspA.max_it = 1
-    pcA.setType('gamg')
+    pcA.setType('hypre')
     kspA.setFromOptions()
 
     kspQ = PETSc.KSP()
@@ -51,9 +51,9 @@ def PCDKSPnonlinear(F):
     kspF = PETSc.KSP()
     kspF.create(comm=PETSc.COMM_WORLD)
     pcF = kspF.getPC()
-    kspF.setType('richardson')
+    kspF.setType('preonly')
     kspF.max_it = 1
-    pcF.setType('gamg')
+    pcF.setType('hypre')
     kspF.setFromOptions()
 
     kspF.setOperators(F,F)
@@ -76,8 +76,8 @@ def Ksp(BQB):
     kspBQB = PETSc.KSP()
     kspBQB.create(comm=PETSc.COMM_WORLD)
     pcBQB = kspBQB.getPC()
-    kspBQB.setType('richardson')
-    pcBQB.setType('gamg')
+    kspBQB.setType('preonly')
+    pcBQB.setType('hypre')
     kspBQB.setFromOptions()
 
 
@@ -92,8 +92,8 @@ def LSCKSPnonlinear(F):
     kspF = PETSc.KSP()
     kspF.create(comm=PETSc.COMM_WORLD)
     pcF = kspF.getPC()
-    kspF.setType('richardson')
-    pcF.setType('gamg')
+    kspF.setType('preonly')
+    pcF.setType('hypre')
     kspF.setFromOptions()
 
     kspF.setOperators(F,F)

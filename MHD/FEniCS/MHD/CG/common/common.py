@@ -10,9 +10,9 @@ Print = PETSc.Sys.Print
 
 import numpy as np
 import scipy.sparse as sp
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pylab as plt
+# import matplotlib
+# matplotlib.use("Agg")
+# import matplotlib.pylab as plt
 import PETScIO as IO
 import scipy
 import scipy.io as io

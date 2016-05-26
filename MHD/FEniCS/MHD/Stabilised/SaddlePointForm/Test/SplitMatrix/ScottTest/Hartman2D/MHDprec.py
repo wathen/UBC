@@ -7,7 +7,7 @@ from dolfin import tic, toc
 import HiptmairSetup
 import PETScIO as IO
 import scipy.sparse as sp
-import matplotlib.pylab as plt
+# import matplotlib.pylab as plt
 import MatrixOperations as MO
 import HiptmairSetup
 
@@ -100,7 +100,7 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
 
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "mumps"
+        OptDB["pc_factor_mat_solver_package"] = "umfpack"
 
         self.kspA.setType('preonly')
         self.kspA.getPC().setType('lu')

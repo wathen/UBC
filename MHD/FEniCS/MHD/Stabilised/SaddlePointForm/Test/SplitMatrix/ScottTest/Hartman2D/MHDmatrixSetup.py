@@ -14,7 +14,7 @@ from scipy.sparse import coo_matrix, csr_matrix, spdiags, bmat
 import os, inspect
 from HiptmairSetup import BoundaryEdge
 import matplotlib
-from matplotlib.pylab import plt
+# from matplotlib.pylab import plt
 import CheckPetsc4py as CP
 import MatrixOperations as MO
 import time
@@ -23,7 +23,7 @@ import MHDmulti
 
 def BoundaryIndices(mesh):
 
-    
+
     dim = mesh.geometry().dim()
 
     if dim == 3:
@@ -42,7 +42,7 @@ def BoundaryIndices(mesh):
     LagrangeBoundary = np.ones(mesh.num_vertices())
     LagrangeBoundary[NodalBoundary] = 0
     Lagrange = spdiags(LagrangeBoundary,0,mesh.num_vertices(),mesh.num_vertices())
-    
+
     if dim == 3:
         VelocityBoundary = np.concatenate((LagrangeBoundary,LagrangeBoundary,LagrangeBoundary),axis=1)
     else:
@@ -50,13 +50,13 @@ def BoundaryIndices(mesh):
     Velocity = spdiags(VelocityBoundary,0,dim*mesh.num_vertices(),dim*mesh.num_vertices())
 
     return [Velocity, Magnetic, Lagrange]
-    
+
 
 
 
 def Assemble(W, NS, Maxwell, Couple, L_ns, L_m, RHSform, BC, Type, IterType):
-    
-    tic() 
+
+    tic()
     if Type == 'NonLinear':
         F = assemble(NS[0])
         BC[0].apply(F)
@@ -68,7 +68,7 @@ def Assemble(W, NS, Maxwell, Couple, L_ns, L_m, RHSform, BC, Type, IterType):
             C = None
         if RHSform == 0:
             bu = assemble(L_ns)
-            bp = Function(W[1]).vector() 
+            bp = Function(W[1]).vector()
             print bp.array()
             bb = assemble(L_m)
             br = Function(W[3]).vector()
@@ -99,16 +99,16 @@ def Assemble(W, NS, Maxwell, Couple, L_ns, L_m, RHSform, BC, Type, IterType):
 
         SS = 0*SS
         BC[1].apply(M)
-        BC[2].apply(SS)  
+        BC[2].apply(SS)
 
-        
+
         B = B.sparray()*BC[3]
         S = S.sparray()
 
         M = M.sparray()
         D = BC[4]*D.sparray()*BC[5]
         SS = SS.sparray()
-        
+
         MO.StrTimePrint("MHD linear matrix assembled, time: ",toc())
         return [B,M,D,S,SS]
     else:
@@ -122,7 +122,7 @@ def Assemble(W, NS, Maxwell, Couple, L_ns, L_m, RHSform, BC, Type, IterType):
         b = np.concatenate((bu.array(),bp.array(),bb.array(),br.array()),axis = 0)
         return IO.arrayToVec(b)
 
-   
+
 
 def SystemAssemble(W,A,b,SetupType,IterType):
     tic()
@@ -137,7 +137,7 @@ def SystemAssemble(W,A,b,SetupType,IterType):
                       [A[2],A[5]]])),CP.Scipy2PETSc(bmat([[A[3],A[4]],
                       [A[4].T,A[6]]]))]
         b = IO.arrayToVec(b)
-        MO.StrTimePrint("MHD system assemble, time: ",toc()) 
+        MO.StrTimePrint("MHD system assemble, time: ",toc())
         return A,b
     else:
         for i in range(len(A)):
@@ -148,12 +148,12 @@ def SystemAssemble(W,A,b,SetupType,IterType):
             P.setType('python')
             p = MHDmulti.MHDmat(W,A)
             P.setPythonContext(p)
-        else: 
+        else:
             MatFluid = PETSc.Mat().createPython([W[0].dim()+W[1].dim(), W[0].dim()+W[1].dim()])
             MatFluid.setType('python')
             pFluid = MHDmulti.MatFluid([W[0],W[1]],A)
             MatFluid.setPythonContext(pFluid)
-            
+
             MatMag = PETSc.Mat().createPython([W[2].dim()+W[3].dim(), W[2].dim()+W[3].dim()])
             MatMag.setType('python')
             pMag = MHDmulti.MatMag([W[2],W[3]],A)
