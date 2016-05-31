@@ -73,7 +73,6 @@ NSave = np.zeros((m-1,1))
 Mave = np.zeros((m-1,1))
 TotalTime = np.zeros((m-1,1))
 DimSave = np.zeros((m-1,4))
- 2
 
 dim = 2
 ShowResultPlots = 'yes'
