@@ -26,7 +26,7 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
     BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) - inner(grad(p_k),N)*p*ds(2))
     print "Non-boundary modified Mat-Vec"
     nBM = assemble(nu*inner(grad(p_k), grad(p))*dx(0))
-    
+
     Ap = as_backend_type(Ap).mat()
     BM = as_backend_type(BM).vec()
     ApBM = as_backend_type(ApBM).mat()
@@ -38,3 +38,26 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
     print "\n norm(Ap_B-(Ap)p):   ", np.linalg.norm(ApBM-nBM)
     print "\n norm(Ap-(Ap_B)p):   ", np.linalg.norm(Ap-BM)
     print "\n norm(Ap_B-(Ap_B)p): ", np.linalg.norm(ApBM-BM)
+
+    print "\n\nAssemble boundary modified Fp:"
+    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]+u_k[2]*grad(p)[2]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) - (1/2)*(u_k[0]*N[0]+u_k[1]*N[1]+u_k[2]*N[2])*inner(p,q)*ds(mesh) + (-mu*inner(grad(p),N)*q + inner(u_k, n)*q)*p*ds(2))
+    print "Assemble non-boundary modified Fp:"
+    Fp = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]+u_k[2]*grad(p)[2]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) - (1/2)*(u_k[0]*N[0]+u_k[1]*N[1]+u_k[2]*N[2])*inner(p,q)*ds(mesh))
+
+    print "Boundary modified Mat-Vec"
+    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) - inner(grad(p_k),N)*p*ds(2) + inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]+u_k[2]*grad(p)[2]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) - (1/2)*(u_k[0]*N[0]+u_k[1]*N[1]+u_k[2]*N[2])*inner(p,q)*ds(mesh) + (-mu*inner(grad(p),N)*q + inner(u_k, n)*q)*p*ds(2))
+    print "Non-boundary modified Mat-Vec"
+    nBM = assemble(nu*inner(grad(p_k), grad(p))*dx(0))
+
+    Fp = as_backend_type(Fp).mat()
+    BM = as_backend_type(BM).vec()
+    FpBM = as_backend_type(FpBM).mat()
+    nBM = as_backend_type(nBM).vec()
+    Fp = PETSc2Scipy(Fp)*p_k.vector().array()
+    FpBM = PETSc2Scipy(FpBM)*p_k.vector().array()
+
+    print "\n norm(Fp-(Fp)p):     ", np.linalg.norm(Fp-nBM)
+    print "\n norm(Fp_B-(Fp)p):   ", np.linalg.norm(FpBM-nBM)
+    print "\n norm(Fp-(Fp_B)p):   ", np.linalg.norm(Fp-BM)
+    print "\n norm(Fp_B-(Fp_B)p): ", np.linalg.norm(FpBM-BM)
+

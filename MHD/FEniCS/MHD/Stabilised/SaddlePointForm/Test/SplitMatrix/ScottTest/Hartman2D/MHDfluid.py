@@ -73,11 +73,7 @@ NSave = np.zeros((m-1,1))
 Mave = np.zeros((m-1,1))
 TotalTime = np.zeros((m-1,1))
 DimSave = np.zeros((m-1,4))
-def PETSc2Scipy(A):
-    row, col, value = A.getValuesCSR()
-    return sp.csr_matrix((value, col, row), shape=A.size)
-
-nn = 2
+ 2
 
 dim = 2
 ShowResultPlots = 'yes'
