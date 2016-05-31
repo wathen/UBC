@@ -41,9 +41,9 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
 
 
     print "\n\nAssemble boundary modified Fp:"
-    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
-    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-mu*inner(grad(q),N)*p + inner(u_k, n)*q)*p*ds(2))
-    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(p),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-mu*inner(grad(q),N)*p + inner(u_k, n)*q)*p*ds(2))
+#    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
+#    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
+    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(p),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
 
     print "Assemble non-boundary modified Fp:"
     Fp = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0))
