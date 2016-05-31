@@ -41,12 +41,12 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
 
 
     print "\n\nAssemble boundary modified Fp:"
-    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-mu*inner(grad(q),N)*p + inner(u_k, n)*q)*p*ds(2))
+    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(p),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-mu*inner(grad(q),N)*p + inner(u_k, n)*q)*p*ds(2))
     print "Assemble non-boundary modified Fp:"
     Fp = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0))
 
     print "Boundary modified Mat-Vec"
-    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-mu*inner(grad(p_k),N)*p + inner(u_k, n)*p_k)*p*ds(2))
+    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-mu*inner(grad(p_k),N)*p + inner(u_k, n)*p_k)*p*ds(2))
     print "Non-boundary modified Mat-Vec"
     nBM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0))
     Fp = as_backend_type(Fp).mat()
