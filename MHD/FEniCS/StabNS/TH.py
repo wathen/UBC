@@ -22,6 +22,7 @@ import MatrixOperations as MO
 import ExactSol
 import NSprecondSetup
 import matplotlib.pylab as plt
+import sympy as sy
 # parameters["form_compiler"]["optimize"]     = True
 # parameters["form_compiler"]["cpp_optimize"] = True
 #MO.SwapBackend('epetra')
@@ -58,15 +59,126 @@ def LOG(arg):
     if INFO:
         print(arg)
 
+x = sy.Symbol('x')
+y = sy.Symbol('y')
+
+# u = sy.diff(x,x)
+# v = sy.diff(x,x)
+# p = sy.diff(x,x)
+
+u = y**2
+v = x**2
+p = x*y
+p = sy.sin(x)*sy.exp(y)
+uu = y*x*sy.exp(x+y)
+u = sy.diff(uu,y)
+v = -sy.diff(uu,x)
+
+kappa = 1.0
+Mu_m = float(1e4)
+MU = 1.0
+params = [kappa,Mu_m,MU]
+
+# G = 10.
+# Re = 1./params[2]
+# Ha = sqrt(params[0]/(params[1]*params[2]))
+
+# p = -G*x - (G**2)/(2*params[0])*(sy.sinh(y*Ha)/sy.sinh(Ha)-y)**2
+# u = (G/(params[2]*Ha*sy.tanh(Ha)))*(1-sy.cosh(y*Ha)/sy.cosh(Ha))
+# v = sy.diff(x,y)
+
+L1 = sy.diff(u,x,x) + sy.diff(u,y,y)
+L2 = sy.diff(v,x,x) + sy.diff(v,y,y)
+
+print "u=(", u,",", v,")"
+print "p=(", p,")"
+
+P1 = sy.diff(p,x)
+P2 = sy.diff(p,y)
+
+A1 = u*sy.diff(u,x)+v*sy.diff(u,y)
+A2 = u*sy.diff(v,x)+v*sy.diff(v,y)
+
+F1 = -L1 + P1 + A1
+F2 = -L2 + P2 + A1
+print F1
+print F2
+J11 = p - sy.diff(u,x)
+J12 = - sy.diff(u,y)
+J21 = - sy.diff(v,x)
+J22 = p - sy.diff(v,y)
+# sss
+p = sy.lambdify((x, y), p, "numpy")
+u = sy.lambdify((x, y), u, "numpy")
+v = sy.lambdify((x, y), v, "numpy")
+
+F1 = sy.lambdify((x, y), F1, "numpy")
+F2 = sy.lambdify((x, y), F2, "numpy")
+J11 = sy.lambdify((x, y), J11, "numpy")
+J12 = sy.lambdify((x, y), J12, "numpy")
+J21 = sy.lambdify((x, y), J21, "numpy")
+J22 = sy.lambdify((x, y), J22, "numpy")
+
+class u_in(Expression):
+    def __init__(self, u ,v):
+        self.u = u
+        self.v = v
+    def eval_cell(self, values, x, ufc_cell):
+        values[0] = x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1])
+        values[1] = -x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1])
+        # values[0] = self.u(x[0],x[1])
+        # values[1] = self.v(x[0],x[1])
+
+    def value_shape(self):
+        return (2,)
 
 
+class p_in(Expression):
+    def __init__(self, p):
+        self.p = p
+    def eval_cell(self, values, x, ufc_cell):
+        values[0] = exp(x[1])*sin(x[0])
+        # values[0] = self.p(x[0],x[1])
+
+class f_in(Expression):
+    def __init__(self, F1, F2):
+        self.F1 = F1
+        self.F2 = F2
+
+    def eval_cell(self, values, x, ufc_cell):
+        values[0] = -x[0]*(x[1] + 3)*exp(x[0] + x[1]) + (-x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + 2*x[0]*exp(x[0] + x[1])) + (x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]) + x[1]*exp(x[0] + x[1]) + exp(x[0] + x[1])) - (x[0]*x[1] + x[0] + 2*x[1] + 2)*exp(x[0] + x[1]) + exp(x[1])*cos(x[0])
+
+        values[1] = x[1]*(x[0] + 3)*exp(x[0] + x[1]) + (-x[0]*x[1]*exp(x[0] + x[1]) - x[1]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + 2*x[0]*exp(x[0] + x[1])) + (x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]))*(x[0]*x[1]*exp(x[0] + x[1]) + x[0]*exp(x[0] + x[1]) + x[1]*exp(x[0] + x[1]) + exp(x[0] + x[1])) + (x[0]*x[1] + 2*x[0] + x[1] + 2)*exp(x[0] + x[1]) + exp(x[1])*sin(x[0])
+        # values[0] = self.F1(x[0],x[1])
+        # values[1] = self.F2(x[0],x[1])
+    def value_shape(self):
+        return (2,)
+
+class J(Expression):
+    def __init__(self, J11, J12, J21, J22):
+        self.J11 = J11
+        self.J12 = J12
+        self.J21 = J21
+        self.J22 = J22
+
+    def eval_cell(self, values, x, ufc_cell):
+        values[0] = self.J11(x[0],x[1])
+        values[1] = self.J12(x[0],x[1])
+        values[2] = self.J21(x[0],x[1])
+        values[3] = self.J22(x[0],x[1])
+    def value_shape(self):
+        return (4,)
+
+f = f_in(F1, F2)
+u0 = u_in(u, v)
+p0 = p_in(p)
 
 for xx in xrange(1,m):
     print xx
     NN[xx-1] = xx+1
     nn = 2**(NN[xx-1])
     nn = int(nn)
-    mesh = UnitCubeMesh(nn,nn,nn)
+    mesh = UnitSquareMesh(nn,nn)
     # tic()
     parameters["form_compiler"]["quadrature_degree"] = -1
 
@@ -96,7 +208,7 @@ for xx in xrange(1,m):
         return on_boundary
 
 
-    u0, p0, Laplacian, Advection, gradPres = ExactSol.NS3D(case)
+    u0, p0, Laplacian, Advection, gradPres = ExactSol.NS2D(case, mesh)
 
     R = 10.0
     # MU = Constant(0.01)
@@ -153,7 +265,7 @@ for xx in xrange(1,m):
     # p21 = div(u)*q*dx
     p22 = inner(p,q)*dx
     prec = p11 +p22
-    bc = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0")), boundary)
+    bc = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
     bcs = [bc]
 
     eps = 1.0           # error measure ||u-u_k||
@@ -322,78 +434,78 @@ for xx in xrange(1,m):
 
 
     AvIt[xx-1] = float(outerit)/iter
-#     u = interpolate(ue,V)
-#     p = interpolate(pe,Q)
+    u = interpolate(ue,V)
+    p = interpolate(pe,Q)
 
-#     ua = Function(V)
-#     ua.vector()[:] = u_k.vector().array()
-#     VelocityE = VectorFunctionSpace(mesh,"CG",3)
-#     u = interpolate(ue,VelocityE)
+    ua = Function(V)
+    ua.vector()[:] = u_k.vector().array()
+    VelocityE = VectorFunctionSpace(mesh,"CG",3)
+    u = interpolate(ue,VelocityE)
 
-#     PressureE = FunctionSpace(mesh,"DG",2)
-#     parameters["form_compiler"]["quadrature_degree"] = 5
+    PressureE = FunctionSpace(mesh,"CG",2)
+    parameters["form_compiler"]["quadrature_degree"] = 5
 
-#     Nv  = ua.vector().array().shape
+    Nv  = ua.vector().array().shape
 
-#     X = IO.vecToArray(r)
-#     xu = X[0:V.dim()]
-#     ua = Function(V)
-#     ua.vector()[:] = xu
+    X = IO.vecToArray(r)
+    xu = X[0:V.dim()]
+    ua = Function(V)
+    ua.vector()[:] = xu
 
-#     pp = X[V.dim():V.dim()+Q.dim()]
-
-
-#     n = pp.shape
-#     pa = Function(Q)
-#     pa.vector()[:] = pp
-
-#     pend = assemble(pa*dx)
-
-#     ones = Function(Q)
-#     ones.vector()[:]=(0*pp+1)
-#     pp = Function(Q)
-#     pp.vector()[:] = pa.vector().array()- assemble(pa*dx)/assemble(ones*dx)
-
-#     pInterp = interpolate(pe,PressureE)
-#     pe = Function(PressureE)
-#     pe.vector()[:] = pInterp.vector().array()
-#     const = - assemble(pe*dx)/assemble(ones*dx)
-#     pe.vector()[:] = pe.vector()[:]+const
+    pp = X[V.dim():V.dim()+Q.dim()]
 
 
+    n = pp.shape
+    pa = Function(Q)
+    pa.vector()[:] = pp
+
+    pend = assemble(pa*dx)
+
+    ones = Function(Q)
+    ones.vector()[:]=(0*pp+1)
+    pp = Function(Q)
+    pp.vector()[:] = pa.vector().array()- assemble(pa*dx)/assemble(ones*dx)
+
+    pInterp = interpolate(pe,PressureE)
+    pe = Function(PressureE)
+    pe.vector()[:] = pInterp.vector().array()
+    const = - assemble(pe*dx)/assemble(ones*dx)
+    pe.vector()[:] = pe.vector()[:]+const
 
 
-#     ErrorU = Function(V)
-#     ErrorP = Function(Q)
-
-#     ErrorU = ue-ua
-#     ErrorP = pe-pp
 
 
-#     # errL2u[xx-1]= errornorm(ue, ua, norm_type='L2', degree_rise=8)
-#     # errH1u[xx-1]= errornorm(ue, ua, norm_type='H10', degree_rise=8)
-#     # errL2p[xx-1]= errornorm(pe, pp, norm_type='L2', degree_rise=8)
+    ErrorU = Function(V)
+    ErrorP = Function(Q)
 
-#     errL2u[xx-1]= errornorm(ue, ua, norm_type='L2', degree_rise=4)
-#     # sqrt(abs(assemble(inner(ErrorU, ErrorU)*dx)))
-#     # errornorm(ue, ua, norm_type='L2', degree_rise=8)
-#     errH1u[xx-1]= errornorm(ue, ua, norm_type='H10', degree_rise=4)
-#     # sqrt(abs(assemble(inner(grad(ErrorU), grad(ErrorU))*dx)))
-#     # errornorm(ue, ua, norm_type='H10', degree_rise=8)
-#     errL2p[xx-1]= sqrt(abs(assemble(inner(ErrorP, ErrorP)*dx)))
-#     # errornorm(pe, pp, norm_type='L2', degree_rise=8)
+    ErrorU = ue-ua
+    ErrorP = pe-pp
 
-#     if xx == 1:
-#         l2uorder[xx-1] = 0
-#         l2porder[xx-1] = 0
-#     else:
-#         l2uorder[xx-1] =  np.abs(np.log2(errL2u[xx-2]/errL2u[xx-1]))
-#         H1uorder[xx-1] =  np.abs(np.log2(errH1u[xx-2]/errH1u[xx-1]))
 
-#         l2porder[xx-1] =  np.abs(np.log2(errL2p[xx-2]/errL2p[xx-1]))
-#     print errL2u[xx-1]
-#     print errL2p[xx-1]
-#     # del  solver
+    # errL2u[xx-1]= errornorm(ue, ua, norm_type='L2', degree_rise=8)
+    # errH1u[xx-1]= errornorm(ue, ua, norm_type='H10', degree_rise=8)
+    # errL2p[xx-1]= errornorm(pe, pp, norm_type='L2', degree_rise=8)
+
+    errL2u[xx-1]= errornorm(ue, ua, norm_type='L2', degree_rise=4)
+    # sqrt(abs(assemble(inner(ErrorU, ErrorU)*dx)))
+    # errornorm(ue, ua, norm_type='L2', degree_rise=8)
+    errH1u[xx-1]= errornorm(ue, ua, norm_type='H10', degree_rise=4)
+    # sqrt(abs(assemble(inner(grad(ErrorU), grad(ErrorU))*dx)))
+    # errornorm(ue, ua, norm_type='H10', degree_rise=8)
+    errL2p[xx-1]= sqrt(abs(assemble(inner(ErrorP, ErrorP)*dx)))
+    # errornorm(pe, pp, norm_type='L2', degree_rise=8)
+
+    if xx == 1:
+        l2uorder[xx-1] = 0
+        l2porder[xx-1] = 0
+    else:
+        l2uorder[xx-1] =  np.abs(np.log2(errL2u[xx-2]/errL2u[xx-1]))
+        H1uorder[xx-1] =  np.abs(np.log2(errH1u[xx-2]/errH1u[xx-1]))
+
+        l2porder[xx-1] =  np.abs(np.log2(errL2p[xx-2]/errL2p[xx-1]))
+    print errL2u[xx-1]
+    print errL2p[xx-1]
+    # del  solver
 
 
 
@@ -414,25 +526,25 @@ import pandas as pd
 # # print df
 # # print df.to_latex()
 
-# print "\n\n   Velocity convergence"
-# VelocityTitles = ["Total DoF","V DoF","Soln Time","AvIt","V-L2","L2-order","V-H1","H1-order"]
-# VelocityValues = np.concatenate((Wdim,Vdim,SolTime,AvIt,errL2u,l2uorder,errH1u,H1uorder),axis=1)
-# VelocityTable= pd.DataFrame(VelocityValues, columns = VelocityTitles)
-# pd.set_option('precision',3)
-# VelocityTable = MO.PandasFormat(VelocityTable,"V-L2","%2.4e")
-# VelocityTable = MO.PandasFormat(VelocityTable,'V-H1',"%2.4e")
-# VelocityTable = MO.PandasFormat(VelocityTable,"H1-order","%1.2f")
-# VelocityTable = MO.PandasFormat(VelocityTable,'L2-order',"%1.2f")
-# print VelocityTable
+print "\n\n   Velocity convergence"
+VelocityTitles = ["Total DoF","V DoF","Soln Time","AvIt","V-L2","L2-order","V-H1","H1-order"]
+VelocityValues = np.concatenate((Wdim,Vdim,SolTime,AvIt,errL2u,l2uorder,errH1u,H1uorder),axis=1)
+VelocityTable= pd.DataFrame(VelocityValues, columns = VelocityTitles)
+pd.set_option('precision',3)
+VelocityTable = MO.PandasFormat(VelocityTable,"V-L2","%2.4e")
+VelocityTable = MO.PandasFormat(VelocityTable,'V-H1',"%2.4e")
+VelocityTable = MO.PandasFormat(VelocityTable,"H1-order","%1.2f")
+VelocityTable = MO.PandasFormat(VelocityTable,'L2-order',"%1.2f")
+print VelocityTable
 
-# print "\n\n   Pressure convergence"
-# PressureTitles = ["Total DoF","P DoF","Soln Time","AvIt","P-L2","L2-order"]
-# PressureValues = np.concatenate((Wdim,Qdim,SolTime,AvIt,errL2p,l2porder),axis=1)
-# PressureTable= pd.DataFrame(PressureValues, columns = PressureTitles)
-# pd.set_option('precision',3)
-# PressureTable = MO.PandasFormat(PressureTable,"P-L2","%2.4e")
-# PressureTable = MO.PandasFormat(PressureTable,'L2-order',"%1.2f")
-# print PressureTable
+print "\n\n   Pressure convergence"
+PressureTitles = ["Total DoF","P DoF","Soln Time","AvIt","P-L2","L2-order"]
+PressureValues = np.concatenate((Wdim,Qdim,SolTime,AvIt,errL2p,l2porder),axis=1)
+PressureTable= pd.DataFrame(PressureValues, columns = PressureTitles)
+pd.set_option('precision',3)
+PressureTable = MO.PandasFormat(PressureTable,"P-L2","%2.4e")
+PressureTable = MO.PandasFormat(PressureTable,'L2-order',"%1.2f")
+print PressureTable
 
 # print "\n\n"
 
