@@ -40,22 +40,22 @@ def Domain(n):
        def inside(self, x, on_boundary):
            return near(x[1], 1.0)
 
-    # mesh = RectangleMesh(Point(0., -1.), Point(7*10., 1.), 7*5*n, n)
-    # class Left(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 0.0)
+    mesh = RectangleMesh(Point(0., -1.), Point(10., 1.), 5*n, n)
+    class Left(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[0], 0.0)
 
-    # class Right(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[0], 7*10.0)
+    class Right(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[0], 10.0)
 
-    # class Bottom(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], -1.)
+    class Bottom(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[1], -1.)
 
-    # class Top(SubDomain):
-    #     def inside(self, x, on_boundary):
-    #         return near(x[1], 1.)
+    class Top(SubDomain):
+        def inside(self, x, on_boundary):
+            return near(x[1], 1.)
 
     left = Left()
     top = Top()
@@ -94,14 +94,14 @@ def ExactSolution(mesh, params):
     v = sy.diff(x, y)
     r = sy.diff(x, y)
 
-    uu = y*x*sy.exp(x+y)
-    u = sy.diff(uu, y)
-    v = -sy.diff(uu, x)
-    p = sy.sin(x)*sy.exp(y)
-    bb = x*y*sy.cos(x)
-    b = sy.diff(bb, y)
-    d = -sy.diff(bb, x)
-    r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
+    # uu = y*x*sy.exp(x+y)
+    # u = sy.diff(uu, y)
+    # v = -sy.diff(uu, x)
+    # p = sy.sin(x)*sy.exp(y)
+    # bb = x*y*sy.cos(x)
+    # b = sy.diff(bb, y)
+    # d = -sy.diff(bb, x)
+    # r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
     # r = sy.diff(x, y)
 
     # b = y
@@ -246,8 +246,10 @@ def Maxwell(V, Q, F, b0, r0, params, mesh):#HiptmairMatrices, Hiptmairtol):
 
     (b, r) = TrialFunctions(W)
     (c, s) = TestFunctions(W)
-
-    a11 = params[1]*params[2]*inner(curl(b), curl(c))*dx
+    if params[0] == 0.0:
+        a11 = params[1]*inner(curl(b), curl(c))*dx
+    else:
+        a11 = params[1]*params[0]*inner(curl(b), curl(c))*dx
     a21 = inner(b,grad(s))*dx
     a12 = inner(c,grad(r))*dx
     # print F
