@@ -130,6 +130,9 @@ for xx in xrange(1,m):
     n = FacetNormal(mesh)
     trunc = 4
     u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple = HartmanChannel.ExactSolution(mesh, params)
+    # kappa = 0.0
+    # params = [kappa,Mu_m,MU]
+
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
@@ -141,7 +144,10 @@ for xx in xrange(1,m):
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
 
     F_NS = -MU*Laplacian + Advection + gradPres - kappa*NScouple
-    F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
+    if kappa == 0.0:
+        F_M = Mu_m*CurlCurl + gradLagr - kappa*Mcouple
+    else:
+        F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh)
 
@@ -166,8 +172,10 @@ for xx in xrange(1,m):
 
     Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
-
-    m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
+    if kappa == 0.0:
+        m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
+    else:
+        m11 = params[1]*inner(curl(b_k),curl(c))*dx(0)
     m21 = inner(c,grad(r_k))*dx(0)
     m12 = inner(b_k,grad(s))*dx(0)
 
@@ -240,6 +248,7 @@ for xx in xrange(1,m):
         ShiftedMass = assemble(aa)
         bcu.apply(ShiftedMass)
         ShiftedMass = CP.Assemble(ShiftedMass)
+        ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
@@ -252,7 +261,7 @@ for xx in xrange(1,m):
         # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
         # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
         # u = scipy.sparse.linalg.spsolve(A,b)
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)

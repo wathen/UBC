@@ -34,24 +34,19 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
     Ap = PETSc2Scipy(Ap)*p_k.vector().array()
     ApBM = PETSc2Scipy(ApBM)*p_k.vector().array()
 
-    print "\n norm(Ap-(Ap)p):     ", np.linalg.norm(Ap-nBM)
-    print "\n norm(Ap_B-(Ap)p):   ", np.linalg.norm(ApBM-nBM)
-    print "\n norm(Ap-(Ap_B)p):   ", np.linalg.norm(Ap-BM)
-    print "\n norm(Ap_B-(Ap_B)p): ", np.linalg.norm(ApBM-BM)
-
+    print "\nnorm(Ap-(Ap)p):     ", np.linalg.norm(Ap-nBM, ord=np.inf)
+    print "norm(Ap_B-(Ap)p):   ", np.linalg.norm(ApBM-nBM, ord=np.inf)
+    print "norm(Ap-(Ap_B)p):   ", np.linalg.norm(Ap-BM, ord=np.inf)
+    print "norm(Ap_B-(Ap_B)p): ", np.linalg.norm(ApBM-BM, ord=np.inf)
 
     print "\n\nAssemble boundary modified Fp:"
-#    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
-#    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
-    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(p),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q)*p*ds(2))
+    FpBM = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0) + (-nu*inner(grad(q),N)*p + inner(u_k, N)*q*p)*ds(2))
 
     print "Assemble non-boundary modified Fp:"
     Fp = assemble(nu*inner(grad(q), grad(p))*dx(0) + inner(grad(q),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,q)*dx(0) - (1./2)*inner(u_k,N)*inner(p,q)*ds(0))
 
     print "Boundary modified Mat-Vec"
-    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-nu*inner(grad(p_k),N)*p + inner(u_k, N)*p_k)*p*ds(2))
-    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-mu*inner(grad(p_k),N)*p + inner(u_k, n)*p_k)*p*ds(2))
-    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*q*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-mu*inner(grad(p_k),N)*p + inner(u_k, n)*p_k)*p*ds(2))
+    BM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0) + (-nu*inner(grad(p_k),N)*p + inner(u_k, N)*p_k*p)*ds(2))
     print "Non-boundary modified Mat-Vec"
     nBM = assemble(nu*inner(grad(p_k), grad(p))*dx(0) + inner(grad(p_k),u_k)*p*dx(0) + (1./2)*div(u_k)*inner(p,p_k)*dx(0) - (1./2)*inner(u_k,N)*inner(p,p_k)*ds(0))
     Fp = as_backend_type(Fp).mat()
@@ -61,8 +56,8 @@ def check(nu, u_k, p_k, mesh, boundaries, domains):
     Fp = PETSc2Scipy(Fp)*p_k.vector().array()
     FpBM = PETSc2Scipy(FpBM)*p_k.vector().array()
 
-    print "\n norm(Fp-(Fp)p):     ", np.linalg.norm(Fp-nBM)
-    print "\n norm(Fp_B-(Fp)p):   ", np.linalg.norm(FpBM-nBM)
-    print "\n norm(Fp-(Fp_B)p):   ", np.linalg.norm(Fp-BM)
-    print "\n norm(Fp_B-(Fp_B)p): ", np.linalg.norm(FpBM-BM)
+    print "\nnorm(Fp-(Fp)p):     ", np.linalg.norm(Fp-nBM, ord=np.inf)
+    print "norm(Fp_B-(Fp)p):   ", np.linalg.norm(FpBM-nBM, ord=np.inf)
+    print "norm(Fp-(Fp_B)p):   ", np.linalg.norm(Fp-BM, ord=np.inf)
+    print "norm(Fp_B-(Fp_B)p): ", np.linalg.norm(FpBM-BM, ord=np.inf)
 

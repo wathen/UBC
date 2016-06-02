@@ -28,7 +28,7 @@ def FluidLinearSetup(Pressure,mu,mesh, boundaries, domains):
     if Pressure.__str__().find("CG") == -1:
         L = assemble(mu*(jump(q)*jump(p)*dx(Pressure.mesh())))
     else:
-        L = assemble(mu*(inner(grad(q), grad(p))*dx(Pressure.mesh())) - inner(grad(q),N)*p*ds(2))
+        L = assemble(mu*(inner(grad(q), grad(p))*dx(Pressure.mesh())) + inner(grad(q),N)*p*ds(2))
     L = CP.Assemble(L)
     print ("{:40}").format("CG scalar Laplacian assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     tic()
