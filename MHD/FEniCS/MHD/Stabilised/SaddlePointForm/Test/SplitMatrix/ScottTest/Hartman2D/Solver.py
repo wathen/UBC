@@ -78,6 +78,8 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
                 print its,"    OUTER:", fgnorm
             # ksp.setMonitor(monitor)
             ksp.max_it = 1000
+            ksp.setTolerances(1e-6)
+
             W = Fspace
             FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
             pc.setPythonContext(MHDprec.InnerOuterMAGNETICinverse(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))

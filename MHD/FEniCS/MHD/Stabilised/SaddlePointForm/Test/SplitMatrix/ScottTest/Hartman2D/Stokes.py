@@ -32,6 +32,7 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
+import StokesPrecond
 # import matplotlib.pyplot as plt
 import sympy as sy
 #@profile
@@ -220,24 +221,24 @@ for xx in xrange(1,m):
     P, Pb = assemble_system(a11 + inner(p ,q)*dx, L, bc)
     P, Pb = CP.Assemble(P, Pb)
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('minres')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    # if __version__ != '1.6.0':
-    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-
-    # ksp = PETSc.KSP().create()
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 200
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
     # pc = ksp.getPC()
-    # pc.setType(PETSc.PC.Type.PYTHON)
     # ksp.setType('minres')
-    # pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # # if __version__ != '1.6.0':
+    # # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
+
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
+    pc = ksp.getPC()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(StokesPrecond.Approx(W, 1))
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,P)

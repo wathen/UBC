@@ -35,7 +35,7 @@ import HartmanChannel
 import PCD
 # import matplotlib.pyplot as plt
 #@profile
-m = 7
+m = 10
 
 
 set_log_active(False)
@@ -114,8 +114,8 @@ for xx in xrange(1,m):
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
     DimSave[xx-1,:] = np.array(dim)
 
-    kappa = 1.0
-    Mu_m = 1.0
+    kappa = 1e0
+    Mu_m = 1000.0
     MU = 1.0
 
     N = FacetNormal(mesh)
@@ -149,15 +149,17 @@ for xx in xrange(1,m):
     else:
         F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
-    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh)
+    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
-
-    m11 = params[1]*params[0]*inner(curl(b),curl(c))*dx(0)
+    if kappa == 0.0:
+        m11 = params[1]*inner(curl(b),curl(c))*dx(0)
+    else:
+        m11 = params[1]*params[0]*inner(curl(b),curl(c))*dx(0)
     m21 = inner(c,grad(r))*dx(0)
     m12 = inner(b,grad(s))*dx(0)
 
@@ -170,7 +172,7 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
+    Lns  = inner(v, F_NS)*dx(0) #- inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
     if kappa == 0.0:
         m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
@@ -223,8 +225,8 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
-        # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+        # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
         bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
         bcs = [bcu,bcb,bcr]
@@ -261,7 +263,7 @@ for xx in xrange(1,m):
         # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
         # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
         # u = scipy.sparse.linalg.spsolve(A,b)
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct1',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -383,7 +385,7 @@ if IterType == "Full":
 else:
     IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
     IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
-print IterTable
+print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
 # print " \n  Outer Tol:  ",OuterTol, "Inner Tol:   ", InnerTol
 
