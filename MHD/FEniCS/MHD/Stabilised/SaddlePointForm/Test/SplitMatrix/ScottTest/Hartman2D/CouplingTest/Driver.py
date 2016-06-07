@@ -10,14 +10,14 @@ import MatrixOperations as MO
 
 
 def Solution():
-    x = symbols('x[0]')
-    y = symbols('x[1]')
-    uu = y*x*exp(x+y)
-    u = diff(uu,y)
-    v = -diff(uu,x)
-    uu = x*exp(x+y)
-    b = diff(uu,y)
-    d = -diff(uu,x)
+    x = sy.symbols('x[0]')
+    y = sy.symbols('x[1]')
+    uu = y*x*sy.exp(x+y)
+    u = sy.diff(uu,y)
+    v = -sy.diff(uu,x)
+    uu = x*sy.exp(x+y)
+    b = sy.diff(uu,y)
+    d = -sy.diff(uu,x)
 
     NS1 = -d*(diff(d,x)-diff(b,y))
     NS2 = b*(diff(d,x)-diff(b,y))
