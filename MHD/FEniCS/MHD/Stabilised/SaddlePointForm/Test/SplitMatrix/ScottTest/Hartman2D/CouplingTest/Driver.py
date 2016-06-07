@@ -92,11 +92,11 @@ bc = [bcu, bcb]
 A, b = assemble_system(CoupleT+Couple, L_D, bc)
 A, b = CP.Assemble(A, b)
 
-C = A.getSubMatrix(b_is, u_is)
-Ct = A.getSubMatrix(u_is, b_is)
+Ct = A.getSubMatrix(b_is, u_is)
+C = A.getSubMatrix(u_is, b_is)
 
 f_u = b.getSubVector(u_is)
 f_b = b.getSubVector(b_is)
 
-print "norm(Ct*u-f)  ", np.linalg.norm((Ct*u_solution-f_u).array)
-print "norm(C*b-f):   ", np.linalg.norm((C*b_solution-f_b).array)
+print "norm(Ct*u-f)  ", np.linalg.norm((Ct*u_solution-f_b).array)
+print "norm(C*b-f):   ", np.linalg.norm((C*b_solution-f_u).array)
