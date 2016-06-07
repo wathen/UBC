@@ -8,6 +8,8 @@ from dolfin import *
 import sympy as sy
 import MatrixOperations as MO
 
+def myCCode(A):
+    return sy.ccode(A).replace('M_PI','pi')
 
 def Solution():
     x = sy.symbols('x[0]')
@@ -19,21 +21,21 @@ def Solution():
     b = sy.diff(uu,y)
     d = -sy.diff(uu,x)
 
-    NS1 = -d*(diff(d,x)-diff(b,y))
-    NS2 = b*(diff(d,x)-diff(b,y))
+    NS1 = -d*(sy.diff(d,x)-sy.diff(b,y))
+    NS2 = b*(sy.diff(d,x)-sy.diff(b,y))
 
-    M1 = diff(u*d-v*b,y)
-    M2 = -diff(u*d-v*b,x)
+    M1 = sy.diff(u*d-v*b,y)
+    M2 = -sy.diff(u*d-v*b,x)
 
     J11 = sy.diff(u, x)
     J12 = sy.diff(u, y)
     J21 = sy.diff(v, x)
     J22 = sy.diff(v, y)
 
-    Ct = Expression((ccode(NS1),ccode(NS2)))
-    C = Expression((ccode(M1),ccode(M2)))
-    u0 = Expression((ccode(u),ccode(v)))
-    b0 = Expression((ccode(b),ccode(d)))
+    Ct = Expression((myCCode(NS1),myCCode(NS2)))
+    C = Expression((myCCode(M1),myCCode(M2)))
+    u0 = Expression((myCCode(u),myCCode(v)))
+    b0 = Expression((myCCode(b),myCCode(d)))
     Neumann = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
 
     return u0, b0, C, Ct, Neumann
