@@ -72,8 +72,8 @@ u0 = interpolate(u0, V)
 CoupleT = (v[0]*b0[1]-v[1]*b0[0])*curl(b)*dx
 Couple = -(u[0]*b0[1]-u[1]*b0[0])*curl(c)*dx
 
-L_D = inner(Ct, v)*dx + inner(C, c)*dx
-L_N = inner(Ct, v)*dx + inner(C, c)*dx - inner(Neumann*N, v)*ds
+L_D = inner(Ct, v)*dx - inner(C, c)*dx
+L_N = inner(Ct, v)*dx - inner(C, c)*dx - inner(Neumann*N, v)*ds
 
 def boundary(x, on_boundary):
     return on_boundary
