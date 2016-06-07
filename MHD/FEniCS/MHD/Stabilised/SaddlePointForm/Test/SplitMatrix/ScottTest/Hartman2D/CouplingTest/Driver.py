@@ -69,6 +69,7 @@ def boundary(x, on_boundary):
 MO.PrintStr("Fluid coupling test: Dirichlet only",2,"=","\n\n","\n")
 
 bcu = DirichletBC(V, u0, boundary)
+assemble(CoupleT)
 A, b = assemble_system(CoupleT, Lct_D, bcu)
 
 
