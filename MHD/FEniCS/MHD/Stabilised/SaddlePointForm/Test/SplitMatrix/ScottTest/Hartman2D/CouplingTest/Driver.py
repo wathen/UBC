@@ -44,11 +44,10 @@ n = int(2**4)
 mesh = UnitSquareMesh(n, n)
 V = VectorFunctionSpace(mesh, "CG", 2)
 S = FunctionSpace(mesh, "N1curl", 1)
+W = MixedFunctionSpace([V, S])
 
-u = TrialFunction(V)
-v = TestFunction(V)
-b = TrialFunction(S)
-c = TestFunction(S)
+(u, b) = TrialFunctions(W)
+(v, c) = TestFunctions(W)
 N = FacetNormal(mesh)
 
 u0, b0, C, Ct, Neumann = Solution()
@@ -58,19 +57,17 @@ u0 = interpolate(u0, V)
 CoupleT = (v[0]*b0[1]-v[1]*b0[0])*curl(b)*dx
 Couple = -(u[0]*b0[1]-u[1]*b0[0])*curl(c)*dx
 
-Lct_D = inner(Ct, v)*dx
-Lct_n = inner(Ct, v)*dx - inner(Neumann*N,u)*ds
-
-Lc_D = inner(C, c)*dx
+L_D = inner(Ct, v)*dx + inner(C, b)*dx
+L_N = inner(Ct, v)*dx + inner(C, b)*dx - inner(Neumann*N, v)*ds
 
 def boundary(x, on_boundary):
     return on_boundary
 
 MO.PrintStr("Fluid coupling test: Dirichlet only",2,"=","\n\n","\n")
 
-bcu = DirichletBC(V, u0, boundary)
-assemble(CoupleT)
-A, b = assemble_system(CoupleT, Lct_D, bcu)
+bcu = DirichletBC(W.sub(0), u0, boundary)
+bcb = DirichletBC(W.sub(1), b0, boundary)
+A, b = assemble_system(CoupleT+Couple, L_D, bcu)
 
 
 
