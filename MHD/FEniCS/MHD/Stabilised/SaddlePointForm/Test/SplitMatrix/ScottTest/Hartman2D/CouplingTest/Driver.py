@@ -7,6 +7,18 @@ from petsc4py import PETSc
 from dolfin import *
 import sympy as sy
 import MatrixOperations as MO
+import CheckPetsc4py as CP
+import numpy as np
+
+def arrayToVec(vecArray):
+
+    vec = PETSc.Vec().create(comm=PETSc.COMM_WORLD)
+    vec.setSizes(len(vecArray))
+    vec.setUp()
+    (Istart,Iend) = vec.getOwnershipRange()
+    return vec.createWithArray(vecArray[Istart:Iend],
+            comm=PETSc.COMM_WORLD)
+    vec.destroy()
 
 def myCCode(A):
     return sy.ccode(A).replace('M_PI','pi')
@@ -41,7 +53,10 @@ def Solution():
     return u0, b0, C, Ct, Neumann
 
 n = int(2**4)
+
 mesh = UnitSquareMesh(n, n)
+parameters['reorder_dofs_serial'] = False
+
 V = VectorFunctionSpace(mesh, "CG", 2)
 S = FunctionSpace(mesh, "N1curl", 1)
 W = MixedFunctionSpace([V, S])
@@ -63,13 +78,25 @@ L_N = inner(Ct, v)*dx + inner(C, c)*dx - inner(Neumann*N, v)*ds
 def boundary(x, on_boundary):
     return on_boundary
 
+u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+b_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
+
+u_solution = arrayToVec(u0.vector().array())
+b_solution = arrayToVec(b0.vector().array())
+
 MO.PrintStr("Fluid coupling test: Dirichlet only",2,"=","\n\n","\n")
 
 bcu = DirichletBC(W.sub(0), u0, boundary)
 bcb = DirichletBC(W.sub(1), b0, boundary)
 bc = [bcu, bcb]
 A, b = assemble_system(CoupleT+Couple, L_D, bc)
+A, b = CP.Assemble(A, b)
 
+C = A.getSubMatrix(b_is, u_is)
+Ct = A.getSubMatrix(u_is, b_is)
 
+f_u = b.getSubVector(u_is)
+f_b = b.getSubVector(b_is)
 
-
+print "norm(Ct*u-f)  ", np.linalg.norm((Ct*u_solution-f_u).array)
+print "norm(C*b-f):   ", np.linalg.norm((C*b_solution-f_b).array)
