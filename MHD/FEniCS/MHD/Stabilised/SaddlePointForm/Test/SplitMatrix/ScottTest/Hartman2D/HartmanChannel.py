@@ -13,7 +13,7 @@ import MatrixOperations as MO
 import CheckPetsc4py as CP
 from  dolfin import __version__
 import MaxwellPrecond as MP
-import StokesPrecond as SP
+import StokesPrecond
 import time
 
 def myCCode(A):
@@ -40,14 +40,14 @@ def Domain(n):
        def inside(self, x, on_boundary):
            return near(x[1], 1.0)
 
-    mesh = RectangleMesh(Point(0., -1.), Point(10., 1.), 5*n, n)
+    mesh = RectangleMesh(Point(0., -1.), Point(1*10., 1.), 1*5*n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], 10.0)
+            return near(x[0], 1*10.0)
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
@@ -178,47 +178,41 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     a21 = -div(u)*q*dx(0)
     a = a11+a12+a21
 
-    L = inner(v, F)*dx(0) - inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx(0) #- inner(pN*n,v)*ds(2)
 
-    pp = params[2]*inner(grad(v), grad(u))*dx+ (1./params[2])*p*q*dx(0)
+    pp = params[2]*inner(grad(v), grad(u))*dx(0) + (1./params[2])*p*q*dx(0)
     def boundary(x, on_boundary):
         return on_boundary
-
-    bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
-    # bcu = DirichletBC(W.sub(0), u0, boundary)
+    # bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
+    bcu = DirichletBC(W.sub(0), u0, boundary)
     # bcu = [bcu1, bcu2]
     A, b = assemble_system(a, L, bcu)
     A, b = CP.Assemble(A, b)
     C = A.getSubMatrix(IS[1],IS[1])
     u = b.duplicate()
-
     P, Pb = assemble_system(pp, L, bcu)
-    # MO.StoreMatrix(P.sparray(),"P"+str(W.dim()))
-    P =CP.Assemble(P)
-    M =  P.getSubMatrix(IS[1], IS[1])
-    # print M
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-    ksp.setOperators(A,A)
+    P, Pb = CP.Assemble(P, Pb)
 
-    # ksp = PETSc.KSP().create()
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
     # pc = ksp.getPC()
+    # ksp.setType('preonly')
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # # if __version__ != '1.6.0':
+    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
+    # ksp.setOperators(A,A)
 
-    # ksp.setType(ksp.Type.MINRES)
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 500
-    # #ksp.max_it = 2
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # pc.setPythonContext(SP.Approx(W,M))
-    # ksp.setOperators(A,P)
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
+    pc = ksp.getPC()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(StokesPrecond.Approx(W, 1))
+    ksp.setOperators(A,P)
 
     scale = b.norm()
     b = b/scale
@@ -238,7 +232,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     return u_k, p_k
 
 
-def Maxwell(V, Q, F, b0, r0, params, mesh):#HiptmairMatrices, Hiptmairtol):
+def Maxwell(V, Q, F, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
@@ -285,13 +279,13 @@ def Maxwell(V, Q, F, b0, r0, params, mesh):#HiptmairMatrices, Hiptmairtol):
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
 
-    # ksp = PETSc.KSP().create()
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 200
-    # pc = ksp.getPC()
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # ksp.setType('minres')
-    # pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
+    pc = ksp.getPC()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,A)

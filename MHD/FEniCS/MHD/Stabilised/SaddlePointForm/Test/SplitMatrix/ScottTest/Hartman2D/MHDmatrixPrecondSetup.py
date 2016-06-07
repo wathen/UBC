@@ -28,7 +28,7 @@ def FluidLinearSetup(Pressure,mu,mesh, boundaries, domains):
     if Pressure.__str__().find("CG") == -1:
         L = assemble(mu*(jump(q)*jump(p)*dx(Pressure.mesh())))
     else:
-        L = assemble(mu*(inner(grad(q), grad(p))*dx(Pressure.mesh())) + inner(grad(q),N)*p*ds(2))
+        L = assemble(mu*(inner(grad(q), grad(p))*dx(Pressure.mesh())))# +  inner(grad(q),N)*p*ds(2))
     L = CP.Assemble(L)
     print ("{:40}").format("CG scalar Laplacian assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     tic()
@@ -66,7 +66,7 @@ def FluidNonLinearSetup(Pressure,mu, u_k, mesh, boundaries, domains):
         if mesh.topology().dim() == 2:
             Fp = assemble(mu*inner(grad(q), grad(p))*dx(mesh)+inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) + (1/2)*(u_k[0]*N[0]+u_k[1]*N[1])*inner(p,q)*ds(mesh))
         else:
-            Fp = assemble(mu*inner(grad(q), grad(p))*dx(mesh)+inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]+u_k[2]*grad(p)[2]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) - (1/2)*(u_k[0]*N[0]+u_k[1]*N[1]+u_k[2]*N[2])*inner(p,q)*ds(mesh) + (-mu*inner(grad(p),N)*q + inner(u_k, n)*q)*p*ds(2))
+            Fp = assemble(mu*inner(grad(q), grad(p))*dx(mesh)+inner((u_k[0]*grad(p)[0]+u_k[1]*grad(p)[1]+u_k[2]*grad(p)[2]),q)*dx(mesh) + (1/2)*div(u_k)*inner(p,q)*dx(mesh) - (1/2)*(u_k[0]*N[0]+u_k[1]*N[1]+u_k[2]*N[2])*inner(p,q)*ds(mesh))# + (-mu*inner(grad(q),N)*p + inner(u_k, N)*q*p)*ds(2))
 
     Fp = CP.Assemble(Fp)
     print ("{:40}").format("DG convection-diffusion assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
