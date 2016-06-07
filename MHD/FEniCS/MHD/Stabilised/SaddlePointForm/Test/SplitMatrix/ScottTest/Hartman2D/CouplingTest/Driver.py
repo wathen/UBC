@@ -49,14 +49,28 @@ u = TrialFunction(V)
 v = TestFunction(V)
 b = TrialFunction(S)
 c = TestFunction(S)
+N = FacetNormal(mesh)
 
 u0, b0, C, Ct, Neumann = Solution()
 b0 = interpolate(b0, S)
 u0 = interpolate(u0, V)
 
-MO.PrintStr("Fluid coupling test",2,"=","\n\n","\n")
-
 CoupleT = (v[0]*b0[1]-v[1]*b0[0])*curl(b)*dx
 Couple = -(u[0]*b0[1]-u[1]*b0[0])*curl(c)*dx
+
+Lct_D = inner(Ct, v)*dx
+Lct_n = inner(Ct, v)*dx - inner(Neumann*N,u)*ds
+
+Lc_D = inner(C, c)*dx
+
+def boundary(x, on_boundary):
+    return on_boundary
+
+MO.PrintStr("Fluid coupling test: Dirichlet only",2,"=","\n\n","\n")
+
+bcu = DirichletBC(V, u0, boundary)
+A, b = assemble_system(CoupleT, Lct_D, bcu)
+
+
 
 
