@@ -89,7 +89,12 @@ MO.PrintStr("Fluid coupling test: Dirichlet only",2,"=","\n\n","\n")
 bcu = DirichletBC(W.sub(0), u0, boundary)
 bcb = DirichletBC(W.sub(1), b0, boundary)
 bc = [bcu, bcb]
-A, b = assemble_system(CoupleT+Couple, L_D, bc)
+A = assemble(CoupleT+Couple)
+b = assemble(L_D)
+for bcs in bc:
+    bcs.apply(A)
+    bcs.apply(b)
+
 A, b = CP.Assemble(A, b)
 
 Ct = A.getSubMatrix(b_is, u_is)
