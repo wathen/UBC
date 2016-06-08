@@ -16,7 +16,7 @@ import P as PrecondMulti
 import MHDprec
 import scipy.sparse as sp
 from scipy.linalg import svd
-import matplotlib.pylab as plt
+#import matplotlib.pylab as plt
 from scipy.sparse.linalg.dsolve import spsolve
 
 
@@ -29,7 +29,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         ksp.setType('preonly')
         pc.setType('lu')
         OptDB = PETSc.Options()
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
+#        OptDB['pc_factor_mat_solver_package']  = "mumps"
         OptDB['pc_factor_mat_ordering_type']  = "rcm"
         ksp.setFromOptions()
         scale = b.norm()

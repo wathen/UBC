@@ -136,8 +136,8 @@ for xx in xrange(1,m):
     SetupType = 'python-class'
     params = [kappa,Mu_m,MU]
 
-    F_M = Expression(("0.0","0.0"))
-    F_S = Expression(("0.0","0.0"))
+    F_M = Expression(("0.0","0.0","0.0"))
+    F_S = Expression(("0.0","0.0","0.0"))
     n = FacetNormal(mesh)
     class intial(Expression):
         def __init__(self, mesh):
@@ -150,6 +150,7 @@ for xx in xrange(1,m):
     b0 = intial(mesh)
     u0 = intial(mesh)
     r0 = Expression(("0.0"))
+    b0 = Expression(("1.0", "0.0", "0.0"))
     u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, params, boundaries, domains)
     b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, params)
 
@@ -166,8 +167,8 @@ for xx in xrange(1,m):
     a12 = -div(v)*p*dx
     a21 = -div(u)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx
-    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v,b_k),curl(b))*dx
+    Couple = -params[0]*inner(cross(u,b_k),curl(c))*dx
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
@@ -183,8 +184,8 @@ for xx in xrange(1,m):
     a11 = params[2]*inner(grad(v), grad(u_k))*dx + inner((grad(u_k)*u_k),v)*dx + (1./2)*div(u_k)*inner(u_k,v)*dx - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
     a12 = -div(v)*p_k*dx
     a21 = -div(u_k)*q*dx
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
-    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v,b_k),curl(b_k))*dx
+    Couple = -params[0]*inner(cross(u_k,b_k),curl(c))*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
@@ -222,7 +223,7 @@ for xx in xrange(1,m):
     # bcs = [bcu,bcb,bcr]
     IS = MO.IndexSet(W, 'Blocks')
 
-    parameters['linear_algebra_backend'] = 'uBLAS'
+    #parameters['linear_algebra_backend'] = 'uBLAS'
 
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4     # tolerance
@@ -253,8 +254,8 @@ for xx in xrange(1,m):
         #     bcr = DirichletBC(W.sub(3),r0, boundaries, 1)
         #     bcs = [bcu,bcb,bcr]
         # else:
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0")), boundary)
+        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
         bcs = [bcu,bcb,bcr]
         # if iter == 1:
@@ -290,16 +291,18 @@ for xx in xrange(1,m):
         n = FacetNormal(mesh)
         b_t = TrialFunction(Velocity)
         c_t = TestFunction(Velocity)
-        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(aa)
+        mat = as_matrix([[b_k[2]*b_k[2]+b[1]*b[1],-b_k[1]*b_k[0],-b_k[0]*b_k[2]],
+                         [-b_k[1]*b_k[0],b_k[0]*b_k[0]+b_k[2]*b_k[2],-b_k[2]*b_k[1]],
+                       [-b_k[0]*b_k[2],-b_k[1]*b_k[2],b_k[0]*b_k[0]+b_k[1]*b_k[1]]])
+        a = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        ShiftedMass = assemble(a)
         bcu.apply(ShiftedMass)
         ShiftedMass = CP.Assemble(ShiftedMass)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
 
         stime = time.time()
 
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits

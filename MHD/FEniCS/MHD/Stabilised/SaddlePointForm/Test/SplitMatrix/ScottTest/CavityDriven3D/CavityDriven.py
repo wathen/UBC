@@ -14,7 +14,7 @@ import CheckPetsc4py as CP
 from  dolfin import __version__
 
 def Domain(n):
-    mesh = Box(Point(-1., -1., -1.), Point(1., 1., 1.), n, n, n)
+    mesh = BoxMesh(Point(-1., -1., -1.), Point(1., 1., 1.), n, n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], -1.0)
@@ -96,8 +96,8 @@ def Stokes(V, Q, F, params, boundaries, domains):
         def value_shape(self):
             return (2,)
     u0 = u0(mesh)
-    bcu1 = DirichletBC(W.sub(0), Expression(("0.0","0.0")), boundaries, 1)
-    bcu2 = DirichletBC(W.sub(0), u0, boundaries, 2)
+    bcu1 = DirichletBC(W.sub(0), Expression(("0.0","0.0", "0.0")), boundaries, 1)
+    bcu2 = DirichletBC(W.sub(0), Expression(("1.0","0.0", "0.0")), boundaries, 2)
     bcu = [bcu1, bcu2]
 
     A, b = assemble_system(a, L, bcu)
@@ -162,7 +162,7 @@ def Maxwell(V, Q, F, params):
         def value_shape(self):
             return (2,)
     b0 = b0(mesh)
-
+    b0 = Expression(("1.0","0.0", "0.0"))
     bcb = DirichletBC(W.sub(0), b0, boundary)
     bcr = DirichletBC(W.sub(1), Expression(("0.0")), boundary)
     bc = [bcb, bcr]
