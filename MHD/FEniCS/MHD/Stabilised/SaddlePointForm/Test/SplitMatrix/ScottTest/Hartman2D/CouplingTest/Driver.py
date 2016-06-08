@@ -52,7 +52,7 @@ def Solution():
 
     return u0, b0, C, Ct, Neumann
 
-n = int(2**4)
+n = int(2**2)
 
 mesh = UnitSquareMesh(n, n)
 parameters['reorder_dofs_serial'] = False
@@ -105,3 +105,5 @@ f_b = b.getSubVector(b_is)
 
 print "norm(Ct*u-f)  ", np.linalg.norm((Ct*u_solution-f_b).array)
 print "norm(C*b-f):   ", np.linalg.norm((C*b_solution-f_u).array)
+print (Ct*u_solution-f_b).array
+print (C*b_solution-f_u).array
