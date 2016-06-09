@@ -112,8 +112,8 @@ def Stokes(V, Q, F, params, boundaries, domains):
     ksp.setType('preonly')
     pc.setType('lu')
     OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
+    # if __version__ != '1.6.0':
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
     # print b.array
@@ -125,6 +125,8 @@ def Stokes(V, Q, F, params, boundaries, domains):
     ksp.solve(b,u)
     # Mits +=dodim
     u = u*scale
+    # print u.array
+    # ss
     u_k = Function(V)
     p_k = Function(Q)
     u_k.vector()[:] = u.getSubVector(IS[0]).array

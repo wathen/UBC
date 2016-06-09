@@ -90,12 +90,7 @@ for xx in xrange(1,m):
     nn = int(nn)
     NN[xx-1] = nn/2
     parameters["form_compiler"]["quadrature_degree"] = -1
-    # parameters = CP.ParameterSetup()
-    # mesh = UnitSquareMesh(nn,nn)
-    # domain = mshr.Rectangle(Point(0., 0.), Point(1., 2.)) + mshr.Rectangle(Point(1., 0.), Point(2., 1.))
-    # mesh = mshr.generate_mesh(domain, nn)
     mesh, boundaries, domains = CavityDriven.Domain(nn)
-    # set_log_level(WARNING)
 
     order = 2
     parameters['reorder_dofs_serial'] = False
@@ -121,13 +116,10 @@ for xx in xrange(1,m):
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
 
     kappa = 1.0
-    Mu_m =10.0
+    Mu_m = 10.0
     MU = 1.0
 
     N = FacetNormal(mesh)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
-
-    # g = inner(p0*N - MU*grad(u0)*N,v)*dx
 
     IterType = 'Full'
     Split = "No"
@@ -138,26 +130,18 @@ for xx in xrange(1,m):
 
     F_M = Expression(("0.0","0.0","0.0"))
     F_S = Expression(("0.0","0.0","0.0"))
+
     n = FacetNormal(mesh)
-    class intial(Expression):
-        def __init__(self, mesh):
-            self.mesh = mesh
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = 1.0
-            values[1] = 0
-        def value_shape(self):
-            return (2,)
-    b0 = intial(mesh)
-    u0 = intial(mesh)
+
     r0 = Expression(("0.0"))
     b0 = Expression(("1.0", "0.0", "0.0"))
+
     u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, params, boundaries, domains)
     b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, params)
+    x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
-
-
 
     m11 = params[1]*params[0]*inner(curl(b),curl(c))*dx
     m21 = inner(c,grad(r))*dx
@@ -172,10 +156,8 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-
-    Lns  = inner(v, F_S)*dx #+ inner(Neumann,v)*ds(2)
-    Lmaxwell  = inner(c, F_M)*dx
-
+    Lns  = inner(F_S, v)*dx #+ inner(Neumann,v)*ds(2)
+    Lmaxwell  = inner(F_M, c)*dx
 
     m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx
     m21 = inner(c,grad(r_k))*dx
@@ -184,11 +166,12 @@ for xx in xrange(1,m):
     a11 = params[2]*inner(grad(v), grad(u_k))*dx + inner((grad(u_k)*u_k),v)*dx + (1./2)*div(u_k)*inner(u_k,v)*dx - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
     a12 = -div(v)*p_k*dx
     a21 = -div(u_k)*q*dx
+
     CoupleT = params[0]*inner(cross(v,b_k),curl(b_k))*dx
     Couple = -params[0]*inner(cross(u_k,b_k),curl(c))*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-
+    print Lns
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
@@ -208,22 +191,13 @@ for xx in xrange(1,m):
     ones.vector()[:]=(0*ones.vector().array()+1)
     # pConst = - assemble(p_k*dx)/assemble(ones*dx)
     # p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
-    x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
     #plot(b_k)
 
-    # ns,maxwell,CoupleTerm,Lmaxwell,Lns = forms.MHD2D(mesh, W,F_M,F_NS, u_k,b_k,params,IterType,"CG",Saddle,Stokes)
-    # RHSform = forms.PicardRHS(mesh, W, u_k, p_k, b_k, r_k, params,"CG",Saddle,Stokes)
-
-    # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
-    # bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundaries, 1)
-    # bcr = DirichletBC(W.sub(3),Expression(("0.0")), boundaries, 1)
-    # bcs = [bcu,bcb,bcr]
     IS = MO.IndexSet(W, 'Blocks')
 
-    #parameters['linear_algebra_backend'] = 'uBLAS'
 
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4     # tolerance
@@ -231,9 +205,6 @@ for xx in xrange(1,m):
     maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
-    # parameters['linear_algebra_backend'] = 'uBLAS'
-
-    # FSpaces = [Velocity,Magnetic,Pressure,Lagrange]
 
     u_is = PETSc.IS().createGeneral(range(Velocity.dim()))
     NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
@@ -248,54 +219,24 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        # if iter == 1:
-        #     bcu = DirichletBC(W.sub(0),u0, boundaries, 1)
-        #     bcb = DirichletBC(W.sub(2),b0, boundaries, 1)
-        #     bcr = DirichletBC(W.sub(3),r0, boundaries, 1)
-        #     bcs = [bcu,bcb,bcr]
-        # else:
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0","0.0")), boundary)
-        bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
-        bcs = [bcu,bcb,bcr]
-        # if iter == 1:
-        # , L
+        bcu = DirichletBC(W.sub(0), Expression(("0.0","0.0","0.0")), boundary)
+        bcb = DirichletBC(W.sub(2), Expression(("0.0","0.0","0.0")), boundary)
+        bcr = DirichletBC(W.sub(3), Expression("0.0"), boundary)
+        bcs = [bcu, bcb, bcr]
         A, b = assemble_system(a, L, bcs)
-
-        # AA = assemble(a)
-
-        # bb = assemble(L)
-
-        # for bc in bcs:
-        #     bc.apply(AA,bb)
-
-
-        # print A.sparray().todense()
-        # MO.StoreMatrix(A.sparray(),'name')
+        b =  assemble(L)
         A, b = CP.Assemble(A,b)
-        u = b.duplicate()
         # print b.array
         # ssss
-        # L = assemble(L)
-        # print L.array()
-        # for bc in bcs:
-        #     bc.apply(L)
-
-        # print L.array()
-        # MO.StrTimePrint("MHD total assemble, time: ", time.time()-AssembleTime)
-
-        # u = b.duplicate()
-        # kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
-        # print "Inititial guess norm: ",  u.norm(PETSc.NormType.NORM_INFINITY)
-        # #A,Q
+        u = b.duplicate()
         n = FacetNormal(mesh)
         b_t = TrialFunction(Velocity)
         c_t = TestFunction(Velocity)
-        mat = as_matrix([[b_k[2]*b_k[2]+b[1]*b[1],-b_k[1]*b_k[0],-b_k[0]*b_k[2]],
+        mat = as_matrix([[b_k[2]*b_k[2]+b_k[1]*b_k[1],-b_k[1]*b_k[0],-b_k[0]*b_k[2]],
                          [-b_k[1]*b_k[0],b_k[0]*b_k[0]+b_k[2]*b_k[2],-b_k[2]*b_k[1]],
                        [-b_k[0]*b_k[2],-b_k[1]*b_k[2],b_k[0]*b_k[0]+b_k[1]*b_k[1]]])
-        a = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(a)
+        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        ShiftedMass = assemble(aa)
         bcu.apply(ShiftedMass)
         ShiftedMass = CP.Assemble(ShiftedMass)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
@@ -355,17 +296,17 @@ b = b/np.linalg.norm(b)
 B = Function(Magnetic)
 B.vector()[:] = b
 
-# p = plot(u_k)
-# p.write_png()
+p = plot(u_k)
+p.write_png()
 
-# p = plot(p_k)
-# p.write_png()
+p = plot(p_k)
+p.write_png()
 
-# p = plot(B)
-# p.write_png()
+p = plot(b_k)
+p.write_png()
 
-# p = plot(r_k)
-# p.write_png()
+p = plot(r_k)
+p.write_png()
 
 
 interactive()
