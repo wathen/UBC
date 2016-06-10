@@ -34,7 +34,7 @@ import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import CavityDriven
 #@profile
-m = 2
+m = 6
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -81,7 +81,7 @@ split = 'Linear'
 MU[0]= 1e0
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 1
     nn = 2**(level[xx-1])
 
 
@@ -135,9 +135,17 @@ for xx in xrange(1,m):
 
     r0 = Expression(("0.0"))
     b0 = Expression(("1.0", "0.0", "0.0"))
+    u0 = Expression(("1.0", "0", "0.0"))
 
-    u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, params, boundaries, domains)
-    b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, params)
+    Hiptmairtol = 1e-6
+    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+
+
+
+    MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
+
+    u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, u0, params, boundaries, domains)
+    b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, b0, params, HiptmairMatrices, Hiptmairtol)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     (u, p, b, r) = TrialFunctions(W)
@@ -171,21 +179,10 @@ for xx in xrange(1,m):
     Couple = -params[0]*inner(cross(u_k,b_k),curl(c))*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-    print Lns
-
-    MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
-    BCtime = time.time()
-    BC = MHDsetup.BoundaryIndices(mesh)
-    MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
-    Hiptmairtol = 1e-6
-    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
 
-    MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
+
     # u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-10,Neumann=None,options ="New")
-
-
-
 
     ones = Function(Pressure)
     ones.vector()[:]=(0*ones.vector().array()+1)
@@ -198,7 +195,6 @@ for xx in xrange(1,m):
 
     IS = MO.IndexSet(W, 'Blocks')
 
-
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4     # tolerance
     iter = 0            # iteration counter
@@ -209,10 +205,12 @@ for xx in xrange(1,m):
     u_is = PETSc.IS().createGeneral(range(Velocity.dim()))
     NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
     M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
+
     OuterTol = 1e-5
     InnerTol = 1e-5
     NSits =0
     Mits =0
+
     TotalStart =time.time()
     SolutionTime = 0
     while eps > tol  and iter < maxiter:
@@ -223,11 +221,12 @@ for xx in xrange(1,m):
         bcb = DirichletBC(W.sub(2), Expression(("0.0","0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3), Expression("0.0"), boundary)
         bcs = [bcu, bcb, bcr]
+
         A, b = assemble_system(a, L, bcs)
-        b =  assemble(L)
+        # if iter == 2:
+        # ss
+
         A, b = CP.Assemble(A,b)
-        # print b.array
-        # ssss
         u = b.duplicate()
         n = FacetNormal(mesh)
         b_t = TrialFunction(Velocity)
@@ -243,12 +242,14 @@ for xx in xrange(1,m):
 
         stime = time.time()
 
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
         NSits += nsits
         SolutionTime += Soltime
+
+        # print x.array + u.array
 
         u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
@@ -256,6 +257,7 @@ for xx in xrange(1,m):
         p_k.assign(p1)
         b_k.assign(b1)
         r_k.assign(r1)
+
         uOld= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
 
@@ -297,16 +299,16 @@ B = Function(Magnetic)
 B.vector()[:] = b
 
 p = plot(u_k)
-p.write_png()
+# p.write_png()
 
 p = plot(p_k)
-p.write_png()
+# p.write_png()
 
 p = plot(b_k)
-p.write_png()
+# p.write_png()
 
 p = plot(r_k)
-p.write_png()
+# p.write_png()
 
-
+# ssss
 interactive()
