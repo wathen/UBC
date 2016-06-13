@@ -323,7 +323,6 @@ p.write_png()
 p = plot(r_k)
 p.write_png()
 
-ssss
 file1 = File("solutions/u.pvd")
 file2 = File("solutions/p.pvd")
 file3 = File("solutions/b.pvd")
@@ -332,5 +331,6 @@ file1 << u_k
 file2 << p_k
 file3 << b_k
 file4 << r_k
+ssss
 
 interactive()
