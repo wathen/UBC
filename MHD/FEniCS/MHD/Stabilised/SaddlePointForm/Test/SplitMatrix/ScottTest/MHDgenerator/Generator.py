@@ -28,14 +28,14 @@ def Print3D(u,v,w,p,opt):
         print "  r = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
 
 def Domain(n):
-    mesh = BoxMesh(Point(0., 0., 0.), Point(1., 1., 1.), n, n, n)
+    mesh = BoxMesh(Point(0., 0., 0.), Point(10., 1., 1.), n, n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], 1.0)
+            return near(x[0], 10.0)
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
@@ -91,7 +91,7 @@ def ExactSolution(params, B0, delta, x_on, x_off):
     y = sy.Symbol('x[1]')
     z = sy.Symbol('x[2]')
 
-    b = sy.diff(0,x)
+    b = sy.diff(y,x)
     d = (B0/2)*(sy.tanh((x-x_on)/delta)-sy.tanh((x-x_off)/delta))
     e = sy.diff(y,x)
 
@@ -287,7 +287,6 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol):
     bcb = DirichletBC(W.sub(0), b0, boundary)
     bcr = DirichletBC(W.sub(1), Expression(("0.0")), boundary)
     bc = [bcb, bcr]
-
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
@@ -303,7 +302,7 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol):
     # OptDB['pc_factor_mat_ordering_type']  = "rcm"
     # ksp.setFromOptions()
 
-
+    print b.array
     ksp = PETSc.KSP().create()
     ksp.setTolerances(1e-8)
     ksp.max_it = 200
