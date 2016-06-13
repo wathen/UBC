@@ -28,7 +28,7 @@ def Print3D(u,v,w,p,opt):
         print "  r = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
 
 def Domain(n):
-    mesh = BoxMesh(Point(0., 0., 0.), Point(10., 1., 1.), n, n, n)
+    mesh = BoxMesh(Point(0., 0., 0.), Point(10., 1., 1.), 10*n, n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
             return near(x[0], 0.0)

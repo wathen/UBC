@@ -255,7 +255,7 @@ for xx in xrange(1,m):
 
         stime = time.time()
 
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
@@ -324,4 +324,13 @@ p = plot(r_k)
 p.write_png()
 
 ssss
+file1 = File("solutions/u.pvd")
+file2 = File("solutions/p.pvd")
+file3 = File("solutions/b.pvd")
+file4 = File("solutions/r.pvd")
+file1 << u_k
+file2 << p_k
+file3 << b_k
+file4 << r_k
+
 interactive()
