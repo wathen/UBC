@@ -33,6 +33,7 @@ import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import PCD
+import SaveMatrix
 # import matplotlib.pyplot as plt
 #@profile
 m = 10
@@ -78,6 +79,7 @@ dim = 2
 ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0]= 1e0
+
 for xx in xrange(1,m):
     print xx
     level[xx-1] = xx + 0
@@ -221,6 +223,7 @@ for xx in xrange(1,m):
     TotalStart =time.time()
     SolutionTime = 0
 
+
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
@@ -254,6 +257,12 @@ for xx in xrange(1,m):
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
+
+        Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
+        Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
+
+        SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Magnetic)
+
         stime = time.time()
         # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
         # MO.StoreMatrix(b.array, "b_"+str(int(level[xx-1][0])))
