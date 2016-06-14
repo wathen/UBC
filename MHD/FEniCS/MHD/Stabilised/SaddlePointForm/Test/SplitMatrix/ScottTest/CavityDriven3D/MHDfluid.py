@@ -34,7 +34,7 @@ import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import CavityDriven
 #@profile
-m = 6
+m = 3
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -116,7 +116,7 @@ for xx in xrange(1,m):
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
 
     kappa = 1.0
-    Mu_m = 10.0
+    Mu_m = 10000.0
     MU = 1.0
 
     N = FacetNormal(mesh)
@@ -135,7 +135,7 @@ for xx in xrange(1,m):
 
     r0 = Expression(("0.0"))
     b0 = Expression(("1.0", "0.0", "0.0"))
-    u0 = Expression(("1.0", "0", "0.0"))
+    u0 = Expression(("1.0/sqrt(2.)", "1.0/sqrt(2.)", "0.0"))
 
     Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
