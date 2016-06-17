@@ -45,7 +45,17 @@ Km = [M+D'*(Lp\D), 0*D'; 0*D, Lp];
 Kns = [Qs, B';0*B,  -S];
 P = [Kns, Kc; 0*Kc',Km];
 
-plot(real(eig(full(K), full(P))),'*') 
+% plot(real(eig(full(K), full(P))),'*') 
+% 
+% figure
+% plot(eig(full(Qs),full(Fs)), '*')
 
-figure
-plot(eig(full(Qs),full(Fs)), '*')
+NullM = null(full(M));
+NullC = null(full(C'));
+
+norm(full(C'*NullM))
+spy(abs(C'*NullM)>1e-6)
+
+
+
+
