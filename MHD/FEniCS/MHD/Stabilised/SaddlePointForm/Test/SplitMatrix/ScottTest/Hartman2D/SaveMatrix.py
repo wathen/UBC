@@ -4,7 +4,7 @@ petsc4py.init(sys.argv)
 from petsc4py import PETSc
 import CheckPetsc4py as CP
 import os
-
+import scipy
 def StoreMatrix(A,name):
     test ="".join([name,".mat"])
     scipy.io.savemat( test, {name: A},oned_as='row')
@@ -30,7 +30,7 @@ def SaveMatrices(W, level, A, Fluid, Magnetic):
     Lp = CP.PETSc2Scipy(Magnetic['Lp'])
     MX = CP.PETSc2Scipy(Magnetic['MX'])
 
-    os.chdir("~/Desktop/PhD/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Hartman2D/matrix")
+    os.chdir("/Users/michaelwathen/Desktop/PhD/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Hartman2D/matrix1")
 
     StoreMatrix(F, "F_"+str(level))
     StoreMatrix(B, "B_"+str(level))
@@ -46,33 +46,5 @@ def SaveMatrices(W, level, A, Fluid, Magnetic):
 
     StoreMatrix(Lp, "Lp_"+str(level))
     StoreMatrix(MX, "MX_"+str(level))
-    os.chdir("~/Desktop/PhD/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Hartman2D")
 
-F = load(strcat('F_',num2str(level)));
-F = F.(strcat('F_',num2str(level)));
-A = load(strcat('A_',num2str(level)));
-A = A.(strcat('A_',num2str(level)));
-O = load(strcat('O_',num2str(level)));
-O = O.(strcat('O_',num2str(level)));
-B = load(strcat('B_',num2str(level)));
-B = B.(strcat('B_',num2str(level)));
-D = load(strcat('D_',num2str(level)));
-D = D.(strcat('D_',num2str(level)));
-C = load(strcat('C_',num2str(level)));
-C = -C.(strcat('C_',num2str(level)));
-M = load(strcat('M_',num2str(level)));
-M = M.(strcat('M_',num2str(level)));
-L = load(strcat('L_',num2str(level)));
-L = L.(strcat('L_',num2str(level)));
-X = load(strcat('X_',num2str(level)));
-X = X.(strcat('X_',num2str(level)));
-Xs = load(strcat('Xs_',num2str(level)));
-Xs = Xs.(strcat('Xs_',num2str(level)));
-Qs = load(strcat('Qs_',num2str(level)));
-Qs = Qs.(strcat('Qs_',num2str(level)));
-Q = load(strcat('Q_',num2str(level)));
-Q = Q.(strcat('Q_',num2str(level)));
-Fp = load(strcat('Fp_',num2str(level)));
-Fp = Fp.(strcat('Fp_',num2str(level)));
-Mp = load(strcat('Mp_',num2str(level)));
-Mp = Mp.(strcat('Mp_',num2str(level)));
+    os.chdir("/Users/michaelwathen/Desktop/PhD/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Hartman2D")

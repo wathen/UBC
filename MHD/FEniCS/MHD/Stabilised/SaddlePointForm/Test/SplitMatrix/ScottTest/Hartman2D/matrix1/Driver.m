@@ -1,5 +1,5 @@
-% clear all
-% close all
+clear all
+close all
 level = 2;
 F = load(strcat('F_',num2str(level)));
 F = F.(strcat('F_',num2str(level)));
