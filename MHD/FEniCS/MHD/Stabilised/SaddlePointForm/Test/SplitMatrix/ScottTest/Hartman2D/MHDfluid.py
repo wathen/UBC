@@ -36,7 +36,7 @@ import PCD
 import SaveMatrix
 # import matplotlib.pyplot as plt
 #@profile
-m = 10
+m = 7
 
 
 set_log_active(False)
@@ -206,7 +206,7 @@ for xx in xrange(1,m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-3     # tolerance
     iter = 0            # iteration counter
-    maxiter = 20       # max no of iterations allowed
+    maxiter = 1       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -261,7 +261,7 @@ for xx in xrange(1,m):
         Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
         Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
 
-        SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Magnetic)
+        SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
 
         stime = time.time()
         # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))

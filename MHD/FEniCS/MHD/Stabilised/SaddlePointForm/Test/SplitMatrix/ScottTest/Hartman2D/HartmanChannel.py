@@ -102,7 +102,7 @@ def ExactSolution(mesh, params):
     # b = sy.diff(bb, y)
     # d = -sy.diff(bb, x)
     # r = x*sy.sin(2*sy.pi*y)*sy.sin(2*sy.pi*x)
-    # r = sy.diff(x, y)
+
 
     # b = y
     # d = sy.diff(x, y)
@@ -183,7 +183,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     pp = params[2]*inner(grad(v), grad(u))*dx(0) + (1./params[2])*p*q*dx(0)
     def boundary(x, on_boundary):
         return on_boundary
-    # bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
+    bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
     bcu = DirichletBC(W.sub(0), u0, boundary)
     # bcu = [bcu1, bcu2]
     A, b = assemble_system(a, L, bcu)

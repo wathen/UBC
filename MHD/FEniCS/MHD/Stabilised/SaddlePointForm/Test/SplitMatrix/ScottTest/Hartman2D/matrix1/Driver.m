@@ -40,11 +40,12 @@ K = [F, B', C', sparse(n_u,m_b);
 S = B*(F\B');
 Kc = [C', sparse(n_u,m_b);sparse(m_u,n_b+m_b)];
 
-Fs = F + C'*((M+D'*(Lp\D))\C);
+Qs = F + C'*((M+D'*(Lp\D))\C);
 Km = [M+D'*(Lp\D), 0*D'; 0*D, Lp];
-Kns = [Fs, B';0*B,  -S];
+Kns = [Qs, B';0*B,  -S];
 P = [Kns, Kc; 0*Kc',Km];
 
 plot(real(eig(full(K), full(P))),'*') 
+
 figure
-plot(eig(full(F+C'*inv(M+D'*(Lp\D))*C), full(Fs)),'*')
+plot(eig(full(Qs),full(Fs)), '*')
