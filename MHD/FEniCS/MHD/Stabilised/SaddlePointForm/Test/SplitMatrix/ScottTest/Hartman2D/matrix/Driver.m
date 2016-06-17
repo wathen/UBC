@@ -38,6 +38,7 @@ K = [F, B', C', sparse(n_u,m_b);
      sparse(m_b,n_u+m_b) D Stab];
  
 S = B*(F\B');
+S = Ap*
 Kc = [C', sparse(n_u,m_b);sparse(m_u,n_b+m_b)];
 
 Qs = F + C'*((M+D'*(Lp\D))\C);
@@ -45,17 +46,22 @@ Km = [M+D'*(Lp\D), 0*D'; 0*D, Lp];
 Kns = [Qs, B';0*B,  -S];
 P = [Kns, Kc; 0*Kc',Km];
 
-% plot(real(eig(full(K), full(P))),'*') 
+plot(real(eig(full(K), full(P))),'*') 
+
+figure
+plot(eig(full(Qs),full(Fs)), '*')
+
+% NullM = null(full(M));
+% NullC = null(full(C'));
 % 
-% figure
-% plot(eig(full(Qs),full(Fs)), '*')
-
-NullM = null(full(M));
-NullC = null(full(C'));
-
-norm(full(C'*NullM))
-spy(abs(C'*NullM)>1e-6)
+% norm(full(C'*NullM))
+% spy(abs(C'*NullM)>1e-6)
+% 
+% size(null(full(B')))
 
 
-
-
+cond(full(F))
+cond(full(Fs))
+cond(full(Qs))
+cond(full(Qs\Fs))
+cond(full(S))
