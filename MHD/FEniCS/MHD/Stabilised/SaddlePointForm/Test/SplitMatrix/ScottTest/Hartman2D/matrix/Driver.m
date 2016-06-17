@@ -46,3 +46,5 @@ Kns = [Fs, B';0*B,  -S];
 P = [Kns, Kc; 0*Kc',Km];
 
 plot(real(eig(full(K), full(P))),'*') 
+figure
+plot(eig(full(F+C'*inv(M+D'*(Lp\D))*C), full(Fs)),'*')
