@@ -278,10 +278,10 @@ for xx in xrange(1,m):
             P = IO.matToSparse(P)
             P.eliminate_zeros()
             for i in xrange(0,Pressure.dim()):
-                f = FluidLinearSetup[1].getColumnVector(i)
+                f = MatrixLinearFluids[1].getColumnVector(i)
                 u = f.duplicate()
                 uOut = f.duplicate()
-                FluidLinearSetup[0]
+                MatrixLinearFluids[0]
                 ksp = PETSc.KSP()
                 ksp.create(comm=PETSc.COMM_WORLD)
                 pc = ksp.getPC()
