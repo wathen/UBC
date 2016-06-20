@@ -224,7 +224,7 @@ for xx in xrange(1,m):
     Mits = 0
     TotalStart =time.time()
     SolutionTime = 0
-    Type = 'Schur'
+    Type = 'PCD'
 
 
 
@@ -278,23 +278,25 @@ for xx in xrange(1,m):
             P = IO.matToSparse(P)
             P.eliminate_zeros()
             for i in xrange(0,Pressure.dim()):
-                uOut, u = Bt.getVecs()
-                f = Bt.getColumnVector(i)
+                f = FluidLinearSetup[1].getColumnVector(i)
+                u = f.duplicate()
+                uOut = f.duplicate()
+                FluidLinearSetup[0]
                 ksp = PETSc.KSP()
                 ksp.create(comm=PETSc.COMM_WORLD)
                 pc = ksp.getPC()
-                ksp.setType('preonly')
-                pc.setType('lu')
+                ksp.setType('gmres')
+                pc.setType('hypre')
                 OptDB = PETSc.Options()
-                OptDB['pc_factor_mat_solver_package']  = "umfpack"
-                OptDB['pc_factor_mat_ordering_type']  = "rcm"
+                # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+                # OptDB['pc_factor_mat_ordering_type']  = "rcm"
                 ksp.setFromOptions()
                 scale = f.norm()
                 f = f/scale
                 ksp.setOperators(Fp,Fp)
                 ksp.solve(f,u)
                 u = u*scale
-                Bt.multTranspose(u,uOut)
+                FluidLinearSetup[0].mult(u,uOut)
                 ksp.destroy()
                 print Velocity.dim()+i,W.sub(1).dofmap().dofs()
                 P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array

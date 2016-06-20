@@ -38,17 +38,18 @@ K = [F, B', C', sparse(n_u,m_b);
      sparse(m_b,n_u+m_b) D Stab];
  
 S = B*(F\B');
+% S = Lp*(Fp\Qp);
 Kc = [C', sparse(n_u,m_b);sparse(m_u,n_b+m_b)];
 
-Qs = F + C'*((M+D'*(Lp\D))\C);
-Km = [M+D'*(Lp\D), 0*D'; 0*D, Lp];
+Qs = F + C'*(MX\C);
+Km = [MX, 0*D'; 0*D, Lp];
 Kns = [Qs, B';0*B,  -S];
 P = [Kns, Kc; 0*Kc',Km];
-
-plot(real(eig(full(K), full(P))),'*') 
+P = P+1e-2*speye(size(K,1));
+semilogy(sort(real(eig(full(K), full(P)))),'*') 
 
 figure
-plot(eig(full(Qs),full(Fs)), '*')
+semilogy(eig(full(Qs),full(Fs)), '*')
 
 
 NullM = null(full(M));
