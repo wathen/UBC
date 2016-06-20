@@ -173,6 +173,7 @@ for xx in xrange(1,m):
     Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx(0)
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
+    prec = m11 + m12 + m21 + a11  + a12 + Couple + CoupleT
 
     Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
@@ -212,6 +213,7 @@ for xx in xrange(1,m):
     # parameters['linear_algebra_backend'] = 'uBLAS'
 
     u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+    p_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
     b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
     M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
@@ -222,6 +224,8 @@ for xx in xrange(1,m):
     Mits = 0
     TotalStart =time.time()
     SolutionTime = 0
+    Type = 'Schur'
+
 
 
     while eps > tol  and iter < maxiter:
@@ -238,6 +242,85 @@ for xx in xrange(1,m):
         A, b = CP.Assemble(A,b)
         u = b.duplicate()
         u.setRandom()
+        if Type == "Schur":
+            P, Pb = assemble_system(prec, L, bcs)
+            P, Pb = CP.Assemble(P,Pb)
+            F = A.getSubMatrix(u_is, u_is)
+            Bt = A.getSubMatrix(u_is, p_is)
+            Schur = np.zeros((Pressure.dim(),Pressure.dim()))
+            P = IO.matToSparse(P)
+            P.eliminate_zeros()
+            for i in xrange(0,Pressure.dim()):
+                uOut, u = Bt.getVecs()
+                f = Bt.getColumnVector(i)
+                ksp = PETSc.KSP()
+                ksp.create(comm=PETSc.COMM_WORLD)
+                pc = ksp.getPC()
+                ksp.setType('preonly')
+                pc.setType('lu')
+                OptDB = PETSc.Options()
+                OptDB['pc_factor_mat_solver_package']  = "umfpack"
+                OptDB['pc_factor_mat_ordering_type']  = "rcm"
+                ksp.setFromOptions()
+                scale = f.norm()
+                f = f/scale
+                ksp.setOperators(F,F)
+                ksp.solve(f,u)
+                u = u*scale
+                Bt.multTranspose(u,uOut)
+                ksp.destroy()
+                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array
+        elif Type == "PCD":
+            P, Pb = assemble_system(prec, L, bcs)
+            P, Pb = CP.Assemble(P,Pb)
+            Schur = np.zeros((Pressure.dim(),Pressure.dim()))
+            P = IO.matToSparse(P)
+            P.eliminate_zeros()
+            for i in xrange(0,Pressure.dim()):
+                uOut, u = Bt.getVecs()
+                f = Bt.getColumnVector(i)
+                ksp = PETSc.KSP()
+                ksp.create(comm=PETSc.COMM_WORLD)
+                pc = ksp.getPC()
+                ksp.setType('preonly')
+                pc.setType('lu')
+                OptDB = PETSc.Options()
+                OptDB['pc_factor_mat_solver_package']  = "umfpack"
+                OptDB['pc_factor_mat_ordering_type']  = "rcm"
+                ksp.setFromOptions()
+                scale = f.norm()
+                f = f/scale
+                ksp.setOperators(Fp,Fp)
+                ksp.solve(f,u)
+                u = u*scale
+                Bt.multTranspose(u,uOut)
+                ksp.destroy()
+                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array
+        P = PETSc.Mat().createAIJ(size=P.shape, csr=(P.indptr, P.indices, P.data))
+# print P[W.sub(1).dofmap().dofs(), W.sub(1).dofmap().dofs()].shape # print Schur.shape
+        # Schur = IO.arrayToMat(Schur)
+        # MO.StoreMatrix(IO.matToSparse(A),"A")
+        # MO.StoreMatrix(IO.matToSparse(P),"P")
+        # sss
+
+        u = b.duplicate()
+        ksp = PETSc.KSP()
+        ksp.create(comm=PETSc.COMM_WORLD)
+        pc = ksp.getPC()
+        ksp.setType('fgmres')
+        pc.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        ksp.setFromOptions()
+        scale = b.norm()
+        b = b/scale
+        ksp.setOperators(A,P)
+        ksp.solve(b,u)
+        u = u*scale
+
         print "                               Max rhs = ",np.max(b.array)
         # A = IO.matToSparse(A)
         # b = b.array
@@ -245,40 +328,37 @@ for xx in xrange(1,m):
         # A = A[j,j]
         # b = b[j]
         # print j
-        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
-        b_t = TrialFunction(Velocity)
-        c_t = TestFunction(Velocity)
-        n = FacetNormal(mesh)
-        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(aa)
-        bcu.apply(ShiftedMass)
-        ShiftedMass = CP.Assemble(ShiftedMass)
-        ShiftedMass = A.getSubMatrix(u_is, u_is)
-        kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
-        Options = 'p4'
-        PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
+        # kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
+        # b_t = TrialFunction(Velocity)
+        # c_t = TestFunction(Velocity)
+        # n = FacetNormal(mesh)
+        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        # ShiftedMass = assemble(aa)
+        # bcu.apply(ShiftedMass)
+        # ShiftedMass = CP.Assemble(ShiftedMass)
+        # ShiftedMass = A.getSubMatrix(u_is, u_is)
+        # kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
+        # Options = 'p4'
+        # PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
 
-        Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
-        Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
+        # Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
+        # Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
 
-        SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
+        # SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
+
+
+
+
 
         stime = time.time()
-        # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
-        # MO.StoreMatrix(b.array, "b_"+str(int(level[xx-1][0])))
-
-        # u1, mits,nsits = S.solve(A.getSubMatrix(NS_is,NS_is),b.getSubVector(NS_is), u.getSubVector(NS_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
-        # u2, mits,nsits = S.solve(A.getSubMatrix(M_is,M_is),b.getSubVector(M_is), u.getSubVector(M_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
-        # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
-        # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
-        # u = scipy.sparse.linalg.spsolve(A,b)
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct1',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
-
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
-        Mits += mits
-        NSits += nsits
+        MO.PrintStr("MHD iterations "+str(ksp.its),7,"=","\n\n","\n\n")
+
+
+        Mits += ksp.its
+        NSits += 1
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)
         u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
