@@ -208,7 +208,17 @@ we then combine the coupling terms in the Navier-Stokes preconditioner to form a
   \mathcal{X}_{\rm NS} = \mathcal{K}_{\rm NS} +  \mathcal{K}^T_{\rm C} \mathcal{K}^{-1}_{\rm M}  \mathcal{K}_{\rm C}.
   \end{equation}
 
-The resulting preconditioners have a similar block structure, however the approximations for $\mathcal{K}^{-1}_{\rm M}$ and $\mathcal{X}^{-1}_{\rm NS}$ are slightly different.
+The resulting preconditioners have a similar block structure, however the approximations for $\mathcal{K}^{-1}_{\rm M}$ and $\mathcal{X}^{-1}_{\rm NS}$ are slightly different. The Maxwell preconditioned used is similar to the one we use, however is is triangular and uses a mass matrix instead of the Laplacian for the augmentation form. For the block Schur complement $\mathcal{X}_{\rm NS}$, the authors use a shifted LSC type approximation.
+
+To check the performance of their preconditioner they perform a few numerical experiments whereas we do experiments as well as an eigenvalue analysis. I have coded the 3D cavity driven flow (the same conditions as they used) and have produced scalable results.
+
+Finally, they use the same approximation for the coupling term that we do (4.10). Their arguments for using this are for high diffusion the $\nabla \times \nabla \times$ becomes the dominant term. I quote ``It can be seen that the operator (4.5) [the continuous form similar to (4.8) in our paper] should be approximately ${\rm Re}_m I$ in this case, as something close to the curl-curl operator is inverted while two curls are applied''.
+
+
+
+
+
+
 
 
 \end{document}
