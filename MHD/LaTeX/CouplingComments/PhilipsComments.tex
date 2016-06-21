@@ -1,0 +1,214 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{subfigure}
+% \usepackage{algorithm}
+\usepackage{paralist}
+\usepackage[geometry]{ifsym}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{varwidth}
+% \usepackage{cite}
+% \usepackage{color}
+% \usepackage{algpseudocode}
+% \bibliographystyle{amsplain}
+
+
+
+
+\usepackage[utf8]{inputenc}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            %
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[1]{{
+\pythonstyle
+\lstinputlisting{#1}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+
+\addtolength{\oddsidemargin}{-.2in}
+    \addtolength{\evensidemargin}{-.5in}
+    \addtolength{\textwidth}{0.5in}
+
+    \addtolength{\topmargin}{-.5in}
+    \addtolength{\textheight}{0.35in}
+
+\sloppy                 % makes TeX less fussy about line breaking
+
+\pagestyle{plain}           % use just a plain page number
+
+\numberwithin{equation}{section}    % add the section number to the equation label
+
+\usepackage{fancyheadings}
+
+\newcommand{\com}[1]{\texttt{#1}}
+\newcommand{\DIV}{\ensuremath{\mathop{\mathbf{DIV}}}}
+\newcommand{\GRAD}{\ensuremath{\mathop{\mathbf{GRAD}}}}
+\newcommand{\CURL}{\ensuremath{\mathop{\mathbf{CURL}}}}
+\newcommand{\CURLt}{\ensuremath{\mathop{\overline{\mathbf{CURL}}}}}
+\newcommand{\nullspace}{\ensuremath{\mathop{\mathrm{null}}}}
+
+
+\newcommand{\FrameboxA}[2][]{#2}
+\newcommand{\Framebox}[1][]{\FrameboxA}
+\newcommand{\Fbox}[1]{#1}
+
+%\usepackage[round]{natbib}
+
+\newcommand{\half}{\mbox{\small \(\frac{1}{2}\)}}
+\newcommand{\hf}{{\frac 12}}
+\newcommand {\HH}  { {\bf H} }
+\newcommand{\hH}{\widehat{H}}
+\newcommand{\hL}{\widehat{L}}
+\newcommand{\bmath}[1]{\mbox{\bf #1}}
+\newcommand{\hhat}[1]{\stackrel{\scriptstyle \wedge}{#1}}
+\newcommand{\R}{{\rm I\!R}}
+\newcommand {\D} {{\vec{D}}}
+\newcommand {\sg}{{\hsigma}}
+%\renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\E}{\vec{E}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\J}{\vec{J}}
+\newcommand{\dd}{d^{\rm obs}}
+% \newcommand{\F}{\vec{F}}
+\newcommand{\C}{\vec{C}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\N}{\vec{N}}
+\newcommand{\M}{\vec{M}}
+\newcommand{\A}{\vec{A}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\w}{\vec{w}}
+\newcommand{\nn}{\vec{n}}
+\newcommand{\cA}{{\cal A}}
+\newcommand{\cQ}{{\cal Q}}
+\newcommand{\cR}{{\cal R}}
+\newcommand{\cG}{{\cal G}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\hsig}{\hat \sigma}
+\newcommand{\hJ}{\hat \J}
+\newcommand{\hbeta}{\widehat \beta}
+\newcommand{\lam}{\lambda}
+\newcommand{\dt}{\delta t}
+\newcommand{\kp}{\kappa}
+\newcommand {\lag} { {\cal L}}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\Hr}{H_{red}}
+\newcommand{\Mr}{M_{red}}
+\newcommand{\mr}{m_{ref}}
+\newcommand{\thet}{\ensuremath{\mbox{\boldmath $\theta$}}}
+\newcommand{\curl}{\ensuremath{\nabla_{\wedge}\,}}
+\renewcommand{\div}{\nabla\cdot\,}
+\newcommand{\grad}{\ensuremath{\nabla}}
+\newcommand{\dm}{\delta m}
+\newcommand{\gradh}{\ensuremath{\nabla}_h}
+\newcommand{\divh}{\nabla_h\cdot\,}
+\newcommand{\curlh}{\ensuremath{\nabla_h\times\,}}
+\newcommand{\curlht}{\ensuremath{\nabla_h^T\times\,}}
+\newcommand{\Q}{\vec{Q}}
+\renewcommand{\J}{\vec J}
+\renewcommand{\J}{\vec J}
+\renewcommand{\u}{\vec u}
+\newcommand{\f}{\vec f}
+\newcommand{\n}{\vec n}
+\renewcommand{\v}{\vec v}
+\newcommand{\phiv}{\vec \phi}
+% \usepackage[authoryear,numbers,square,sort,comma,colon,]{natbib}
+% \usepackage[numbers/]{natbib}
+% \usepackage[square,sort,comma,numbers]{natbib}
+\renewcommand{\ne}{N\'ed\'elec elements }
+
+
+\newcommand{\me}{Maxwell's equations }
+
+\newcommand{\partialt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\cref}[1]{(\ref{#1})}
+% \newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}
+\newcommand{\Ct}{\ensuremath{C^{\mbox{\tiny{T}}}}}
+% \renewcommand{\baselinestretch}{1.40}\normalsize
+\usepackage{setspace}
+\usepackage{amsthm}
+\newtheorem{prop}{Proposition}[section]
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [0.900] pzcmi7t}{}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\onehalfspacing
+\begin{document}
+\pagestyle{fancyplain}
+\fancyhead{}
+\fancyfoot{} % clear all footer fields
+\fancyfoot[LE,RO]{\thepage \hspace{-5mm}}
+\fancyfoot[CO,RE]{}
+% \pagecolor{cyan}
+
+
+
+\section*{Comments and differences of Philips et al.}
+
+The main difference between our approach and theirs is the formation of the preconditioner. Consider the block matrix:
+\begin{equation} \nonumber
+  \mathcal{K} = \begin{pmatrix}
+    \mathcal{K}_{\rm NS} & \mathcal{K}^T_{\rm C} \\
+    -\mathcal{K}_{\rm C} & \mathcal{K}_{\rm M} \\
+  \end{pmatrix},
+\end{equation}
+where $\mathcal{K}_{\rm NS}, \ \mathcal{K}_{\rm C}$ and $\mathcal{K}_{\rm M}$ are the Navier-Stokes, coupling and Maxwell block systems, respectively. We took the approach to consider combining well-known preconditioners where as they went for an ``all-at-once'' block approach. The approaches are as follows:
+\begin{equation} \nonumber
+  \mathcal{P}_{\rm WGS} = \begin{pmatrix}
+    \mathcal{P}_{\rm NS} & \mathcal{K}^T_{\rm C} \\
+    -\mathcal{K}_{\rm C} & \mathcal{P}_{\rm M} \\
+  \end{pmatrix},
+\end{equation}
+we then combine the coupling terms in the Navier-Stokes preconditioner to form a block triangular preconditioner and
+\begin{equation} \nonumber
+  \mathcal{P}_{\rm PSCEP} = \begin{pmatrix}
+    \mathcal{X}_{\rm NS} & \mathcal{K}^T_{\rm C} \\
+    0 & \mathcal{K}_{\rm M} \\
+  \end{pmatrix} \quad \mbox{where} \quad
+  \mathcal{X}_{\rm NS} = \mathcal{K}_{\rm NS} +  \mathcal{K}^T_{\rm C} \mathcal{K}^{-1}_{\rm M}  \mathcal{K}_{\rm C}.
+  \end{equation}
+
+The resulting preconditioners have a similar block structure, however the approximations for $\mathcal{K}^{-1}_{\rm M}$ and $\mathcal{X}^{-1}_{\rm NS}$ are slightly different.
+
+
+\end{document}

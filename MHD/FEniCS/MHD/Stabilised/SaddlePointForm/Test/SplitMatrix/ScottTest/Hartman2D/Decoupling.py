@@ -224,7 +224,7 @@ for xx in xrange(1,m):
     Mits = 0
     TotalStart =time.time()
     SolutionTime = 0
-    Type = 'PCD'
+    Type = 'Schur'
 
 
 
@@ -260,7 +260,7 @@ for xx in xrange(1,m):
                 pc.setType('lu')
                 OptDB = PETSc.Options()
                 OptDB['pc_factor_mat_solver_package']  = "umfpack"
-                OptDB['pc_factor_mat_ordering_type']  = "rcm"
+                OptDB['pc_factor_mat_ordering_type']  = "amd"
                 ksp.setFromOptions()
                 scale = f.norm()
                 f = f/scale
@@ -269,7 +269,7 @@ for xx in xrange(1,m):
                 u = u*scale
                 Bt.multTranspose(u,uOut)
                 ksp.destroy()
-                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+                # print Velocity.dim()+i,W.sub(1).dofmap().dofs()
                 P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array
         elif Type == "PCD":
             P, Pb = assemble_system(prec, L, bcs)
@@ -296,10 +296,10 @@ for xx in xrange(1,m):
                 ksp.setOperators(Fp,Fp)
                 ksp.solve(f,u)
                 u = u*scale
-                FluidLinearSetup[0].mult(u,uOut)
+                MatrixLinearFluids[0].mult(u,uOut)
                 ksp.destroy()
-                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
-                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array
+#                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = -uOut.array
         P = PETSc.Mat().createAIJ(size=P.shape, csr=(P.indptr, P.indices, P.data))
 # print P[W.sub(1).dofmap().dofs(), W.sub(1).dofmap().dofs()].shape # print Schur.shape
         # Schur = IO.arrayToMat(Schur)
