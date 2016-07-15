@@ -67,7 +67,6 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             pc = ksp.getPC()
             ksp.setType('fgmres')
             pc.setType('python')
-            pc.setType(PETSc.PC.Type.PYTHON)
 
             OptDB = PETSc.Options()
             OptDB['ksp_fgmres_restart'] = 20

@@ -34,6 +34,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import PCD
 import SaveMatrix
+import MHDprec
 # import matplotlib.pyplot as plt
 #@profile
 m = 7
@@ -100,7 +101,7 @@ for xx in xrange(1,m):
     Pressure = FunctionSpace(mesh, "CG", order-1)
     Magnetic = FunctionSpace(mesh, "N1curl", order-1)
     Lagrange = FunctionSpace(mesh, "CG", order-1)
-    W = MixedFunctionSpace([Velocity, Pressure, Magnetic,Lagrange])
+    W = MixedFunctionSpace([Velocity, Magnetic, Pressure, Lagrange])
 
     Velocitydim[xx-1] = Velocity.dim()
     Pressuredim[xx-1] = Pressure.dim()
@@ -117,7 +118,7 @@ for xx in xrange(1,m):
     DimSave[xx-1,:] = np.array(dim)
 
     kappa = 1e0
-    Mu_m = 1000.0
+    Mu_m = 10.0
     MU = 1.0
 
     N = FacetNormal(mesh)
@@ -156,8 +157,8 @@ for xx in xrange(1,m):
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
-    (u, p, b, r) = TrialFunctions(W)
-    (v, q, c, s) = TestFunctions(W)
+    (u, b, p, r) = TrialFunctions(W)
+    (v, c, q, s) = TestFunctions(W)
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b),curl(c))*dx(0)
     else:
@@ -173,7 +174,11 @@ for xx in xrange(1,m):
     Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx(0)
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
-    prec = m11 + m12 + m21 + a11  + a12 + Couple + CoupleT
+
+    mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+    aa = params[2]*inner(grad(u), grad(v))*dx(0) + inner((grad(u)*u_k),v)*dx(0) +(1./2)*div(u_k)*inner(v,u)*dx(0) - (1./2)*inner(u_k,n)*inner(v,u)*ds(0)+kappa/Mu_m*inner(mat*u,v)*dx(0)
+
+    prec = m11 + a11  + a12 + CoupleT + Couple + inner(grad(r), grad(s))*dx(0) + inner(b, c)*dx(0)
 
     Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
@@ -213,8 +218,8 @@ for xx in xrange(1,m):
     # parameters['linear_algebra_backend'] = 'uBLAS'
 
     u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
-    p_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
-    b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+    p_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+    b_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
     M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
 
@@ -234,7 +239,7 @@ for xx in xrange(1,m):
 
         bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
         #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
+        bcb = DirichletBC(W.sub(1),Expression(("0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
         bcs = [bcu,bcb,bcr]
 
@@ -250,6 +255,9 @@ for xx in xrange(1,m):
             Schur = np.zeros((Pressure.dim(),Pressure.dim()))
             P = IO.matToSparse(P)
             P.eliminate_zeros()
+#            F = IO.matToSparse(F)
+#            Bt = IO.matToSparse(Bt)
+#            Schur = Bt*scipy.sparse.linalg.inv(F)*Bt.T
             for i in xrange(0,Pressure.dim()):
                 uOut, u = Bt.getVecs()
                 f = Bt.getColumnVector(i)
@@ -260,7 +268,7 @@ for xx in xrange(1,m):
                 pc.setType('lu')
                 OptDB = PETSc.Options()
                 OptDB['pc_factor_mat_solver_package']  = "umfpack"
-                OptDB['pc_factor_mat_ordering_type']  = "amd"
+                OptDB['pc_factor_mat_ordering_type']  = "rcm"
                 ksp.setFromOptions()
                 scale = f.norm()
                 f = f/scale
@@ -269,8 +277,9 @@ for xx in xrange(1,m):
                 u = u*scale
                 Bt.multTranspose(u,uOut)
                 ksp.destroy()
+#                print uOut.array
                 # print Velocity.dim()+i,W.sub(1).dofmap().dofs()
-                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = uOut.array
+                P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
         elif Type == "PCD":
             P, Pb = assemble_system(prec, L, bcs)
             P, Pb = CP.Assemble(P,Pb)
@@ -299,7 +308,7 @@ for xx in xrange(1,m):
                 MatrixLinearFluids[0].mult(u,uOut)
                 ksp.destroy()
 #                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
-                P[Velocity.dim()+i,W.sub(1).dofmap().dofs()]  = -uOut.array
+                P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
         P = PETSc.Mat().createAIJ(size=P.shape, csr=(P.indptr, P.indices, P.data))
 # print P[W.sub(1).dofmap().dofs(), W.sub(1).dofmap().dofs()].shape # print Schur.shape
         # Schur = IO.arrayToMat(Schur)
@@ -312,10 +321,10 @@ for xx in xrange(1,m):
         ksp.create(comm=PETSc.COMM_WORLD)
         pc = ksp.getPC()
         ksp.setType('fgmres')
-        pc.setType('lu')
+        pc.setType('python')
         OptDB = PETSc.Options()
-        OptDB['pc_factor_mat_solver_package']  = "umfpack"
-        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        pc.setPythonContext(MHDprec.BlockSchur(W, Fp, Mp, Ap))
+
         ksp.setFromOptions()
         scale = b.norm()
         b = b/scale

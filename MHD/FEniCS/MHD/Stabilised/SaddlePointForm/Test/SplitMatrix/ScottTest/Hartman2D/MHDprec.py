@@ -284,88 +284,113 @@ class InnerOuterMAGNETICapprox(BaseMyPC):
 
 
 
+class BlockSchur(BaseMyPC):
 
-class InnerOuter(BaseMyPC):
+    def __init__(self, W):
+        self.NS_is = PETSc.IS().createGeneral(range(W.sub(0).dim()+W.sub(1).dim()))
+        self.M_is = PETSc.IS().createGeneral(range(W.sub(0).dim()+W.sub(1).dim(), W.dim()))
 
-    def __init__(self, AA,W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol,F):
-        self.W = W
-        self.kspF = kspF
-        self.kspA = kspA
-        self.kspQ = kspQ
-        self.Fp = Fp
-        self.kspScalar = kspScalar
-        self.kspCGScalar = kspCGScalar
-        self.kspVector = kspVector
-        # self.Bt = Bt
-        self.HiptmairIts = 0
-        self.CGits = 0
-        self.F = F
-        self.A = AA
+    def create(self, A):
+        kspNS = PETSc.KSP()
+        kspNS.create(comm=PETSc.COMM_WORLD)
+        pcNS = kspNS.getPC()
+        kspNS.setType('preonly')
+        pcNS.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspNS.setFromOptions()
+        self.kspNS = kspNS
 
-
-        # print range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim())
-        # ss
-        self.P = P
-        self.G = G
-        self.AA = A
-        self.tol = Hiptmairtol
-        self.u_is = PETSc.IS().createGeneral(range(self.W[0].dim()))
-        self.b_is = PETSc.IS().createGeneral(range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim()))
-        self.p_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim(),
-            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()))
-        self.r_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim()+self.W[2].dim(),
-            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()+self.W[3].dim()))
-
-
-
-    def create(self, pc):
-        print "Create"
-
-        self.Dt = self.A.getSubMatrix(self.b_is,self.r_is)
-        self.Bt = self.A.getSubMatrix(self.u_is,self.p_is)
+        kspM = PETSc.KSP()
+        kspM.create(comm=PETSc.COMM_WORLD)
+        pcM = kspM.getPC()
+        kspM.setType('preonly')
+        pcM.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspM.setFromOptions()
+        self.kspM = kspM
 
     def setUp(self, pc):
         A, P = pc.getOperators()
-        print A.size
+        self.kspNS.setOperators(P.getSubMatrix(self.NS_is, self.NS_is))
+        self.kspM.setOperators(P.getSubMatrix(self.M_is, self.M_is))
+        self.Bt = P.getSubMatrix(self.NS_is, self.M_is)
 
-
-
-
-        print "setup"
     def apply(self, pc, x, y):
 
-        br = x.getSubVector(self.r_is)
-        xr = br.duplicate()
-        self.kspScalar.solve(br, xr)
+        b = x.getSubVector(self.M_is)
+        g = b.duplicate()
+        u = x.getSubVector(self.NS_is)
+        f = u.duplicate()
 
-        # print self.D.size
-        x2 = x.getSubVector(self.p_is)
-        y2 = x2.duplicate()
-        y3 = x2.duplicate()
-        xp = x2.duplicate()
-        self.kspA.solve(x2,y2)
-        self.Fp.mult(y2,y3)
-        self.kspQ.solve(y3,xp)
+        self.kspM.solve(b, g)
+        self.kspNS.solve(u-self.Bt*g, f)
+
+        y.array = (np.concatenate([f.array, g.array]))
 
 
-        # self.kspF.solve(bu1-bu4-bu2,xu)
 
-        bb = x.getSubVector(self.b_is)
-        bb = bb - self.Dt*xr
-        xb = bb.duplicate()
-        #self.kspMX.solve(bb,xb)
-        xb, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, bb, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
+class BlockSchurComponetwise(BaseMyPC):
 
-        bu1 = x.getSubVector(self.u_is)
-        bu2 = self.Bt*xp
-        XX = bu1.duplicate()
-        xu = XX.duplicate()
-        self.kspF.solve(bu1-bu2,xu)
-        #self.kspF.solve(bu1,xu)
+    def __init__(self, W, Fp, Mp, Ap):
+        self.Fp = Fp
+        self.Mp = Mp
+        self.Ap = Ap
+        self.NS_is = PETSc.IS().createGeneral(range(W.sub(0).dim()+W.sub(1).dim()))
+        self.M_is = PETSc.IS().createGeneral(range(W.sub(0).dim()+W.sub(1).dim(), W.dim()))
+        self.u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+        self.b_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
+        self.p_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+        self.r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
 
-        y.array = (np.concatenate([xu.array, xb.array,xp.array,xr.array]))
-    def ITS(self):
-        return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
+    def create(self, A):
+        kspNS = PETSc.KSP()
+        kspNS.create(comm=PETSc.COMM_WORLD)
+        pcNS = kspNS.getPC()
+        kspNS.setType('preonly')
+        pcNS.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspNS.setFromOptions()
+        self.kspNS = kspNS
+
+        kspM = PETSc.KSP()
+        kspM.create(comm=PETSc.COMM_WORLD)
+        pcM = kspM.getPC()
+        kspM.setType('preonly')
+        pcM.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspM.setFromOptions()
+        self.kspM = kspM
+
+    def setUp(self, pc):
+        A, P = pc.getOperators()
+        self.kspNS.setOperators(P.getSubMatrix(self.NS_is, self.NS_is))
+        self.kspM.setOperators(P.getSubMatrix(self.M_is, self.M_is))
+        self.Bt = P.getSubMatrix(self.NS_is, self.M_is)
+
+    def apply(self, pc, x, y):
+        
+        p = x.getSubVector(self.p_is)
+        r = x.getSubVector(self.r_is)
+
+        
+
+
+        u = x.getSubVector(self.NS_is)
+        f = u.duplicate()
+
+        self.kspM.solve(b, g)
+        self.kspNS.solve(u-self.Bt*g, f)
+
+        y.array = (np.concatenate([f.array, g.array]))
+
 
 
 

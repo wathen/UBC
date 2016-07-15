@@ -48,3 +48,5 @@ def SaveMatrices(W, level, A, Fluid, Magnetic):
     StoreMatrix(MX, "MX_"+str(level))
 
     os.chdir("/Users/michaelwathen/Desktop/PhD/MHD/FEniCS/MHD/Stabilised/SaddlePointForm/Test/SplitMatrix/ScottTest/Hartman2D")
+
+
