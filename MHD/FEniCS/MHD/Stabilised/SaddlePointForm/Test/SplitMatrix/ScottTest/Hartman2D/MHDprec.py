@@ -358,38 +358,73 @@ class BlockSchurComponetwise(BaseMyPC):
         kspNS.setFromOptions()
         self.kspNS = kspNS
 
-        kspM = PETSc.KSP()
-        kspM.create(comm=PETSc.COMM_WORLD)
-        pcM = kspM.getPC()
-        kspM.setType('preonly')
-        pcM.setType('lu')
+        kspAp = PETSc.KSP()
+        kspAp.create(comm=PETSc.COMM_WORLD)
+        pcAp = kspAp.getPC()
+        kspAp.setType('preonly')
+        pcAp.setType('lu')
         OptDB = PETSc.Options()
         OptDB['pc_factor_mat_solver_package']  = "umfpack"
         OptDB['pc_factor_mat_ordering_type']  = "rcm"
-        kspM.setFromOptions()
-        self.kspM = kspM
+        kspAp.setFromOptions()
+        self.kspAp = kspAp
+
+        kspMp = PETSc.KSP()
+        kspMp.create(comm=PETSc.COMM_WORLD)
+        pcMp = kspMp.getPC()
+        kspMp.setType('preonly')
+        pcMp.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspMp.setFromOptions()
+        self.kspMp = kspMp
+
+        kspL = PETSc.KSP()
+        kspL.create(comm=PETSc.COMM_WORLD)
+        pcL = kspL.getPC()
+        kspL.setType('preonly')
+        pcL.setType('lu')
+        OptDB = PETSc.Options()
+        OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        kspL.setFromOptions()
+        self.kspL = kspL
 
     def setUp(self, pc):
+
         A, P = pc.getOperators()
-        self.kspNS.setOperators(P.getSubMatrix(self.NS_is, self.NS_is))
-        self.kspM.setOperators(P.getSubMatrix(self.M_is, self.M_is))
-        self.Bt = P.getSubMatrix(self.NS_is, self.M_is)
+        self.kspNS.setOperators(A.getSubMatrix(self.NS_is, self.NS_is))
+        self.kspMp.setOperators(self.Mp, self.Mp)
+        self.kspAp.setOperators(self.Ap, self.Ap)
+        self.kspL.setOperators(P.getSubMatrix(self.r_is, self.r_is))
+        self.Bt = P.getSubMatrix(self.u_is, self.p_is)
 
     def apply(self, pc, x, y):
-        
+
         p = x.getSubVector(self.p_is)
         r = x.getSubVector(self.r_is)
 
-        
+        rOut = r.duplicate()
+        self.kspL.solve(r, rOut)
 
+        p1 = p.duplicate()
+        self.kspAp.solve(p, p1)
+        p2 = p.duplicate()
+        self.Fp.mult(p1, p2)
+        p3 = p.duplicate()
+        self.kspMp.solve(p2, p3)
 
-        u = x.getSubVector(self.NS_is)
-        f = u.duplicate()
+        ub = x.getSubVector(self.NS_is)
+        u = x.getSubVector(self.u_is) + self.Bt*p3
+        b = x.getSubVector(self.b_is)
 
-        self.kspM.solve(b, g)
-        self.kspNS.solve(u-self.Bt*g, f)
+        ub.array = np.concatenate([u.array, b.array])
+        f = ub.duplicate()
+        self.kspNS.solve(ub, f)
 
-        y.array = (np.concatenate([f.array, g.array]))
+        y.array = (np.concatenate([f.array, -p3.array, rOut.array]))
+
 
 
 

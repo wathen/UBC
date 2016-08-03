@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# interpolate scalar gradient onto nedelec space
-
 import petsc4py
 import sys
 
@@ -37,7 +35,7 @@ import SaveMatrix
 import MHDprec
 # import matplotlib.pyplot as plt
 #@profile
-m = 7
+m = 5
 
 
 set_log_active(False)
@@ -83,7 +81,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 1
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -117,7 +115,7 @@ for xx in xrange(1,m):
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
     DimSave[xx-1,:] = np.array(dim)
 
-    kappa = 1e0
+    kappa = 1.0
     Mu_m = 10.0
     MU = 1.0
 
@@ -151,6 +149,7 @@ for xx in xrange(1,m):
         F_M = Mu_m*CurlCurl + gradLagr - kappa*Mcouple
     else:
         F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
+
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
@@ -210,7 +209,7 @@ for xx in xrange(1,m):
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-3     # tolerance
+    tol = 1.0E-5     # tolerance
     iter = 0            # iteration counter
     maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
@@ -320,15 +319,15 @@ for xx in xrange(1,m):
         ksp = PETSc.KSP()
         ksp.create(comm=PETSc.COMM_WORLD)
         pc = ksp.getPC()
-        ksp.setType('fgmres')
-        pc.setType('python')
+        ksp.setType('preonly')
+        pc.setType('lu')
         OptDB = PETSc.Options()
-        pc.setPythonContext(MHDprec.BlockSchur(W, Fp, Mp, Ap))
+        # pc.setPythonContext(MHDprec.BlockSchurComponetwise(W, Fp, MatrixLinearFluids[1], MatrixLinearFluids[0]))
 
         ksp.setFromOptions()
         scale = b.norm()
         b = b/scale
-        ksp.setOperators(A,P)
+        ksp.setOperators(A,A)
         ksp.solve(b,u)
         u = u*scale
 

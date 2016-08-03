@@ -193,26 +193,26 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     P, Pb = assemble_system(pp, L, bcu)
     P, Pb = CP.Assemble(P, Pb)
 
-    # ksp = PETSc.KSP()
-    # ksp.create(comm=PETSc.COMM_WORLD)
-    # pc = ksp.getPC()
-    # ksp.setType('preonly')
-    # pc.setType('lu')
-    # OptDB = PETSc.Options()
-    # # if __version__ != '1.6.0':
-    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    # ksp.setFromOptions()
-    # ksp.setOperators(A,A)
-
-    ksp = PETSc.KSP().create()
-    ksp.setTolerances(1e-8)
-    ksp.max_it = 200
+    ksp = PETSc.KSP()
+    ksp.create(comm=PETSc.COMM_WORLD)
     pc = ksp.getPC()
-    pc.setType(PETSc.PC.Type.PYTHON)
-    ksp.setType('minres')
-    pc.setPythonContext(StokesPrecond.Approx(W, 1))
-    ksp.setOperators(A,P)
+    ksp.setType('preonly')
+    pc.setType('lu')
+    OptDB = PETSc.Options()
+    # if __version__ != '1.6.0':
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    ksp.setFromOptions()
+    ksp.setOperators(A,A)
+
+    # ksp = PETSc.KSP().create()
+    # ksp.setTolerances(1e-8)
+    # ksp.max_it = 200
+    # pc = ksp.getPC()
+    # pc.setType(PETSc.PC.Type.PYTHON)
+    # ksp.setType('minres')
+    # pc.setPythonContext(StokesPrecond.Approx(W, 1))
+    # ksp.setOperators(A,P)
 
     scale = b.norm()
     b = b/scale

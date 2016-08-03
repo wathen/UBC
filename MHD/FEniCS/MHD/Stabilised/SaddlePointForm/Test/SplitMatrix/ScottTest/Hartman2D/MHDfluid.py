@@ -274,7 +274,7 @@ for xx in xrange(1,m):
         # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
         # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
         # u = scipy.sparse.linalg.spsolve(A,b)
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct1',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
