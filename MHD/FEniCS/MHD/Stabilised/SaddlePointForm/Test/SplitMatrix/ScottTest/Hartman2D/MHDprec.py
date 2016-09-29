@@ -180,6 +180,143 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
 
 
 
+
+class InnerOuterMAGNETICinverse1(BaseMyPC):
+
+    def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
+        self.W = W
+        self.kspF = kspF
+        self.kspA = kspA
+        self.kspQ = kspQ
+        self.Fp = Fp
+        self.kspScalar = kspScalar
+        self.kspCGScalar = kspCGScalar
+        self.kspVector = kspVector
+        # self.Bt = Bt
+        self.HiptmairIts = 0
+        self.CGits = 0
+
+
+
+        # print range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim())
+        # ss
+        self.P = P
+        self.G = G
+        self.AA = A
+        self.tol = Hiptmairtol
+        self.u_is = PETSc.IS().createGeneral(range(self.W[0].dim()))
+        self.p_is = PETSc.IS().createGeneral(range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim()))
+        self.b_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim(),
+            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()))
+        self.r_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim()+self.W[2].dim(),
+            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()+self.W[3].dim()))
+
+
+
+    def create(self, pc):
+        print "Create"
+
+
+
+    def setUp(self, pc):
+        A, P = pc.getOperators()
+        print A.size
+        if A.type == 'python':
+            self.Ct = A.getPythonContext().getMatrix("Ct")
+            self.Bt = A.getPythonContext().getMatrix("Bt")
+        else:
+            self.Ct = A.getSubMatrix(self.b_is,self.u_is)
+            self.Bt = A.getSubMatrix(self.p_is,self.u_is)
+            self.Dt = A.getSubMatrix(self.r_is,self.b_is)
+        # print self.Ct.view()
+        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
+        #print CFC.shape
+        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
+        #print CFC.size, self.AA.size
+        # MO.StoreMatrix(B,"A")
+        # print FC.todense()
+
+        OptDB = PETSc.Options()
+        OptDB["pc_factor_mat_ordering_type"] = "rcm"
+        OptDB["pc_factor_mat_solver_package"] = "umfpack"
+
+        self.kspA.setType('preonly')
+        self.kspA.getPC().setType('lu')
+        self.kspA.setFromOptions()
+        self.kspA.setPCSide(0)
+
+        self.kspQ.setType('preonly')
+        self.kspQ.getPC().setType('lu')
+        self.kspQ.setFromOptions()
+        self.kspQ.setPCSide(0)
+
+        self.kspScalar.setType('preonly')
+        self.kspScalar.getPC().setType('lu')
+        self.kspScalar.setFromOptions()
+        self.kspScalar.setPCSide(0)
+
+        kspMX = PETSc.KSP()
+        kspMX.create(comm=PETSc.COMM_WORLD)
+        pcMX = kspMX.getPC()
+        kspMX.setType('preonly')
+        pcMX.setType('lu')
+        OptDB = PETSc.Options()
+        kspMX.setOperators(self.AA,self.AA)
+        self.kspMX = kspMX
+        # self.kspCGScalar.setType('preonly')
+        # self.kspCGScalar.getPC().setType('lu')
+        # self.kspCGScalar.setFromOptions()
+        # self.kspCGScalar.setPCSide(0)
+
+        self.kspVector.setType('preonly')
+        self.kspVector.getPC().setType('lu')
+        self.kspVector.setFromOptions()
+        self.kspVector.setPCSide(0)
+
+
+
+        print "setup"
+    def apply(self, pc, x, y):
+
+        br = x.getSubVector(self.r_is)
+        xr = br.duplicate()
+        self.kspScalar.solve(br, xr)
+
+        # print self.D.size
+        x2 = x.getSubVector(self.p_is)
+        y2 = x2.duplicate()
+        y3 = x2.duplicate()
+        xp = x2.duplicate()
+        self.kspA.solve(x2,y2)
+        self.Fp.mult(y2,y3)
+        self.kspQ.solve(y3,xp)
+
+
+        # self.kspF.solve(bu1-bu4-bu2,xu)
+
+        bb = x.getSubVector(self.b_is)
+        xb = bb.duplicate()
+        xxr = bb.duplicate()
+        self.Dt.multTranspose(xr,xxr)
+        self.kspMX.solve(bb,xb)
+
+        bu1 = x.getSubVector(self.u_is)
+        bu2 = bu1.duplicate()
+        bu4 = bu1.duplicate()
+        self.Bt.multTranspose(xp,bu2)
+        self.Ct.multTranspose(xb,bu4)
+
+        XX = bu1.duplicate()
+        xu = XX.duplicate()
+        self.kspF.solve(bu1-bu4+bu2,xu)
+        #self.kspF.solve(bu1,xu)
+
+        y.array = (np.concatenate([xu.array, -xp.array,xb.array,xr.array]))
+    def ITS(self):
+        return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
+
+
+
 class InnerOuterMAGNETICapprox(BaseMyPC):
 
     def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):

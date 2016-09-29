@@ -16,7 +16,6 @@ import P as PrecondMulti
 import MHDprec
 import scipy.sparse as sp
 from scipy.linalg import svd
-import matplotlib.pylab as plt
 from scipy.sparse.linalg.dsolve import spsolve
 
 
@@ -80,7 +79,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             ksp.max_it = 100
             W = Fspace
             FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
-            pc.setPythonContext(MHDprec.InnerOuterMAGNETICinverse(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+            pc.setPythonContext(MHDprec.InnerOuterMAGNETICapprox(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
             #OptDB = PETSc.Options()
 
             # OptDB['pc_factor_mat_solver_package']  = "mumps"

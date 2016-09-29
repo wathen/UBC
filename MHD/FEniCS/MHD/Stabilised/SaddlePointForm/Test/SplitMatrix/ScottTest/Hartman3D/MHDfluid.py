@@ -86,7 +86,7 @@ split = 'Linear'
 MU[0]= 1e0
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx+0
+    level[xx-1] = xx+1
     nn = 2**(level[xx-1])
 
 
@@ -175,7 +175,7 @@ for xx in xrange(1,m):
     # u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-10,Neumann=None,options ="New")
 
 
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, F_S, pN2, params, boundaries, domains)
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_S, u0, pN2, params, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, boundaries,HiptmairMatrices, Hiptmairtol)
 
 
@@ -195,7 +195,7 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_S)*dx('everywhere') + 0*inner(pN*n,v)*ds(1)
+    Lns  = inner(v, F_S)*dx('everywhere') #+ 0*inner(pN*n,v)*ds(1)
     Lmaxwell  = inner(c, F_M)*dx('everywhere')
 
     m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx('everywhere')
@@ -218,8 +218,8 @@ for xx in xrange(1,m):
     p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
-    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh, boundaries, domains)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
     #plot(b_k)
 
     # ns,maxwell,CoupleTerm,Lmaxwell,Lns = forms.MHD2D(mesh, W,F_M,F_NS, u_k,b_k,params,IterType,"CG",Saddle,Stokes)
@@ -231,7 +231,6 @@ for xx in xrange(1,m):
     # bcs = [bcu,bcb,bcr]
     IS = MO.IndexSet(W, 'Blocks')
 
-    parameters['linear_algebra_backend'] = 'uBLAS'
 
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4     # tolerance
@@ -311,7 +310,7 @@ for xx in xrange(1,m):
 
         stime = time.time()
 
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directsss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits

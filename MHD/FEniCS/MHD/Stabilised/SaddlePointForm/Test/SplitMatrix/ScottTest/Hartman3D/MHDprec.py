@@ -7,7 +7,6 @@ from dolfin import tic, toc
 import HiptmairSetup
 import PETScIO as IO
 import scipy.sparse as sp
-import matplotlib.pylab as plt
 import MatrixOperations as MO
 import HiptmairSetup
 

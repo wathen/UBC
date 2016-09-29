@@ -14,7 +14,6 @@ from scipy.sparse import coo_matrix, csr_matrix, spdiags, bmat
 import os, inspect
 from HiptmairSetup import BoundaryEdge
 import matplotlib
-from matplotlib.pylab import plt
 import CheckPetsc4py as CP
 import MatrixOperations as MO
 import time

@@ -239,48 +239,47 @@ def Stokes(V, Q, F, u0, pN, params, boundaries, domains):
     a21 = -div(u)*q*dx('everywhere')
     a = a11+a12+a21
 
-    L = inner(v, F)*dx('everywhere') + inner(pN*n,v)*ds(1)
+    L = inner(v, F)*dx('everywhere') #+ inner(pN*n,v)*ds(1)
 
     pp = params[2]*inner(grad(v), grad(u))*dx('everywhere')+ (1./params[2])*p*q*dx('everywhere')
     def boundary(x, on_boundary):
         return on_boundary
 
-    bcu = DirichletBC(W.sub(0), u0, boundaries, 2)
-    bcr = DirichletBC(W.sub(1), Expression(("0.0")), boundary)
+    bcu = DirichletBC(W.sub(0), u0, boundary)
+    #bcr = DirichletBC(W.sub(1), Expression(("0.0")), boundary)
 
     A, b = assemble_system(a, L, bcu)
-    MO.StoreMatrix(A.sparray(),"A"+str(W.dim()))
     A, b = CP.Assemble(A, b)
     C = A.getSubMatrix(IS[1],IS[1])
     u = b.duplicate()
 
-    P, Pb = assemble_system(pp,L,[bcu])
+    P, Pb = assemble_system(pp,L,bcu)
     # MO.StoreMatrix(P.sparray(),"P"+str(W.dim()))
     P =CP.Assemble(P)
     M =  P.getSubMatrix(IS[1],IS[1])
     # print M
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
+#    ksp = PETSc.KSP()
+#    ksp.create(comm=PETSc.COMM_WORLD)
+#    pc = ksp.getPC()
+#    ksp.setType('preonly')
+#    pc.setType('lu')
+#    OptDB = PETSc.Options()
+#    if __version__ != '1.6.0':
+#        OptDB['pc_factor_mat_solver_package']  = "mumps"
+#    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+#    ksp.setFromOptions()
+#    ksp.setOperators(A,A)
+
+    ksp = PETSc.KSP().create()
     pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-    ksp.setOperators(A,A)
 
-    # ksp = PETSc.KSP().create()
-    # pc = ksp.getPC()
-
-    # ksp.setType(ksp.Type.MINRES)
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 500
-    # #ksp.max_it = 2
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # pc.setPythonContext(SP.Approx(W,M))
-    # ksp.setOperators(A,P)
+    ksp.setType(ksp.Type.MINRES)
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 500
+    #ksp.max_it = 2
+    pc.setType(PETSc.PC.Type.PYTHON)
+    pc.setPythonContext(SP.Approx(W,M))
+    ksp.setOperators(A,P)
 
     scale = b.norm()
     b = b/scale
@@ -327,24 +326,24 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries,HiptmairMatrices, Hiptmairtol):
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
+#    ksp = PETSc.KSP()
+#    ksp.create(comm=PETSc.COMM_WORLD)
+#    pc = ksp.getPC()
+#    ksp.setType('preonly')
+#    pc.setType('lu')
+#    OptDB = PETSc.Options()
+#    if __version__ != '1.6.0':
+#        OptDB['pc_factor_mat_solver_package']  = "mumps"
+#    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+#    ksp.setFromOptions()
 
-    # ksp = PETSc.KSP().create()
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 200
-    # pc = ksp.getPC()
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # ksp.setType('minres')
-    # pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
+    pc = ksp.getPC()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,A)

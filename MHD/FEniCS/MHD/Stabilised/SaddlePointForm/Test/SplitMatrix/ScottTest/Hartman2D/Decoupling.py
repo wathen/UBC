@@ -81,7 +81,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 1
+    level[xx-1] = xx + 2
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -152,6 +152,12 @@ for xx in xrange(1,m):
 
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+    # plot(u_k)
+    # plot(p_k)
+    # plot(b_k)
+    # plot(r_k)
+
+    # interactive()
 
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
@@ -179,7 +185,7 @@ for xx in xrange(1,m):
 
     prec = m11 + a11  + a12 + CoupleT + Couple + inner(grad(r), grad(s))*dx(0) + inner(b, c)*dx(0)
 
-    Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
+    Lns  = inner(v, F_NS)*dx(0) #- inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
     if kappa == 0.0:
         m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
@@ -236,8 +242,8 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
-        #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+        # bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
         bcb = DirichletBC(W.sub(1),Expression(("0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
         bcs = [bcu,bcb,bcr]
@@ -245,70 +251,70 @@ for xx in xrange(1,m):
         A, b = assemble_system(a, L, bcs)
         A, b = CP.Assemble(A,b)
         u = b.duplicate()
-        u.setRandom()
-        if Type == "Schur":
-            P, Pb = assemble_system(prec, L, bcs)
-            P, Pb = CP.Assemble(P,Pb)
-            F = A.getSubMatrix(u_is, u_is)
-            Bt = A.getSubMatrix(u_is, p_is)
-            Schur = np.zeros((Pressure.dim(),Pressure.dim()))
-            P = IO.matToSparse(P)
-            P.eliminate_zeros()
-#            F = IO.matToSparse(F)
-#            Bt = IO.matToSparse(Bt)
-#            Schur = Bt*scipy.sparse.linalg.inv(F)*Bt.T
-            for i in xrange(0,Pressure.dim()):
-                uOut, u = Bt.getVecs()
-                f = Bt.getColumnVector(i)
-                ksp = PETSc.KSP()
-                ksp.create(comm=PETSc.COMM_WORLD)
-                pc = ksp.getPC()
-                ksp.setType('preonly')
-                pc.setType('lu')
-                OptDB = PETSc.Options()
-                OptDB['pc_factor_mat_solver_package']  = "umfpack"
-                OptDB['pc_factor_mat_ordering_type']  = "rcm"
-                ksp.setFromOptions()
-                scale = f.norm()
-                f = f/scale
-                ksp.setOperators(F,F)
-                ksp.solve(f,u)
-                u = u*scale
-                Bt.multTranspose(u,uOut)
-                ksp.destroy()
-#                print uOut.array
-                # print Velocity.dim()+i,W.sub(1).dofmap().dofs()
-                P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
-        elif Type == "PCD":
-            P, Pb = assemble_system(prec, L, bcs)
-            P, Pb = CP.Assemble(P,Pb)
-            Schur = np.zeros((Pressure.dim(),Pressure.dim()))
-            P = IO.matToSparse(P)
-            P.eliminate_zeros()
-            for i in xrange(0,Pressure.dim()):
-                f = MatrixLinearFluids[1].getColumnVector(i)
-                u = f.duplicate()
-                uOut = f.duplicate()
-                MatrixLinearFluids[0]
-                ksp = PETSc.KSP()
-                ksp.create(comm=PETSc.COMM_WORLD)
-                pc = ksp.getPC()
-                ksp.setType('gmres')
-                pc.setType('hypre')
-                OptDB = PETSc.Options()
-                # OptDB['pc_factor_mat_solver_package']  = "umfpack"
-                # OptDB['pc_factor_mat_ordering_type']  = "rcm"
-                ksp.setFromOptions()
-                scale = f.norm()
-                f = f/scale
-                ksp.setOperators(Fp,Fp)
-                ksp.solve(f,u)
-                u = u*scale
-                MatrixLinearFluids[0].mult(u,uOut)
-                ksp.destroy()
-#                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
-                P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
-        P = PETSc.Mat().createAIJ(size=P.shape, csr=(P.indptr, P.indices, P.data))
+        P, Pb = assemble_system(prec, L, bcs)
+        P, Pb = CP.Assemble(P,Pb)
+#         if Type == "Schur":
+
+#             F = A.getSubMatrix(u_is, u_is)
+#             Bt = A.getSubMatrix(u_is, p_is)
+#             Schur = np.zeros((Pressure.dim(),Pressure.dim()))
+#             P = IO.matToSparse(P)
+#             P.eliminate_zeros()
+# #            F = IO.matToSparse(F)
+# #            Bt = IO.matToSparse(Bt)
+# #            Schur = Bt*scipy.sparse.linalg.inv(F)*Bt.T
+#             for i in xrange(0,Pressure.dim()):
+#                 uOut, u = Bt.getVecs()
+#                 f = Bt.getColumnVector(i)
+#                 ksp = PETSc.KSP()
+#                 ksp.create(comm=PETSc.COMM_WORLD)
+#                 pc = ksp.getPC()
+#                 ksp.setType('preonly')
+#                 pc.setType('lu')
+#                 OptDB = PETSc.Options()
+#                 OptDB['pc_factor_mat_solver_package']  = "umfpack"
+#                 OptDB['pc_factor_mat_ordering_type']  = "rcm"
+#                 ksp.setFromOptions()
+#                 scale = f.norm()
+#                 f = f/scale
+#                 ksp.setOperators(F,F)
+#                 ksp.solve(f,u)
+#                 u = u*scale
+#                 Bt.multTranspose(u,uOut)
+#                 ksp.destroy()
+# #                print uOut.array
+#                 # print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+#                 P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
+#         elif Type == "PCD":
+#             P, Pb = assemble_system(prec, L, bcs)
+#             P, Pb = CP.Assemble(P,Pb)
+#             Schur = np.zeros((Pressure.dim(),Pressure.dim()))
+#             P = IO.matToSparse(P)
+#             P.eliminate_zeros()
+#             for i in xrange(0,Pressure.dim()):
+#                 f = MatrixLinearFluids[1].getColumnVector(i)
+#                 u = f.duplicate()
+#                 uOut = f.duplicate()
+#                 MatrixLinearFluids[0]
+#                 ksp = PETSc.KSP()
+#                 ksp.create(comm=PETSc.COMM_WORLD)
+#                 pc = ksp.getPC()
+#                 ksp.setType('gmres')
+#                 pc.setType('hypre')
+#                 OptDB = PETSc.Options()
+#                 # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+#                 # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+#                 ksp.setFromOptions()
+#                 scale = f.norm()
+#                 f = f/scale
+#                 ksp.setOperators(Fp,Fp)
+#                 ksp.solve(f,u)
+#                 u = u*scale
+#                 MatrixLinearFluids[0].mult(u,uOut)
+#                 ksp.destroy()
+# #                print Velocity.dim()+i,W.sub(1).dofmap().dofs()
+#                 P[Velocity.dim()+Magnetic.dim()+i,W.sub(2).dofmap().dofs()]  = -uOut.array
+        # P = PETSc.Mat().createAIJ(size=P.shape, csr=(P.indptr, P.indices, P.data))
 # print P[W.sub(1).dofmap().dofs(), W.sub(1).dofmap().dofs()].shape # print Schur.shape
         # Schur = IO.arrayToMat(Schur)
         # MO.StoreMatrix(IO.matToSparse(A),"A")
@@ -319,15 +325,18 @@ for xx in xrange(1,m):
         ksp = PETSc.KSP()
         ksp.create(comm=PETSc.COMM_WORLD)
         pc = ksp.getPC()
-        ksp.setType('preonly')
-        pc.setType('lu')
-        OptDB = PETSc.Options()
-        # pc.setPythonContext(MHDprec.BlockSchurComponetwise(W, Fp, MatrixLinearFluids[1], MatrixLinearFluids[0]))
+        ksp.setType('gmres')
+        pc.setType('python')
+        # OptDB = PETSc.Options()
+        # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+        # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+
+        pc.setPythonContext(MHDprec.BlockSchurComponetwise(W, Fp, MatrixLinearFluids[1], MatrixLinearFluids[0]))
 
         ksp.setFromOptions()
         scale = b.norm()
         b = b/scale
-        ksp.setOperators(A,A)
+        ksp.setOperators(A,P)
         ksp.solve(b,u)
         u = u*scale
 
@@ -358,8 +367,13 @@ for xx in xrange(1,m):
         # SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
 
 
+        FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
 
-
+        u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+        b_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
+        p_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+        r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
+        u = IO.arrayToVec(np.concatenate((u.getSubVector(u_is).array, u.getSubVector(p_is).array, u.getSubVector(b_is).array, u.getSubVector(r_is).array)))
 
         stime = time.time()
         Soltime = time.time() - stime
