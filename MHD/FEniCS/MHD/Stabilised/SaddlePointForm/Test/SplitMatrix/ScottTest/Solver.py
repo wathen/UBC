@@ -16,7 +16,7 @@ import P as PrecondMulti
 import MHDprec
 import scipy.sparse as sp
 from scipy.linalg import svd
-import matplotlib.pylab as plt
+# import matplotlib.pylab as pltgia
 from scipy.sparse.linalg.dsolve import spsolve
 
 

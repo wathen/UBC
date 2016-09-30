@@ -1,4 +1,4 @@
-import petsc4
+import petsc4py
 import sys
 petsc4py.init(sys.argv)
 from petsc4py import PETSc
@@ -7,7 +7,6 @@ from dolfin import tic, toc
 import HiptmairSetup
 import PETScIO as IO
 import scipy.sparse as sp
-import matplotlib.pylab as plt
 import MatrixOperations as MO
 import HiptmairSetup
 
