@@ -20,7 +20,7 @@ def Domain(n):
     mesh = BoxMesh(Point(-1., -1., -1.), Point(1., 1., 1.), n, n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], -1.0)
+            return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
@@ -28,7 +28,7 @@ def Domain(n):
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], -1.0)
+            return near(x[1], 0.0)
 
     class Top(SubDomain):
         def inside(self, x, on_boundary):
@@ -36,7 +36,7 @@ def Domain(n):
 
     class Side1(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[2], -1.0)
+            return near(x[2], 0.0)
 
     class Side2(SubDomain):
         def inside(self, x, on_boundary):

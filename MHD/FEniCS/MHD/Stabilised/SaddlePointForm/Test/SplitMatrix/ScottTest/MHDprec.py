@@ -882,6 +882,22 @@ class ApproxInvApprox(BaseMyPC):
 #         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
 
+def FluidSchur(A, b):
+    if len(A) == 1:
+        print "exact Schur complement"
+        x = b.duplicate()
+        A[0].solve(b, x)
+        return x
+    else:
+        print "PCD Schur complement"
+        x1 = b.duplicate()
+        x2 = b.duplicate()
+        x3 = b.duplicate()
+        A[0].solve(b,x1)
+        A[1].mult(x1,x2)
+        A[2].solve(x2,x3)
+        return x3
+
 
 class ApproxInv(BaseMyPC):
 
@@ -927,9 +943,9 @@ class ApproxInv(BaseMyPC):
             self.Ct = A.getPythonContext().getMatrix("Ct")
             self.Bt = A.getPythonContext().getMatrix("Bt")
         else:
-            self.Ct = A.getSubMatrix(self.b_is,self.u_is)
-            self.Bt = A.getSubMatrix(self.p_is,self.u_is)
-            self.Dt = A.getSubMatrix(self.r_is,self.b_is)
+            self.C = A.getSubMatrix(self.u_is,self.b_is)
+            self.B = A.getSubMatrix(self.u_is,self.p_is)
+            self.D = A.getSubMatrix(self.b_is,self.r_is)
         # print self.Ct.view()
         #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
         #print CFC.shape
@@ -980,40 +996,65 @@ class ApproxInv(BaseMyPC):
         print "setup"
     def apply(self, pc, x, y):
 
-        br = x.getSubVector(self.r_is)
-        xr = br.duplicate()
-        self.kspScalar.solve(br, xr)
+        bu = x.getSubVector(self.u_is)
+        xu = bu.duplicate()
 
-        # print self.D.size
-        x2 = x.getSubVector(self.p_is)
-        y2 = x2.duplicate()
-        y3 = x2.duplicate()
-        xp = x2.duplicate()
-        self.kspA.solve(x2,y2)
-        self.Fp.mult(y2,y3)
-        self.kspQ.solve(y3,xp)
-
-
-        # self.kspF.solve(bu1-bu4-bu2,xu)
+        bp = x.getSubVector(self.p_is)
+        xp = bp.duplicate()
 
         bb = x.getSubVector(self.b_is)
         xb = bb.duplicate()
-        xxr = bb.duplicate()
-        self.Dt.multTranspose(xr,xxr)
-        self.kspMX.solve(bb-xxr,xb)
 
-        bu1 = x.getSubVector(self.u_is)
-        bu2 = bu1.duplicate()
-        bu4 = bu1.duplicate()
-        self.Bt.multTranspose(xp,bu2)
-        self.Ct.multTranspose(xb,bu4)
+        br = x.getSubVector(self.r_is)
+        xr = br.duplicate()
 
-        XX = bu1.duplicate()
-        xu = XX.duplicate()
-        self.kspF.solve(bu1-bu4+bu2,xu)
-        #self.kspF.solve(bu1,xu)
+        self.kspF.solve(bu,xu)
+        xp = FluidSchur([kspA, Fp, KspQ], bp)
+        self.kspMX.solve(bb,xb)
+        self.kspScalar.solve(br,xr)
 
-        y.array = (np.concatenate([xu.array, -xp.array,xb.array,xr.array]))
+        xp1 = xp.duplicate()
+        self.B.mult(xu, xp1)
+        barF = FluidSchur([kspA, Fp, KspQ], xp1)
+
+        xu1 = xu.duplicate()
+        barS = xu.duplicate()
+        self.B.multTranspose(xp, xu1)
+        self.kspF.solve(xu1, barS)
+
+        xr1 = xr.duplicate()
+        outR = xr.duplicate()
+        self.D.mult(xb, xr1)
+        self.kspScalar(xr1, outR)
+
+        xb1 = xb.duplicate()
+        xb2 = xb.duplicate()
+        xb3 = xb.duplicate()
+        xb4 = xb.duplicate()
+
+        self.D.multTranspose(xr, xb1)
+        self.kspMX.solve(xb1, xb2)
+        self.X.mult(xp, xb3)
+        self.kspMX.solve(xb3, xb4)
+        outB = xb4 + xb + xb2
+
+        xp1 = xu.duplicate()
+        xp2 = xu.duplicate()
+        xp3 = xp.duplicate()
+        self.C.multTranspose(xb, xp1)
+        self.kspF.solve(xp1, xp2)
+        self.B.mult(xp2, xp3)
+        xp4 = FluidSchur([kspA, Fp, KspQ], xp3)
+        outP = barF - xp - xp4;
+
+        xu1 = xu.duplicate()
+        xu2 = xu.duplicate()
+        self.B.multTranspose(barF, xu1)
+        self.kspF.solve(xu1, xu2)
+        outU = xu - xu2 + barS;
+
+
+        y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
