@@ -752,7 +752,7 @@ class ApproxInv(BaseMyPC):
         invL = br.duplicate()
 
         self.kspF.solve(bu,invF)
-        invS = FluidSchur([kspA, Fp, KspQ], bp)
+        invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
         self.kspMX.solve(bb,invMX)
         self.kspScalar.solve(br,invL)
 
@@ -761,7 +761,7 @@ class ApproxInv(BaseMyPC):
 
         xp1 = xp.duplicate()
         self.B.mult(invF, xp1)
-        barF = FluidSchur([kspA, Fp, KspQ], xp1)
+        barF = FluidSchur([self.kspA, self.Fp, self.kspQ], xp1)
 
         xu1 = xu.duplicate()
         barS = xu.duplicate()
@@ -793,7 +793,7 @@ class ApproxInv(BaseMyPC):
         self.C.multTranspose(invMX, xp1)
         self.kspF.solve(xp1, xp2)
         self.B.mult(xp2, xp3)
-        xp4 = FluidSchur([kspA, Fp, KspQ], xp3)
+        xp4 = FluidSchur([self.kspA, self.Fp, self.kspQ], xp3)
         outP = barF - invS - xp4;
 
         # outU = invF - F(B'*barF) + barS;
