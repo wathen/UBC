@@ -647,7 +647,7 @@ def FluidSchur(A, b):
 
 class ApproxInv(BaseMyPC):
 
-    def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol,Options):
+    def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
         self.W = W
         self.kspF = kspF
         self.kspA = kspA
