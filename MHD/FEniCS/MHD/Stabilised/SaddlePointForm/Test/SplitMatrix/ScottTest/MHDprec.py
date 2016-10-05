@@ -996,44 +996,47 @@ class ApproxInv(BaseMyPC):
     def apply(self, pc, x, y):
 
         bu = x.getSubVector(self.u_is)
-        xu = bu.duplicate()
-
-        bp = x.getSubVector(self.p_is)
-        xp = bp.duplicate()
+        invF = bu.duplicate()
 
         bb = x.getSubVector(self.b_is)
-        xb = bb.duplicate()
+        invMX = bb.duplicate()
 
         br = x.getSubVector(self.r_is)
-        xr = br.duplicate()
+        invL = br.duplicate()
 
-        self.kspF.solve(bu,xu)
-        xp = FluidSchur([kspA, Fp, KspQ], bp)
-        self.kspMX.solve(bb,xb)
-        self.kspScalar.solve(br,xr)
+        self.kspF.solve(bu,invF)
+        invS = FluidSchur([kspA, Fp, KspQ], bp)
+        self.kspMX.solve(bb,invMX)
+        self.kspScalar.solve(br,invL)
+
+
+        # outP = barF - invS - Schur(B*F(C'*invMx));
+        # outU = invF - F(B'*barF) + barS;
 
         xp1 = xp.duplicate()
-        self.B.mult(xu, xp1)
+        self.B.mult(invF, xp1)
         barF = FluidSchur([kspA, Fp, KspQ], xp1)
 
         xu1 = xu.duplicate()
         barS = xu.duplicate()
-        self.B.multTranspose(xp, xu1)
+        self.B.multTranspose(invS, xu1)
         self.kspF.solve(xu1, barS)
 
+        # outR = (L(D*invMx));
         xr1 = xr.duplicate()
         outR = xr.duplicate()
-        self.D.mult(xb, xr1)
+        self.D.mult(invMX, xr1)
         self.kspScalar(xr1, outR)
 
-        xb1 = xb.duplicate()
-        xb2 = xb.duplicate()
-        xb3 = xb.duplicate()
-        xb4 = xb.duplicate()
+        # outB = (Mx(C*barS) + invMx + Mx(D'*invL));
+        xb1 = invMX.duplicate()
+        xb2 = invMX.duplicate()
+        xb3 = invMX.duplicate()
+        xb4 = invMX.duplicate()
 
-        self.D.multTranspose(xr, xb1)
+        self.D.multTranspose(invL, xb1)
         self.kspMX.solve(xb1, xb2)
-        self.X.mult(xp, xb3)
+        self.C.mult(xp, xb3)
         self.kspMX.solve(xb3, xb4)
         outB = xb4 + xb + xb2
 

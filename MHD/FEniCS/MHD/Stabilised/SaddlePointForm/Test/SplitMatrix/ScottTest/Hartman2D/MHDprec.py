@@ -647,167 +647,6 @@ def FluidSchur(A, b):
 
 class ApproxInv(BaseMyPC):
 
-    def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
-        self.W = W
-        self.kspF = kspF
-        self.kspA = kspA
-        self.kspQ = kspQ
-        self.Fp = Fp
-        self.kspScalar = kspScalar
-        self.kspCGScalar = kspCGScalar
-        self.kspVector = kspVector
-        # self.Bt = Bt
-        self.HiptmairIts = 0
-        self.CGits = 0
-
-
-
-        # print range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim())
-        # ss
-        self.P = P
-        self.G = G
-        self.AA = A
-        self.tol = Hiptmairtol
-        self.u_is = PETSc.IS().createGeneral(range(self.W[0].dim()))
-        self.p_is = PETSc.IS().createGeneral(range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim()))
-        self.b_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim(),
-            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()))
-        self.r_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim()+self.W[2].dim(),
-            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()+self.W[3].dim()))
-
-
-
-    def create(self, pc):
-        print "Create"
-
-
-
-    def setUp(self, pc):
-        A, P = pc.getOperators()
-        print A.size
-        if A.type == 'python':
-            self.Ct = A.getPythonContext().getMatrix("Ct")
-            self.Bt = A.getPythonContext().getMatrix("Bt")
-        else:
-            self.C = A.getSubMatrix(self.b_is,self.u_is)
-            self.B = A.getSubMatrix(self.p_is,self.u_is)
-            self.D = A.getSubMatrix(self.r_is,self.b_is)
-        # print self.Ct.view()
-        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
-        #print CFC.shape
-        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
-        #print CFC.size, self.AA.size
-        # MO.StoreMatrix(B,"A")
-        # print FC.todense()
-
-        OptDB = PETSc.Options()
-        #OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        #OptDB["pc_factor_mat_solver_package"] = "mumps"
-
-        self.kspA.setType('preonly')
-        self.kspA.getPC().setType('lu')
-        self.kspA.setFromOptions()
-        self.kspA.setPCSide(0)
-
-        self.kspQ.setType('preonly')
-        self.kspQ.getPC().setType('lu')
-        self.kspQ.setFromOptions()
-        self.kspQ.setPCSide(0)
-
-        self.kspScalar.setType('preonly')
-        self.kspScalar.getPC().setType('lu')
-        self.kspScalar.setFromOptions()
-        self.kspScalar.setPCSide(0)
-
-        kspMX = PETSc.KSP()
-        kspMX.create(comm=PETSc.COMM_WORLD)
-        pcMX = kspMX.getPC()
-        kspMX.setType('preonly')
-        pcMX.setType('lu')
-        OptDB = PETSc.Options()
-        kspMX.setOperators(self.AA,self.AA)
-        self.kspMX = kspMX
-        # self.kspCGScalar.setType('preonly')
-        # self.kspCGScalar.getPC().setType('lu')
-        # self.kspCGScalar.setFromOptions()
-        # self.kspCGScalar.setPCSide(0)
-
-        self.kspVector.setType('preonly')
-        self.kspVector.getPC().setType('lu')
-        self.kspVector.setFromOptions()
-        self.kspVector.setPCSide(0)
-
-
-
-        print "setup"
-    def apply(self, pc, x, y):
-
-        bu = x.getSubVector(self.u_is)
-        xu = bu.duplicate()
-
-        bp = x.getSubVector(self.p_is)
-        xp = bp.duplicate()
-
-        bb = x.getSubVector(self.b_is)
-        xb = bb.duplicate()
-
-        br = x.getSubVector(self.r_is)
-        xr = br.duplicate()
-
-        self.kspF.solve(bu,xu)
-        xp = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
-        self.kspMX.solve(bb,xb)
-        self.kspScalar.solve(br,xr)
-
-        xp1 = xp.duplicate()
-        self.B.mult(xu, xp1)
-        barF = FluidSchur([self.kspA, self.Fp, self.kspQ], xp1)
-
-        xu1 = xu.duplicate()
-        barS = xu.duplicate()
-        self.B.multTranspose(xp, xu1)
-        self.kspF.solve(xu1, barS)
-
-        xr1 = xr.duplicate()
-        outR = xr.duplicate()
-        self.D.mult(xb, xr1)
-        self.kspScalar(xr1, outR)
-
-        xb1 = xb.duplicate()
-        xb2 = xb.duplicate()
-        xb3 = xb.duplicate()
-        xb4 = xb.duplicate()
-
-        self.D.multTranspose(xr, xb1)
-        self.kspMX.solve(xb1, xb2)
-        self.C.mult(barS, xb3)
-        self.kspMX.solve(xb3, xb4)
-        outB = xb4 + xb + xb2
-
-        xp1 = xu.duplicate()
-        xp2 = xu.duplicate()
-        xp3 = xp.duplicate()
-        self.C.multTranspose(xb, xp1)
-        self.kspF.solve(xp1, xp2)
-        self.B.mult(xp2, xp3)
-        xp4 = FluidSchur([self.kspA, self.Fp, self.kspQ], xp3)
-        outP = barF - xp - xp4;
-
-        xu1 = xu.duplicate()
-        xu2 = xu.duplicate()
-        self.B.multTranspose(barF, xu1)
-        self.kspF.solve(xu1, xu2)
-        outU = xu - xu2 + barS;
-
-
-        y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
-    def ITS(self):
-        return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
-
-
-
-class ApproxInv(BaseMyPC):
-
     def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol,Options):
         self.W = W
         self.kspF = kspF
@@ -904,61 +743,65 @@ class ApproxInv(BaseMyPC):
     def apply(self, pc, x, y):
 
         bu = x.getSubVector(self.u_is)
-        xu = bu.duplicate()
-
-        bp = x.getSubVector(self.p_is)
-        xp = bp.duplicate()
+        invF = bu.duplicate()
 
         bb = x.getSubVector(self.b_is)
-        xb = bb.duplicate()
+        invMX = bb.duplicate()
 
         br = x.getSubVector(self.r_is)
-        xr = br.duplicate()
+        invL = br.duplicate()
 
-        self.kspF.solve(bu,xu)
-        xp = FluidSchur([kspA, Fp, KspQ], bp)
-        self.kspMX.solve(bb,xb)
-        self.kspScalar.solve(br,xr)
+        self.kspF.solve(bu,invF)
+        invS = FluidSchur([kspA, Fp, KspQ], bp)
+        self.kspMX.solve(bb,invMX)
+        self.kspScalar.solve(br,invL)
+
+
+        # outU = invF - F(B'*barF) + barS;
 
         xp1 = xp.duplicate()
-        self.B.mult(xu, xp1)
+        self.B.mult(invF, xp1)
         barF = FluidSchur([kspA, Fp, KspQ], xp1)
 
         xu1 = xu.duplicate()
         barS = xu.duplicate()
-        self.B.multTranspose(xp, xu1)
+        self.B.multTranspose(invS, xu1)
         self.kspF.solve(xu1, barS)
 
+        # outR = (L(D*invMx));
         xr1 = xr.duplicate()
         outR = xr.duplicate()
-        self.D.mult(xb, xr1)
+        self.D.mult(invMX, xr1)
         self.kspScalar(xr1, outR)
 
-        xb1 = xb.duplicate()
-        xb2 = xb.duplicate()
-        xb3 = xb.duplicate()
-        xb4 = xb.duplicate()
+        # outB = (Mx(C*barS) + invMx + Mx(D'*invL));
+        xb1 = invMX.duplicate()
+        xb2 = invMX.duplicate()
+        xb3 = invMX.duplicate()
+        xb4 = invMX.duplicate()
 
-        self.D.multTranspose(xr, xb1)
+        self.D.multTranspose(invL, xb1)
         self.kspMX.solve(xb1, xb2)
-        self.X.mult(xp, xb3)
+        self.C.mult(barS, xb3)
         self.kspMX.solve(xb3, xb4)
-        outB = xb4 + xb + xb2
+        outB = xb4 + invMx + xb2
 
+        # outP = barF - invS - Schur(B*F(C'*invMx));
         xp1 = xu.duplicate()
         xp2 = xu.duplicate()
         xp3 = xp.duplicate()
-        self.C.multTranspose(xb, xp1)
+        self.C.multTranspose(invMX, xp1)
         self.kspF.solve(xp1, xp2)
         self.B.mult(xp2, xp3)
         xp4 = FluidSchur([kspA, Fp, KspQ], xp3)
-        outP = barF - xp - xp4;
+        outP = barF - invS - xp4;
 
+        # outU = invF - F(B'*barF) + barS;
         xu1 = xu.duplicate()
         xu2 = xu.duplicate()
         self.B.multTranspose(barF, xu1)
         self.kspF.solve(xu1, xu2)
-        outU = xu - xu2 + barS;
+        outU = invF - xu2 + barS;
 
 
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
