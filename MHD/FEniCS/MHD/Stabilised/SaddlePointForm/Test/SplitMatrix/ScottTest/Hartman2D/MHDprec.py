@@ -701,8 +701,8 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
 
         OptDB = PETSc.Options()
-        OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "mumps"
+#        OptDB["pc_factor_mat_ordering_type"] = "rcm"
+#        OptDB["pc_factor_mat_solver_package"] = "mumps"
 
         self.kspA.setType('preonly')
         self.kspA.getPC().setType('lu')
@@ -744,6 +744,8 @@ class ApproxInv(BaseMyPC):
 
         bu = x.getSubVector(self.u_is)
         invF = bu.duplicate()
+
+        bp = x.getSubVector(self.p_is)
 
         bb = x.getSubVector(self.b_is)
         invMX = bb.duplicate()
