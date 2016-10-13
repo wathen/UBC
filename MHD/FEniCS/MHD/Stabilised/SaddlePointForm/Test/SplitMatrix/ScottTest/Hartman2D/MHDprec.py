@@ -803,7 +803,7 @@ class ApproxInv(BaseMyPC):
         self.B.multTranspose(barF, xu1)
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
-        print 11
+
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
