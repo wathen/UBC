@@ -623,9 +623,9 @@ class P(Matrix):
         # print x.array
 
 
-    def multTranspose(self, A, x, y):
-        "y <- A' * x"
-        self.mult(x, y)
+    # def multTranspose(self, A, x, y):
+        # "y <- A' * x"
+        # self.mult(x, y)
 
     # def getSubMatrix(self, isrow, iscol, submat=None):
     #     submat = self.P.get
@@ -801,11 +801,10 @@ class ApproxInv(BaseMyPC):
         xu1 = invF.duplicate()
         xu2 = invF.duplicate()
         self.B.multTranspose(barF, xu1)
-        print xu1.array
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
 
-        y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
+        y.array = (np.concatenate([invF.array - xu2.array + barS.array, barF.array - invS.array - xp4.array, xb4.array + invMX.array + xb2.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
