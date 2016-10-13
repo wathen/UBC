@@ -174,7 +174,7 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx(0) - inner(pN*n,v)*ds(2)
+    Lns  = inner(v, F_NS)*dx(0) #- inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx(0)
     if kappa == 0.0:
         m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
@@ -228,7 +228,7 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundaries, 1)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
         #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
         bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
