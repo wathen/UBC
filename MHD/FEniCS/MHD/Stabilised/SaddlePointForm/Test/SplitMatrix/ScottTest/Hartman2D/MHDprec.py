@@ -639,9 +639,9 @@ def FluidSchur(A, b):
         x1 = b.duplicate()
         x2 = b.duplicate()
         x3 = b.duplicate()
-        A[0].solve(b,x1)
+        A[2].solve(b,x1)
         A[1].mult(x1,x2)
-        A[2].solve(x2,x3)
+        A[0].solve(x2,x3)
         return x3
 
 
@@ -689,9 +689,9 @@ class ApproxInv(BaseMyPC):
             self.Ct = A.getPythonContext().getMatrix("Ct")
             self.Bt = A.getPythonContext().getMatrix("Bt")
         else:
-            self.C = A.getSubMatrix(self.u_is,self.b_is)
-            self.B = A.getSubMatrix(self.u_is,self.p_is)
-            self.D = A.getSubMatrix(self.b_is,self.r_is)
+            self.C = A.getSubMatrix(self.b_is,self.u_is)
+            self.B = A.getSubMatrix(self.p_is,self.u_is)
+            self.D = A.getSubMatrix(self.r_is,self.b_is)
         # print self.Ct.view()
         #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
         #print CFC.shape
@@ -701,8 +701,8 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
 
         OptDB = PETSc.Options()
-#        OptDB["pc_factor_mat_ordering_type"] = "rcm"
-#        OptDB["pc_factor_mat_solver_package"] = "mumps"
+        OptDB["pc_factor_mat_ordering_type"] = "rcm"
+        OptDB["pc_factor_mat_solver_package"] = "umfpack"
 
         self.kspA.setType('preonly')
         self.kspA.getPC().setType('lu')
@@ -781,12 +781,11 @@ class ApproxInv(BaseMyPC):
         xb2 = invMX.duplicate()
         xb3 = invMX.duplicate()
         xb4 = invMX.duplicate()
-
         self.D.multTranspose(invL, xb1)
         self.kspMX.solve(xb1, xb2)
         self.C.mult(barS, xb3)
         self.kspMX.solve(xb3, xb4)
-        outB = xb4 + invMx + xb2
+        outB = xb4 + invMX + xb2
 
         # outP = barF - invS - Schur(B*F(C'*invMx));
         xp1 = invF.duplicate()
@@ -804,7 +803,6 @@ class ApproxInv(BaseMyPC):
         self.B.multTranspose(barF, xu1)
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
-
 
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
