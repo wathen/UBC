@@ -117,7 +117,7 @@ for xx in xrange(1,m):
     DimSave[xx-1,:] = np.array(dim)
 
     kappa = 1e0
-    Mu_m = 1000.0
+    Mu_m = 10.0
     MU = 1.0
 
     N = FacetNormal(mesh)
@@ -220,7 +220,7 @@ for xx in xrange(1,m):
     InnerTol = 1e-5
     NSits = 0
     Mits = 0
-    TotalStart =time.time()
+    TotalStart = time.time()
     SolutionTime = 0
 
 
