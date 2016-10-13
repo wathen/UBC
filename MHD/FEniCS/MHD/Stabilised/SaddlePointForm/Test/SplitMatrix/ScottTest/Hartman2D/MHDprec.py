@@ -1,5 +1,5 @@
 import petsc4py
-import sys
+import umfpacks
 petsc4py.init(sys.argv)
 from petsc4py import PETSc
 import numpy as np
@@ -701,8 +701,16 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
 
         OptDB = PETSc.Options()
+<<<<<<< HEAD
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "umfpack"
+||||||| merged common ancestors
+#        OptDB["pc_factor_mat_ordering_type"] = "rcm"
+#        OptDB["pc_factor_mat_solver_package"] = "mumps"
+=======
+       OptDB["pc_factor_mat_ordering_type"] = "rcm"
+       OptDB["pc_factor_mat_solver_package"] = "umfpack"
+>>>>>>> 187c6e09a297680ebe34f48712adb2fefbd9c575
 
         self.kspA.setType('preonly')
         self.kspA.getPC().setType('lu')

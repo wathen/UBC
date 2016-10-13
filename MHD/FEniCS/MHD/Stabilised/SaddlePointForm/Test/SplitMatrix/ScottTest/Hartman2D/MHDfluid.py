@@ -263,7 +263,7 @@ for xx in xrange(1,m):
         Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
         Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
 
-        SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
+        # SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
 
         stime = time.time()
         # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
