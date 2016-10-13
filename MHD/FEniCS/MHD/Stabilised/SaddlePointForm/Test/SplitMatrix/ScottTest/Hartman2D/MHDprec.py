@@ -804,7 +804,7 @@ class ApproxInv(BaseMyPC):
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
 
-        y.array = (np.concatenate([invF.array - xu2.array + barS.array, barF.array - invS.array - xp4.array, xb4.array + invMX.array + xb2.array, outR.array]))
+        y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
