@@ -94,7 +94,7 @@ def ExactSolution(mesh, params):
     v = sy.diff(x, y)
     r = sy.diff(x, y)
 
-    # uu = y*x*sy.exp(x+y)
+    uu = y*x*sy.exp(x+y)
     u = sy.diff(uu, y)
     v = -sy.diff(uu, x)
     p = sy.sin(x)*sy.exp(y)
