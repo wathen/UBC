@@ -253,7 +253,7 @@ for xx in xrange(1,m):
         # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
         # ShiftedMass = assemble(aa)
         # bcu.apply(ShiftedMass)
-        ShiftedMass = CP.Assemble(ShiftedMass)
+        # ShiftedMass = CP.Assemble(ShiftedMass)
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
