@@ -246,21 +246,21 @@ for xx in xrange(1,m):
         # b = b[j]
         # print j
         kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
-        b_t = TrialFunction(Velocity)
-        c_t = TestFunction(Velocity)
-        n = FacetNormal(mesh)
-        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(aa)
+        # b_t = TrialFunction(Velocity)
+        # c_t = TestFunction(Velocity)
+        # n = FacetNormal(mesh)
+        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        # ShiftedMass = assemble(aa)
         bcu.apply(ShiftedMass)
         ShiftedMass = CP.Assemble(ShiftedMass)
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
-        PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
+        # PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
 
-        Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
-        Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
+        # Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
+        # Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
 
         # SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
 
