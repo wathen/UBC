@@ -254,8 +254,7 @@ for xx in xrange(1,m):
         ShiftedMass = assemble(aa)
         bcu.apply(ShiftedMass)
         ShiftedMass = CP.Assemble(ShiftedMass)
-        #ShiftedMass = A.getSubMatrix(u_is, u_is)
-        # F = A.getSubMatrix
+        ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
