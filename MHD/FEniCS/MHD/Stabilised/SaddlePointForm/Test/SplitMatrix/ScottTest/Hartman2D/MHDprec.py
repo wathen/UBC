@@ -630,6 +630,18 @@ class P(Matrix):
     # def getSubMatrix(self, isrow, iscol, submat=None):
     #     submat = self.P.get
 
+def SchurComplement(kspF, B):
+    n = min(B.size())
+    A = np.zeros((n,n))
+    for i in range(n):
+        u = B.getColumn(i).duplicate
+        kspF.solve(B.getColumn(i), u)
+        A[:,i] = u.array
+
+    return A
+
+
+
 def FluidSchur(A, b):
     if len(A) == 1:
         print "exact Schur complement"
@@ -705,7 +717,7 @@ class ApproxInv(BaseMyPC):
         #print CFC.size, self.AA.size
         # MO.StoreMatrix(B,"A")
         # print FC.todense()
-
+        Schur = SchurComplement(self.kspF, self.B)
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "umfpack"
