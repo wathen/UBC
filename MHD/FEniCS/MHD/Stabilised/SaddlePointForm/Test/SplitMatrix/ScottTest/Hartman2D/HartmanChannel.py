@@ -152,9 +152,9 @@ def ExactSolution(mesh, params):
     gradLagr = Expression((myCCode(R1), myCCode(R2)))
     Mcouple = Expression((myCCode(M1), myCCode(M2)))
 
-    pN = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
+    # pN = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
 
-    return u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple
+    return u0, p0, b0, r0, 1, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple
 
 
 

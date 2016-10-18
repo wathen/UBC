@@ -10,38 +10,29 @@ import NSprecondSetup
 import CheckPetsc4py as CP
 
 
-def FluidLinearSetup(Pressure,mu,mesh, boundaries, domains):
+def FluidLinearSetup(Pressure,mu,mesh):
     MO.PrintStr("Preconditioning Fluid linear setup",3,"=","\n\n")
     # parameters['linear_algebra_backend'] = 'uBLAS'
     q = TrialFunction(Pressure)
     p = TestFunction(Pressure)
-    dx = Measure('dx', domain=mesh, subdomain_data=domains)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
-    N = FacetNormal(Pressure.mesh())
-    h = CellSize(Pressure.mesh())
-    h_avg =avg(h)
-
-    alpha = 10.0
-    gamma =10.0
     tic()
-    if Pressure.__str__().find("CG") == -1:
-        L = assemble(mu*(jump(q)*jump(p)*dx(Pressure.mesh())))
-    else:
-        L = assemble(mu*(inner(grad(q), grad(p))*dx(Pressure.mesh())))# +  inner(grad(q),N)*p*ds(2))
+    L = assemble((inner(grad(q), grad(p))*dx(Pressure.mesh())))
     L = CP.Assemble(L)
     print ("{:40}").format("CG scalar Laplacian assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+
     tic()
     Q = assemble((1./mu)*inner(p,q)*dx)
     Q = CP.Assemble(Q)
     print ("{:40}").format("DG scalar mass matrix assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+
     tic()
     kspA, ksp = NSprecondSetup.PCDKSPlinear(Q, L)
     print ("{:40}").format("Linear fluid precond setup, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 
     return [kspA,ksp], [L,Q]
 
-def FluidNonLinearSetup(Pressure,mu, u_k, mesh, boundaries, domains):
+def FluidNonLinearSetup(Pressure,mu, u_k, mesh):
     MO.PrintStr("Preconditioning Fluid linear setup",3,"=")
     # parameters['linear_algebra_backend'] = 'uBLAS'
     p = TrialFunction(Pressure)
@@ -53,9 +44,6 @@ def FluidNonLinearSetup(Pressure,mu, u_k, mesh, boundaries, domains):
 
     alpha = 10.0
     gamma =10.0
-    dx = Measure('dx', domain=mesh, subdomain_data=domains)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
-
     tic()
     if Pressure.__str__().find("CG") == -1:
         Fp = assemble(mu*(jump(q)*jump(p)*dx(mesh)) \

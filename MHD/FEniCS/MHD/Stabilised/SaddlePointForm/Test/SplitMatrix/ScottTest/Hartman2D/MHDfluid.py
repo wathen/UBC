@@ -82,7 +82,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 2
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -118,7 +118,7 @@ for xx in xrange(1,m):
 
     kappa = 1e0
     Mu_m = 10.0
-    MU = 1.0
+    MU = 1000.0
 
     N = FacetNormal(mesh)
 
@@ -153,53 +153,50 @@ for xx in xrange(1,m):
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
-    dx = Measure('dx', domain=mesh, subdomain_data=domains)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
-
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
     if kappa == 0.0:
-        m11 = params[1]*inner(curl(b),curl(c))*dx(0)
+        m11 = params[1]*inner(curl(b),curl(c))*dx
     else:
-        m11 = params[1]*params[0]*inner(curl(b),curl(c))*dx(0)
-    m21 = inner(c,grad(r))*dx(0)
-    m12 = inner(b,grad(s))*dx(0)
+        m11 = params[1]*params[0]*inner(curl(b),curl(c))*dx
+    m21 = inner(c,grad(r))*dx
+    m12 = inner(b,grad(s))*dx
 
-    a11 = params[2]*inner(grad(v), grad(u))*dx(0) + inner((grad(u)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u,v)*ds(0)
-    a12 = -div(v)*p*dx(0)
-    a21 = -div(u)*q*dx(0)
+    a11 = params[2]*inner(grad(v), grad(u))*dx + inner((grad(u)*u_k),v)*dx + (1./2)*div(u_k)*inner(u,v)*dx - (1./2)*inner(u_k,n)*inner(u,v)*ds
+    a12 = -div(v)*p*dx
+    a21 = -div(u)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx(0)
-    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx(0)
+    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx
+    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx(0) #- inner(pN*n,v)*ds(2)
-    Lmaxwell  = inner(c, F_M)*dx(0)
+    Lns  = inner(v, F_NS)*dx #- inner(pN*n,v)*ds(2)
+    Lmaxwell  = inner(c, F_M)*dx
     if kappa == 0.0:
-        m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx(0)
+        m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx
     else:
-        m11 = params[1]*inner(curl(b_k),curl(c))*dx(0)
-    m21 = inner(c,grad(r_k))*dx(0)
-    m12 = inner(b_k,grad(s))*dx(0)
+        m11 = params[1]*inner(curl(b_k),curl(c))*dx
+    m21 = inner(c,grad(r_k))*dx
+    m12 = inner(b_k,grad(s))*dx
 
-    a11 = params[2]*inner(grad(v), grad(u_k))*dx(0) + inner((grad(u_k)*u_k),v)*dx(0) + (1./2)*div(u_k)*inner(u_k,v)*dx(0) - (1./2)*inner(u_k,n)*inner(u_k,v)*ds(0)
-    a12 = -div(v)*p_k*dx(0)
-    a21 = -div(u_k)*q*dx(0)
+    a11 = params[2]*inner(grad(v), grad(u_k))*dx + inner((grad(u_k)*u_k),v)*dx + (1./2)*div(u_k)*inner(u_k,v)*dx - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
+    a12 = -div(v)*p_k*dx
+    a21 = -div(u_k)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx(0)
-    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx(0)
+    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
+    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
 
-    L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12+ Couple + CoupleT)
+    L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
     ones = Function(Pressure)
     ones.vector()[:]=(0*ones.vector().array()+1)
-    pConst = - assemble(p_k*dx(0))/assemble(ones*dx(0))
-    p_k.vector()[:] += - assemble(p_k*dx(0))/assemble(ones*dx(0))
+    pConst = - assemble(p_k*dx)/assemble(ones*dx)
+    p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh, boundaries, domains)
-    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh)
 
     IS = MO.IndexSet(W, 'Blocks')
 
@@ -239,13 +236,8 @@ for xx in xrange(1,m):
         u = b.duplicate()
         u.setRandom()
         print "                               Max rhs = ",np.max(b.array)
-        # A = IO.matToSparse(A)
-        # b = b.array
-        # j = scipy.sparse.csgraph.reverse_cuthill_mckee(A)
-        # A = A[j,j]
-        # b = b[j]
-        # print j
-        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh, boundaries, domains)
+
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh)
         # b_t = TrialFunction(Velocity)
         # c_t = TestFunction(Velocity)
         # n = FacetNormal(mesh)
@@ -257,23 +249,9 @@ for xx in xrange(1,m):
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
-        # PCD.check(MU, u_k, p_k, mesh, boundaries, domains)
-
-        # Fluid = {'Fp': Fp, 'Ap': MatrixLinearFluids[0], 'Qp': MatrixLinearFluids[1], 'Fs': ShiftedMass}
-        # Maxwell = {'MX': HiptmairMatrices[6], 'Lp': HiptmairMatrices[3].getOperators()[0]}
-
-        # SaveMatrix.SaveMatrices(W, int(level[xx-1][0]), A, Fluid, Maxwell)
 
         stime = time.time()
-        # MO.StoreMatrix(PETSc2Scipy(A), "A_"+str(int(level[xx-1][0])))
-        # MO.StoreMatrix(b.array, "b_"+str(int(level[xx-1][0])))
-
-        # u1, mits,nsits = S.solve(A.getSubMatrix(NS_is,NS_is),b.getSubVector(NS_is), u.getSubVector(NS_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
-        # u2, mits,nsits = S.solve(A.getSubMatrix(M_is,M_is),b.getSubVector(M_is), u.getSubVector(M_is),params,W,'Direct',IterType,OuterTol,InnerTol,1,1,1, 1,1)
-        # u = IO.arrayToVec(np.concatenate((u1.array,u2.array), axis=0))
-        # u, mits,nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol, InnerTol, 1, 1, 1, 1, 1)
-        # u = scipy.sparse.linalg.spsolve(A,b)
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -282,7 +260,7 @@ for xx in xrange(1,m):
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)
         u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
-        p1.vector()[:] += - assemble(p1*dx(0))/assemble(ones*dx(0))
+        p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
         p_k.assign(p1)
         b_k.assign(b1)

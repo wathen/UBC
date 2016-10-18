@@ -640,9 +640,14 @@ def FluidSchur(A, b):
         x1 = b.duplicate()
         x2 = b.duplicate()
         x3 = b.duplicate()
+        # print b.array
         A[2].solve(b,x1)
+        # print x1.array
         A[1].mult(x1,x2)
-        A[0].solve(x2,x3)
+        # print x2.array
+        A[2].solve(x2,x3)
+        # print x3.array
+        # sss
         return x3
 
 
@@ -706,8 +711,8 @@ class ApproxInv(BaseMyPC):
         OptDB["pc_factor_mat_solver_package"] = "umfpack"
 
 
-        self.kspA.setType('preonly')
-        self.kspA.getPC().setType('lu')
+        self.kspA.setType('cg')
+        self.kspA.getPC().setType('hypre')
         self.kspA.setFromOptions()
         self.kspA.setPCSide(0)
 
@@ -756,13 +761,24 @@ class ApproxInv(BaseMyPC):
         invL = br.duplicate()
 
         self.kspF.solve(bu,invF)
-        invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
+
+        x1 = bp.duplicate()
+        x2 = bp.duplicate()
+        invS = bp.duplicate()
+        # print b.array
+        self.kspQ.solve(bp,x1)
+        # print x1.array
+        self.Fp.mult(x1,x2)
+        # print x2.array
+        self.kspA.solve(x2,invS)
+        # invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
         self.kspMX.solve(bb,invMX)
         self.kspScalar.solve(br,invL)
 
 
         xp1 = invS.duplicate()
         self.B.mult(invF, xp1)
+
         barF = FluidSchur([self.kspA, self.Fp, self.kspQ], xp1)
 
         xu1 = invF.duplicate()
@@ -804,6 +820,14 @@ class ApproxInv(BaseMyPC):
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
 
+        # print barF.array
+        # print invS.array
+        # print xp4.array
+        # ssss
+        # print outU.array
+        # print outP.array
+        # print outB.array
+        # print outR.array
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime

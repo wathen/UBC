@@ -65,28 +65,28 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             ksp = PETSc.KSP()
             ksp.create(comm=PETSc.COMM_WORLD)
             pc = ksp.getPC()
-            ksp.setType('preonly')
-            pc.setType('lu')
+            ksp.setType('fgmres')
+            pc.setType('python')
+
+            OptDB = PETSc.Options()
+            OptDB['ksp_fgmres_restart'] = 20
+            # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
+            reshist = {}
+            def monitor(ksp, its, fgnorm):
+                reshist[its] = fgnorm
+                print its,"    OUTER:", fgnorm
+            # ksp.setMonitor(monitor)
+            ksp.max_it = 1000
+            ksp.setTolerances(1e-6)
+
+            W = Fspace
+            FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
+            pc.setPythonContext(MHDprec.ApproxInv(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
 
             # OptDB = PETSc.Options()
-            # OptDB['ksp_fgmres_restart'] = 20
-            # # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
-            # reshist = {}
-            # def monitor(ksp, its, fgnorm):
-            #     reshist[its] = fgnorm
-            #     print its,"    OUTER:", fgnorm
-            # # ksp.setMonitor(monitor)
-            # ksp.max_it = 1000
-            # ksp.setTolerances(1e-6)
-
-            # W = Fspace
-            # FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
-            # pc.setPythonContext(MHDprec.ApproxInv(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
-            #OptDB = PETSc.Options()
-
-            # OptDB['pc_factor_mat_solver_package']  = "mumps"
+            # OptDB['pc_factor_mat_solver_package']  = "umfpack"
             # OptDB['pc_factor_mat_ordering_type']  = "rcm"
-            # ksp.setFromOptions()
+            ksp.setFromOptions()
             scale = b.norm()
             b = b/scale
             ksp.setOperators(A,A)
