@@ -69,7 +69,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             pc.setType('python')
 
             OptDB = PETSc.Options()
-            OptDB['ksp_fgmres_restart'] = 20
+            # OptDB['ksp_fgmres_restart'] = 20
             # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
             reshist = {}
             def monitor(ksp, its, fgnorm):
