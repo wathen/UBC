@@ -1,4 +1,4 @@
-    #!/usr/bin/python
+#!/usr/bin/python
 
 # interpolate scalar gradient onto nedelec space
 
@@ -118,7 +118,7 @@ for xx in xrange(1,m):
 
     kappa = 1e0
     Mu_m = 10.0
-    MU = 1000.0
+    MU = 1.0
 
     N = FacetNormal(mesh)
 

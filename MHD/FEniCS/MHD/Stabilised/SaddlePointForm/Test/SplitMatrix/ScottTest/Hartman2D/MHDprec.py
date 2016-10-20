@@ -632,14 +632,25 @@ class P(Matrix):
 
 def SchurComplement(kspF, B):
     n = min(B.size)
-    A = np.zeros((n,n))
+    A = sp.csr_matrix((n, n)) 
+    row = []
+    column = []
+    data = np.zeros(0)
     for i in range(n):
         (y, u) = B.getVecs()
         kspF.solve(B.getColumnVector(i), u)
         B.multTranspose(u, y)
-        A[:,i] = y.array
+        if i == 0:
+            data = y.array
+            row = np.linspace(0, n-1, n)
+            column = i*np.ones(n)
+        else:
+            row = np.concatenate([row, np.linspace(0,n-1,n)])
+            column = np.concatenate([column, i*np.ones(n)])
+            data = np.concatenate([data, y.array])
 
-    return IO.arrayToMat(A)
+    A = sp.csr_matrix((data, (row, column)), shape=(n, n))
+    return PETSc.Mat().createAIJ(size=A.shape, csr=(A.indptr, A.indices, A.data))
 
 
 
@@ -661,7 +672,7 @@ def FluidSchur(A, b):
         A[0].solve(x2,x3)
         # print x3.array
         # sss
-        return x3
+        return x2
 
 
 class ApproxInv(BaseMyPC):
@@ -718,7 +729,7 @@ class ApproxInv(BaseMyPC):
         #print CFC.size, self.AA.size
         # MO.StoreMatrix(B,"A")
         # print FC.todense()
-        # Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
+#        Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "umfpack"
@@ -758,6 +769,14 @@ class ApproxInv(BaseMyPC):
         self.kspVector.setPCSide(0)
 
 
+#        kspS = PETSc.KSP()
+#        kspS.create(comm=PETSc.COMM_WORLD)
+#        pcS = kspMX.getPC()
+#        kspS.setType('preonly')
+#        pcS.setType('lu')
+#        OptDB = PETSc.Options()
+#        kspS.setOperators(Schur, Schur)
+#        self.kspS = kspS
 
         print "setup"
     def apply(self, pc, x, y):
@@ -778,20 +797,16 @@ class ApproxInv(BaseMyPC):
         x1 = bp.duplicate()
         x2 = bp.duplicate()
         invS = bp.duplicate()
-        # print b.array
-        self.kspQ.solve(bp,x1)
-        # print x1.array
-        self.Fp.mult(x1,x2)
-        # print x2.array
-        self.kspA.solve(x2,invS)
-        # invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
+        invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
+        #self.kspS.solve(bp, invS)
         self.kspMX.solve(bb,invMX)
         self.kspScalar.solve(br,invL)
 
 
         xp1 = invS.duplicate()
+        barF = invS.duplicate()
         self.B.mult(invF, xp1)
-
+        #self.kspS.solve(xp1, barF)
         barF = FluidSchur([self.kspA, self.Fp, self.kspQ], xp1)
 
         xu1 = invF.duplicate()
@@ -820,9 +835,11 @@ class ApproxInv(BaseMyPC):
         xp1 = invF.duplicate()
         xp2 = invF.duplicate()
         xp3 = invS.duplicate()
+        xp4 = invS.duplicate()
         self.C.multTranspose(invMX, xp1)
         self.kspF.solve(xp1, xp2)
         self.B.mult(xp2, xp3)
+        #self.kspS.solve(xp3, xp4)
         xp4 = FluidSchur([self.kspA, self.Fp, self.kspQ], xp3)
         outP = barF - invS - xp4;
 
