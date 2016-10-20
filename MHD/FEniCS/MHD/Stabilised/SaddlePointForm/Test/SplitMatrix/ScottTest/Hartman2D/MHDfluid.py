@@ -37,7 +37,7 @@ import SaveMatrix
 # import matplotlib.pyplot as plt
 #@profile
 m = 7
-
+X = PETSc.Mat().createDense([n, n])
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
