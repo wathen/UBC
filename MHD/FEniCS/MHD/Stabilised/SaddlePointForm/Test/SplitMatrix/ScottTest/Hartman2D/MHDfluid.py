@@ -38,7 +38,6 @@ import SaveMatrix
 #@profile
 m = 7
 
-
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
 errH1u =np.zeros((m-1,1))
