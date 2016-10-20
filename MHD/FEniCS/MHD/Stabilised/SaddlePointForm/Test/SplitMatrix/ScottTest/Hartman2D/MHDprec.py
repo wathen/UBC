@@ -631,14 +631,15 @@ class P(Matrix):
     #     submat = self.P.get
 
 def SchurComplement(kspF, B):
-    n = min(B.size())
+    n = min(B.size)
     A = np.zeros((n,n))
     for i in range(n):
-        u = B.getColumn(i).duplicate
-        kspF.solve(B.getColumn(i), u)
-        A[:,i] = u.array
+        (y, u) = B.getVecs()
+        kspF.solve(B.getColumnVector(i), u)
+        B.multTranspose(u, y)
+        A[:,i] = y.array
 
-    return A
+    return IO.arrayToMat(A)
 
 
 
@@ -657,7 +658,7 @@ def FluidSchur(A, b):
         # print x1.array
         A[1].mult(x1,x2)
         # print x2.array
-        A[2].solve(x2,x3)
+        A[0].solve(x2,x3)
         # print x3.array
         # sss
         return x3
@@ -717,7 +718,7 @@ class ApproxInv(BaseMyPC):
         #print CFC.size, self.AA.size
         # MO.StoreMatrix(B,"A")
         # print FC.todense()
-        Schur = SchurComplement(self.kspF, self.B)
+        # Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "umfpack"

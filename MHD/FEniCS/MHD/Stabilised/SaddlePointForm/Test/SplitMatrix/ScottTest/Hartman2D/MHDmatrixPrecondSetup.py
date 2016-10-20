@@ -27,10 +27,10 @@ def FluidLinearSetup(Pressure,mu,mesh):
     print ("{:40}").format("DG scalar mass matrix assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 
     tic()
-    kspA, ksp = NSprecondSetup.PCDKSPlinear(Q, L)
+    kspL, kspQ = NSprecondSetup.PCDKSPlinear(L, Q)
     print ("{:40}").format("Linear fluid precond setup, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 
-    return [kspA,ksp], [L,Q]
+    return [kspL, kspQ], [L,Q]
 
 def FluidNonLinearSetup(Pressure,mu, u_k, mesh):
     MO.PrintStr("Preconditioning Fluid linear setup",3,"=")
