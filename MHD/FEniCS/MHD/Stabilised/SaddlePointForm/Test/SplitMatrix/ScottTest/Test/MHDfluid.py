@@ -68,7 +68,7 @@ for i in range(0, LevelN):
 
     MO.PrintStr("Preconditioning MHD setup",5,"+","\n\n","\n\n")
     HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, 1e-4, params)
-
+    Hiptmairtol = 1e-6
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
     u_k,p_k,b_k,r_k = common.InitialGuess([Velocity, Pressure, Magnetic, Lagrange],[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-6,options="New")
@@ -91,7 +91,11 @@ for i in range(0, LevelN):
     maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
-
+    
+    Mits = 0
+    NSits = 0
+    OuterTol = 1e-6
+    InnerTol = 1e-6
     TotalStart =time.time()
     SolutionTime = 0
     while eps > tol  and iter < maxiter:
@@ -122,7 +126,7 @@ for i in range(0, LevelN):
 
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directass',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF,Options)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
