@@ -32,6 +32,14 @@ Mave = np.zeros(LevelN)
 iterations = np.zeros(LevelN)
 TotalTime = np.zeros(LevelN)
 
+errL2u = np.zeros(LevelN)
+errH1u = np.zeros(LevelN)
+errL2p = np.zeros(LevelN)
+errL2b = np.zeros(LevelN)
+errCurlb = np.zeros(LevelN)
+errL2r = np.zeros(LevelN)
+errH1r = np.zeros(LevelN)
+
 for i in range(0, LevelN):
     Level[i] = i
     n = int(2**(Level[i])+1)
@@ -88,7 +96,7 @@ for i in range(0, LevelN):
 
     uOld= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
     x = IO.arrayToVec(uOld)
-    
+
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
 
@@ -106,7 +114,7 @@ for i in range(0, LevelN):
     maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
-    
+
     Mits = 0
     NSits = 0
     OuterTol = 1e-6
@@ -144,7 +152,7 @@ for i in range(0, LevelN):
         SolutionTime += Soltime
         print x.array
         print u.array
-        
+
         u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,MixedSpace,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
@@ -155,14 +163,14 @@ for i in range(0, LevelN):
         uOld= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
 
-
-    XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
     SolTime[i] = SolutionTime/iter
     NSave[i] = (float(NSits)/iter)
     Mave[i] = (float(Mits)/iter)
     iterations[i] = iter
     TotalTime[i] = time.time() - TotalStart
 
+    ExactSolution = [u0,p0,b0,r0]
+    errL2u[i], errH1u[i], errL2p[i], errL2b[i], errCurlb[i], errL2r[i], errH1r[i] = Iter.Errors(x,mesh,MixedSpace,ExactSolution,order,dim)
 
 
 
