@@ -53,6 +53,14 @@ parameters["form_compiler"]["optimize"]     = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["quadrature_degree"] = -1
 
+errL2u = np.zeros(LevelN)
+errH1u = np.zeros(LevelN)
+errL2p = np.zeros(LevelN)
+errL2b = np.zeros(LevelN)
+errCurlb = np.zeros(LevelN)
+errL2r = np.zeros(LevelN)
+errH1r = np.zeros(LevelN)
+
 for i in range(0, LevelN):
     Level[i] = i
     n = int(2**(Level[i])+1)
@@ -162,7 +170,17 @@ for i in range(0, LevelN):
         Mits += mits
         NSits += nsits
         SolutionTime += Soltime
+<<<<<<< HEAD
 
+||||||| merged common ancestors
+        print x.array
+        print u.array
+        
+=======
+        print x.array
+        print u.array
+
+>>>>>>> fd8323b84804fd6ed7b7facb0e57853728252c44
         u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,MixedSpace,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
@@ -238,6 +256,8 @@ LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
 print LagrangeTable
 
 
+    ExactSolution = [u0,p0,b0,r0]
+    errL2u[i], errH1u[i], errL2p[i], errL2b[i], errCurlb[i], errL2r[i], errH1r[i] = Iter.Errors(x,mesh,MixedSpace,ExactSolution,order,dim)
 
 
 
