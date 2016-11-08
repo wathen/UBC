@@ -170,17 +170,7 @@ for i in range(0, LevelN):
         Mits += mits
         NSits += nsits
         SolutionTime += Soltime
-<<<<<<< HEAD
 
-||||||| merged common ancestors
-        print x.array
-        print u.array
-        
-=======
-        print x.array
-        print u.array
-
->>>>>>> fd8323b84804fd6ed7b7facb0e57853728252c44
         u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,MixedSpace,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
