@@ -18,26 +18,46 @@ import Solver as S
 import IterOperations as Iter
 import PETScIO as IO
 
-LevelN = 1
-Level = np.zeros(LevelN)
-Wdim = np.zeros(LevelN)
-Vdim = np.zeros(LevelN)
-Pdim = np.zeros(LevelN)
-Mdim = np.zeros(LevelN)
-Ldim = np.zeros(LevelN)
+LevelN = 7
+Level = np.zeros((LevelN,1))
+Wdim = np.zeros((LevelN,1))
+Vdim = np.zeros((LevelN,1))
+Pdim = np.zeros((LevelN,1))
+Mdim = np.zeros((LevelN,1))
+Ldim = np.zeros((LevelN,1))
 
-SolTime = np.zeros(LevelN)
-NSave = np.zeros(LevelN)
-Mave = np.zeros(LevelN)
-iterations = np.zeros(LevelN)
-TotalTime = np.zeros(LevelN)
+SolTime = np.zeros((LevelN,1))
+NSave = np.zeros((LevelN,1))
+Mave = np.zeros((LevelN,1))
+iterations = np.zeros((LevelN,1))
+TotalTime = np.zeros((LevelN,1))
+
+errL2u = np.zeros((LevelN,1))
+errH1u = np.zeros((LevelN,1))
+errL2p = np.zeros((LevelN,1))
+errL2b = np.zeros((LevelN,1))
+errCurlb = np.zeros((LevelN,1))
+errL2r = np.zeros((LevelN,1))
+errH1r = np.zeros((LevelN,1))
+
+l2uorder = np.zeros((LevelN,1))
+H1uorder = np.zeros((LevelN,1))
+l2porder = np.zeros((LevelN,1))
+l2border = np.zeros((LevelN,1))
+Curlborder = np.zeros((LevelN,1))
+l2rorder = np.zeros((LevelN,1))
+H1rorder = np.zeros((LevelN,1))
+
+parameters['reorder_dofs_serial'] = False
+parameters["form_compiler"]["optimize"]     = True
+parameters["form_compiler"]["cpp_optimize"] = True
+parameters["form_compiler"]["quadrature_degree"] = -1
 
 for i in range(0, LevelN):
     Level[i] = i
     n = int(2**(Level[i])+1)
 
     mesh = UnitSquareMesh(n, n)
-    parameters['reorder_dofs_serial'] = False
     Velocity = VectorFunctionSpace(mesh, "CG", 2)
     Pressure = FunctionSpace(mesh, "CG", 1)
     Magnetic = FunctionSpace(mesh, "N1curl", 1)
@@ -88,7 +108,7 @@ for i in range(0, LevelN):
 
     uOld= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
     x = IO.arrayToVec(uOld)
-    
+
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
 
@@ -106,7 +126,7 @@ for i in range(0, LevelN):
     maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
-    
+
     Mits = 0
     NSits = 0
     OuterTol = 1e-6
@@ -142,9 +162,7 @@ for i in range(0, LevelN):
         Mits += mits
         NSits += nsits
         SolutionTime += Soltime
-        print x.array
-        print u.array
-        
+
         u1, p1, b1, r1, eps= Iter.PicardToleranceDecouple(u,x,MixedSpace,dim,"2",iter)
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
@@ -155,13 +173,70 @@ for i in range(0, LevelN):
         uOld= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
 
-
-    XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
     SolTime[i] = SolutionTime/iter
     NSave[i] = (float(NSits)/iter)
     Mave[i] = (float(Mits)/iter)
     iterations[i] = iter
     TotalTime[i] = time.time() - TotalStart
+    ExactSolution = [u0,p0,b0,r0]
+    errL2u[i], errH1u[i], errL2p[i], errL2b[i], errCurlb[i], errL2r[i], errH1r[i] = Iter.Errors(x,mesh,MixedSpace,ExactSolution,1,dim)
+
+    if i > 0:
+       l2uorder[i] =  np.abs(np.log2(errL2u[i-1]/errL2u[i]))
+       H1uorder[i] =  np.abs(np.log2(errH1u[i-1]/errH1u[i]))
+
+       l2porder[i] =  np.abs(np.log2(errL2p[i-1]/errL2p[i]))
+
+       l2border[i] =  np.abs(np.log2(errL2b[i-1]/errL2b[i]))
+       Curlborder[i] =  np.abs(np.log2(errCurlb[i-1]/errCurlb[i]))
+
+       l2rorder[i] =  np.abs(np.log2(errL2r[i-1]/errL2r[i]))
+       H1rorder[i] =  np.abs(np.log2(errH1r[i-1]/errH1r[i]))
+
+
+
+
+import pandas as pd
+
+
+
+LatexTitles = ["l","DoFu","Dofp","V-L2","L2-order","V-H1","H1-order","P-L2","PL2-order"]
+LatexValues = np.concatenate((Level,Vdim,Pdim,errL2u,l2uorder,errH1u,H1uorder,errL2p,l2porder), axis=1)
+print LatexValues
+print LatexTitles
+LatexTable = pd.DataFrame(LatexValues, columns = LatexTitles)
+pd.set_option('precision',3)
+LatexTable = MO.PandasFormat(LatexTable,"V-L2","%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,'V-H1',"%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,"H1-order","%1.2f")
+LatexTable = MO.PandasFormat(LatexTable,'L2-order',"%1.2f")
+LatexTable = MO.PandasFormat(LatexTable,"P-L2","%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,'PL2-order',"%1.2f")
+print LatexTable
+
+
+print "\n\n   Magnetic convergence"
+MagneticTitles = ["l","B DoF","R DoF","B-L2","L2-order","B-Curl","HCurl-order"]
+MagneticValues = np.concatenate((Level,Mdim,Ldim,errL2b,l2border,errCurlb,Curlborder),axis=1)
+MagneticTable= pd.DataFrame(MagneticValues, columns = MagneticTitles)
+pd.set_option('precision',3)
+MagneticTable = MO.PandasFormat(MagneticTable,"B-Curl","%2.4e")
+MagneticTable = MO.PandasFormat(MagneticTable,'B-L2',"%2.4e")
+MagneticTable = MO.PandasFormat(MagneticTable,"L2-order","%1.2f")
+MagneticTable = MO.PandasFormat(MagneticTable,'HCurl-order',"%1.2f")
+print MagneticTable
+
+print "\n\n   Lagrange convergence"
+LagrangeTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
+LagrangeValues = np.concatenate((Level,Ldim,Ldim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
+LagrangeTable= pd.DataFrame(LagrangeValues, columns = LagrangeTitles)
+pd.set_option('precision',3)
+LagrangeTable = MO.PandasFormat(LagrangeTable,"R-L2","%2.4e")
+LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
+LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
+LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
+print LagrangeTable
+
 
 
 
