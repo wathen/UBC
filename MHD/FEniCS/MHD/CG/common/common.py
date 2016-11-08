@@ -70,10 +70,9 @@ def InitialGuess(Fspace,BC,RHS,params,HiptmairMatrices,Hiptmairtol,Neumann=None,
         Lmaxwell = RHS[1]
 #        Astokes  = System[0][0]
 #        bstokes = System[1].getSubVector(IS[0])
-        u,p = Stokes(V,P,uBC,Ls,params,FS,InitialTol,Neumann=None ,A= System[0][0], b = System[1].getSubVector(IS[0]))
+        u, p = Stokes(V,P,uBC,Ls,params,FS,InitialTol,Neumann=None ,A= System[0][0], b = System[1].getSubVector(IS[0]))
 
         b, r  = Maxwell(u,M,L,[bBC,rBC],Lmaxwell,params,HiptmairMatrices,Hiptmairtol,InitialTol)
-
         if (options == "Orig"):
             return u, b
         elif (options == "New"):

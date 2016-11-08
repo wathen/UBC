@@ -159,7 +159,8 @@ def foo():
         p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
         x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-        KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
+        KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh, 1, 1)
+
         kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
         #plot(b_k)
 

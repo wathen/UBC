@@ -11,7 +11,7 @@ import time
 
 
 
-def PCDKSPlinear(Q, A):
+def PCDKSPlinear(A, Q):
     OptDB = PETSc.Options()
     OptDB['pc_hypre_type'] = 'boomeramg'
     OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5

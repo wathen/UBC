@@ -70,8 +70,8 @@ def Errors(X,mesh,FSpaces,ExactSolution,k,dim, FS = "CG"):
 
     # parameters["form_compiler"]["quadrature_degree"] = 5
 
-    MagneticE = FunctionSpace(mesh,"N1curl",4)
-    LagrangeE = FunctionSpace(mesh,"CG",4)
+    MagneticE = FunctionSpace(mesh,"N1curl",2)
+    LagrangeE = FunctionSpace(mesh,"CG",2)
     b = interpolate(ExactSolution[2],MagneticE)
     r = interpolate(ExactSolution[3],LagrangeE)
 

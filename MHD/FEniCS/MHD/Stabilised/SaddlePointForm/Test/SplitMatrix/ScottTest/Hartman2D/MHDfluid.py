@@ -81,7 +81,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 1
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -115,7 +115,7 @@ for xx in xrange(1,m):
     FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
     DimSave[xx-1,:] = np.array(dim)
 
-    kappa = 1e0
+    kappa = 1.0
     Mu_m = 10.0
     MU = 1.0
 

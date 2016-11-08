@@ -17,7 +17,7 @@ def FluidLinearSetup(Pressure,mu,mesh):
     p = TestFunction(Pressure)
 
     tic()
-    L = assemble(inner(grad(q), grad(p))*dx)
+    L = assemble(mu*inner(grad(q), grad(p))*dx)
     L = CP.Assemble(L)
     print ("{:40}").format("CG scalar Laplacian assemble, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 

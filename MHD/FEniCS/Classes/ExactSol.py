@@ -69,11 +69,11 @@ def polary(u, rho, phi):
 """
 
 
-def NS2D(case,MESH,Show="no",type = 'no'):
+def NS2D(case,Show="no",type = 'no'):
     x = symbols('x[0]')
     y = symbols('x[1]')
 
-    # PrintStr("NS Exact Solution:",3,"-")
+    PrintStr("NS Exact Solution:",3,"-")
     if Show == "yes":
         case = 1
 
@@ -167,7 +167,7 @@ def NS2D(case,MESH,Show="no",type = 'no'):
 
     # print u
     # print v
-    # print MESH
+    # print
     class Vec(Expression):
         def __init__(self, u ,v, X, Y):
             self.u = u
@@ -198,8 +198,8 @@ def NS2D(case,MESH,Show="no",type = 'no'):
     Laplacian = Expression((ccode(L1),ccode(L2)))
     Advection = Expression((ccode(A1),ccode(A2)))
     gradPres = Expression((ccode(P1),ccode(P2)))
-    # if Show == "no":
-    #     Print2D(u,v,p,"NS")
+    if Show == "no":
+        Print2D(u,v,p,"NS")
     if type == "MHD":
         return u, v, p, u0, p0, Laplacian, Advection, gradPres
     else:
@@ -346,14 +346,14 @@ def NS3D(case,Show="no",type="no"):
 ----------------------2D----------------------
 """
 
-def M2D(case,MESH, Show="no",type="no", Mass = 0):
-    x = symbols('X')
-    y = symbols('Y')
+def M2D(case, Show="no",type="no", Mass = 0):
+    x = symbols('x[0]')
+    y = symbols('x[1]')
     if Show == "yes":
         case = 1
 
 
-    # PrintStr("Maxwell Exact Solution:",3,"-")
+    PrintStr("Maxwell Exact Solution:",3,"-")
     if case == 1:
         uu = cos(x)*exp(x+y)
         u = diff(uu,y)
@@ -446,8 +446,8 @@ def M2D(case,MESH, Show="no",type="no", Mass = 0):
     # print latex(w)
     # print latex(p)
     # if Show == 'no':
-    #     print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y'),",",str(v).replace('x[0]','x').replace('x[1]','y'),")\n"
-    #     print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y'),")\n"
+    if Show == "no":
+        Print2D(u,v,p,"NS")
     if type == "MHD":
         if Mass == 0:
             return u,v,p,u0, p0, CurlCurl, gradPres
@@ -580,14 +580,14 @@ def M3D(case,Show="no",type="no",Mass=0):
 """
 
 
-def MHD2D(NScase,Mcase,MESH, Show="no"):
+def MHD2D(NScase,Mcase, Show="no"):
 
-    # PrintStr("MHD 2D Exact Solution:",5,">","\n","\n")
+    PrintStr("MHD 2D Exact Solution:",5,">","\n","\n")
 
     x = symbols('x[0]')
     y = symbols('x[1]')
-    u, v, p, u0, p0, Laplacian, Advection, gradPres = NS2D(NScase,MESH,Show,"MHD")
-    b,d,r,b0, r0, CurlCurl, gradR = M2D(Mcase,MESH,Show,"MHD")
+    u, v, p, u0, p0, Laplacian, Advection, gradPres = NS2D(NScase,Show,"MHD")
+    b,d,r,b0, r0, CurlCurl, gradR = M2D(Mcase,Show,"MHD")
 
     NS1 = -d*(diff(d,x)-diff(b,y))
     NS2 = b*(diff(d,x)-diff(b,y))
