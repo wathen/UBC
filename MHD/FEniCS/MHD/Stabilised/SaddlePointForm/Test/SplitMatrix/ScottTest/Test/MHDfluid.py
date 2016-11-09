@@ -53,14 +53,6 @@ parameters["form_compiler"]["optimize"]     = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["quadrature_degree"] = -1
 
-errL2u = np.zeros(LevelN)
-errH1u = np.zeros(LevelN)
-errL2p = np.zeros(LevelN)
-errL2b = np.zeros(LevelN)
-errCurlb = np.zeros(LevelN)
-errL2r = np.zeros(LevelN)
-errH1r = np.zeros(LevelN)
-
 for i in range(0, LevelN):
     Level[i] = i
     n = int(2**(Level[i])+1)
@@ -164,7 +156,7 @@ for i in range(0, LevelN):
 
         Options = 'p4'
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
@@ -186,6 +178,7 @@ for i in range(0, LevelN):
     Mave[i] = (float(Mits)/iter)
     iterations[i] = iter
     TotalTime[i] = time.time() - TotalStart
+
     ExactSolution = [u0,p0,b0,r0]
     errL2u[i], errH1u[i], errL2p[i], errL2b[i], errCurlb[i], errL2r[i], errH1r[i] = Iter.Errors(x,mesh,MixedSpace,ExactSolution,1,dim)
 
@@ -210,8 +203,6 @@ import pandas as pd
 
 LatexTitles = ["l","DoFu","Dofp","V-L2","L2-order","V-H1","H1-order","P-L2","PL2-order"]
 LatexValues = np.concatenate((Level,Vdim,Pdim,errL2u,l2uorder,errH1u,H1uorder,errL2p,l2porder), axis=1)
-print LatexValues
-print LatexTitles
 LatexTable = pd.DataFrame(LatexValues, columns = LatexTitles)
 pd.set_option('precision',3)
 LatexTable = MO.PandasFormat(LatexTable,"V-L2","%2.4e")
@@ -244,10 +235,3 @@ LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
 LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
 LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
 print LagrangeTable
-
-
-    ExactSolution = [u0,p0,b0,r0]
-    errL2u[i], errH1u[i], errL2p[i], errL2b[i], errCurlb[i], errL2r[i], errH1r[i] = Iter.Errors(x,mesh,MixedSpace,ExactSolution,order,dim)
-
-
-
