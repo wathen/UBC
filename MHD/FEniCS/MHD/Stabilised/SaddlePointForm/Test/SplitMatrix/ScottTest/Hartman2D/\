@@ -899,7 +899,7 @@ class ApproxInvA(BaseMyPC):
             self.W[0].dim()+self.W[1].dim()+self.W[2].dim()+self.W[3].dim()))
 
 
-        self.Schur = "rue"
+        self.Schur = "True"
 
     def create(self, pc):
         print "Create"
@@ -1018,7 +1018,7 @@ class ApproxInvA(BaseMyPC):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
 
-class BlkInv(BaseMyPC):
+class InvBlk(BaseMyPC):
 
     def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
         self.W = W
