@@ -1174,5 +1174,128 @@ class BlkInv(BaseMyPC):
 
 
 
+class BlkInvA(BaseMyPC):
+
+    def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
+        self.W = W
+        self.kspF = kspF
+        self.kspA = kspA
+        self.kspQ = kspQ
+        self.Fp = Fp
+        self.kspScalar = kspScalar
+        self.kspCGScalar = kspCGScalar
+        self.kspVector = kspVector
+        # self.Bt = Bt
+        self.HiptmairIts = 0
+        self.CGits = 0
+
+
+
+        # print range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim())
+        # ss
+        self.P = P
+        self.G = G
+        self.AA = A
+        self.tol = Hiptmairtol
+        self.u_is = PETSc.IS().createGeneral(range(self.W[0].dim()))
+        self.p_is = PETSc.IS().createGeneral(range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim()))
+        self.b_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim(),
+            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()))
+        self.r_is = PETSc.IS().createGeneral(range(self.W[0].dim()+self.W[1].dim()+self.W[2].dim(),
+            self.W[0].dim()+self.W[1].dim()+self.W[2].dim()+self.W[3].dim()))
+
+
+        self.Schur = "Approx"
+
+    def create(self, pc):
+        print "Create"
+
+
+
+    def setUp(self, pc):
+        A, P = pc.getOperators()
+        print A.size
+        if A.type == 'python':
+            self.Ct = A.getPythonContext().getMatrix("Ct")
+            self.Bt = A.getPythonContext().getMatrix("Bt")
+        else:
+            self.C = A.getSubMatrix(self.b_is,self.u_is)
+            self.B = A.getSubMatrix(self.p_is,self.u_is)
+            self.D = A.getSubMatrix(self.r_is,self.b_is)
+        # print self.Ct.view()
+        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
+        #print CFC.shape
+        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
+        #print CFC.size, self.AA.size
+        # MO.StoreMatrix(B,"A")
+        # print FC.todense()
+
+
+        if self.Schur == "Exact":
+            Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
+            kspS = PETSc.KSP()
+            kspS.create(comm=PETSc.COMM_WORLD)
+            pcS = kspMX.getPC()
+            kspS.setType('preonly')
+            pcS.setType('lu')
+            OptDB = PETSc.Options()
+            kspS.setOperators(Schur, Schur)
+            self.kspS = kspS
+
+        print "setup"
+    def apply(self, pc, x, y):
+
+        bu = x.getSubVector(self.u_is)
+        invF = bu.duplicate()
+
+        bp = x.getSubVector(self.p_is)
+        outP = bp.duplicate()
+
+        bb = x.getSubVector(self.b_is)
+        invMX = bb.duplicate()
+
+        br = x.getSubVector(self.r_is)
+        invL = br.duplicate()
+
+        if self.Schur == "Exact":
+            self.kspS.solve(bp, outP)
+        else:
+            outP = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
+        invMX, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, bb, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
+        self.kspScalar.solve(br,invL)
+
+
+        xb1 = invMX.duplicate()
+        xb2 = invMX.duplicate()
+        xb3 = invMX.duplicate()
+        xb4 = invMX.duplicate()
+        self.D.multTranspose(invL, xb1)
+        xb2, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, xb1, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
+        outB = -invMX - xb2
+
+        xr1 = invL.duplicate()
+        outR = invL.duplicate()
+        self.D.mult(-invMX, xr1)
+        self.kspScalar(xr1, outR)
+
+        xu1 = bu.duplicate()
+        xu2 = bu.duplicate()
+        outU = bu.duplicate()
+        self.B.multTranspose(outP, xu1)
+        self.C.multTranspose(outB, xu2)
+        self.kspF.solve(bu+xu1-xu2, outU)
+
+        y.array = (np.concatenate([outU.array, -outP.array, outB.array, outR.array]))
+    def ITS(self):
+        return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
+
+
+
+
+
+
+
+
+
 
 
