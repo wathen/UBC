@@ -174,25 +174,25 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol):
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
+#    ksp = PETSc.KSP()
+#    ksp.create(comm=PETSc.COMM_WORLD)
+#    pc = ksp.getPC()
+#    ksp.setType('preonly')
+#    pc.setType('lu')
+#    OptDB = PETSc.Options()
+#    # if __version__ != '1.6.0':
+#    OptDB['pc_factor_mat_solver_package']  = "petsc"
+#    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+#    ksp.setFromOptions()
+
+
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
     pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-
-
-    # ksp = PETSc.KSP().create()
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 200
-    # pc = ksp.getPC()
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # ksp.setType('minres')
-    # pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
 
     scale = b.norm()
     b = b/scale

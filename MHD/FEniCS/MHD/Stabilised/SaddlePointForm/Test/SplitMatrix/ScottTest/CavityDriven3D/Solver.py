@@ -69,19 +69,20 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             pc.setType('python')
             pc.setType(PETSc.PC.Type.PYTHON)
             OptDB = PETSc.Options()
-            OptDB['ksp_gmres_restart'] = 200
+            OptDB['ksp_fgmres_restart'] = 50
             # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
             reshist = {}
             def monitor(ksp, its, fgnorm):
                 reshist[its] = fgnorm
                 print its,"    OUTER:", fgnorm
-            # ksp.setMonitor(monitor)
+            ksp.setMonitor(monitor)
             ksp.max_it = 1000
             W = Fspace
             FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
-            pc.setPythonContext(MHDprec.InnerOuterMAGNETICapprox(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+            pc.setPythonContext(MHDprec.ApproxInvA(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
             #OptDB = PETSc.Options()
 
+            #ksp.setTolerances(5e-5)
             # OptDB['pc_factor_mat_solver_package']  = "mumps"
             # OptDB['pc_factor_mat_ordering_type']  = "rcm"
             # ksp.setFromOptions()
@@ -125,7 +126,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         def monitor(ksp, its, fgnorm):
             reshist[its] = fgnorm
             print fgnorm
-        # kspNS.setMonitor(monitor)
+        kspNS.setMonitor(monitor)
 
         uNS = u.getSubVector(NS_is)
         bNS = b.getSubVector(NS_is)

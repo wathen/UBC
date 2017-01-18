@@ -724,6 +724,7 @@ class ApproxInv(BaseMyPC):
             self.C = A.getSubMatrix(self.b_is,self.u_is)
             self.B = A.getSubMatrix(self.p_is,self.u_is)
             self.D = A.getSubMatrix(self.r_is,self.b_is)
+            self.Bt = A.getSubMatrix(self.u_is,self.p_is)
         # print self.Ct.view()
         #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
         #print CFC.shape
@@ -733,7 +734,7 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "umfpack"
+        OptDB["pc_factor_mat_solver_package"] = "petsc"
 
 
         self.kspA.setType('preonly')
@@ -857,17 +858,12 @@ class ApproxInv(BaseMyPC):
         self.B.multTranspose(barF, xu1)
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
-
-        # print barF.array
-        # print invS.array
-        # print xp4.array
-        # ssss
-        # print outU.array
-        # print outP.array
-        # print outB.array
-        # print outR.array
-        # sss
+        print barF.array
+        print xu1.array/xu1.norm()
+        sss
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
+        print y.array
+        ssss
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
@@ -915,6 +911,7 @@ class ApproxInvA(BaseMyPC):
         else:
             self.C = A.getSubMatrix(self.b_is,self.u_is)
             self.B = A.getSubMatrix(self.p_is,self.u_is)
+            self.Bt = A.getSubMatrix(self.u_is,self.p_is)
             self.D = A.getSubMatrix(self.r_is,self.b_is)
         # print self.Ct.view()
         #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
@@ -946,7 +943,6 @@ class ApproxInvA(BaseMyPC):
         invS = bp.duplicate()
 
         bb = x.getSubVector(self.b_is)
-        invMX = bb.duplicate()
 
         br = x.getSubVector(self.r_is)
         invL = br.duplicate()
@@ -962,12 +958,10 @@ class ApproxInvA(BaseMyPC):
         xp1 = invS.duplicate()
         barF = invS.duplicate()
         self.B.mult(invF, xp1)
-
         if self.Schur == "True":
             self.kspS.solve(xp1, barF)
         else:
             barF = FluidSchur([self.kspA, self.Fp, self.kspQ], xp1)
-
         xu1 = invF.duplicate()
         barS = invF.duplicate()
         self.B.multTranspose(invS, xu1)
@@ -981,9 +975,7 @@ class ApproxInvA(BaseMyPC):
 
         # outB = (Mx(C*barS) + invMx + Mx(D'*invL));
         xb1 = invMX.duplicate()
-        xb2 = invMX.duplicate()
         xb3 = invMX.duplicate()
-        xb4 = invMX.duplicate()
         self.D.multTranspose(invL, xb1)
         xb2, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, xb1, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
         self.C.mult(barS, xb3)
@@ -1012,7 +1004,10 @@ class ApproxInvA(BaseMyPC):
         self.B.multTranspose(barF, xu1)
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
-
+        
+#        print barF.array
+#        print (self.Bt*barF).array
+#        sss
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
