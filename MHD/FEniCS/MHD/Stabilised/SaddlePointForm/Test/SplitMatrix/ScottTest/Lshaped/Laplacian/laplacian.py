@@ -217,7 +217,7 @@ for xx in xrange(1,m):
     ksp.create(comm=PETSc.COMM_WORLD)
     pc = ksp.getPC()
     ksp.setType('cg')
-    pc.setType('gamg')
+    pc.setType('hypre')
     ksp.setTolerances(1e-8)
     OptDB = PETSc.Options()
     # OptDB['pc_factor_mat_solver_package']  = "mumps"

@@ -737,12 +737,12 @@ class ApproxInv(BaseMyPC):
 
 
         self.kspA.setType('preonly')
-        self.kspA.getPC().setType('gamg')
+        self.kspA.getPC().setType('lu')
         self.kspA.setFromOptions()
         self.kspA.setPCSide(0)
 
         self.kspQ.setType('preonly')
-        self.kspQ.getPC().setType('gamg')
+        self.kspQ.getPC().setType('lu')
         self.kspQ.setFromOptions()
         self.kspQ.setPCSide(0)
 
