@@ -33,7 +33,7 @@ import PCD
 import SaveMatrix
 # import matplotlib.pyplot as plt
 #@profile
-m = 7
+m = 4
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
