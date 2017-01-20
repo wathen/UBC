@@ -78,7 +78,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 3
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
