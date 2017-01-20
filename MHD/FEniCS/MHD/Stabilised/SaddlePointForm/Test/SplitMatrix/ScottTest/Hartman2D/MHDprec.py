@@ -733,16 +733,16 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "umfpack"
+        OptDB["pc_factor_mat_solver_package"] = "petsc"
 
 
         self.kspA.setType('preonly')
-        self.kspA.getPC().setType('lu')
+        self.kspA.getPC().setType('gamg')
         self.kspA.setFromOptions()
         self.kspA.setPCSide(0)
 
         self.kspQ.setType('preonly')
-        self.kspQ.getPC().setType('lu')
+        self.kspQ.getPC().setType('gamg')
         self.kspQ.setFromOptions()
         self.kspQ.setPCSide(0)
 
@@ -782,6 +782,8 @@ class ApproxInv(BaseMyPC):
 
         print "setup"
     def apply(self, pc, x, y):
+        # print x.array
+        # sss
 
         bu = x.getSubVector(self.u_is)
         invF = bu.duplicate()
@@ -802,7 +804,6 @@ class ApproxInv(BaseMyPC):
             invS = FluidSchur([self.kspA, self.Fp, self.kspQ], bp)
         self.kspMX.solve(bb,invMX)
         self.kspScalar.solve(br,invL)
-
 
         xp1 = invS.duplicate()
         barF = invS.duplicate()
@@ -868,6 +869,7 @@ class ApproxInv(BaseMyPC):
         # print outR.array
         # sss
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
+
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 
@@ -1014,6 +1016,8 @@ class ApproxInvA(BaseMyPC):
         outU = invF - xu2 + barS;
 
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
+        # print y.array
+        # sss
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
 

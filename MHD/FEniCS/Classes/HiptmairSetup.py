@@ -8,7 +8,6 @@ import os, inspect
 from scipy.sparse import coo_matrix, csr_matrix, spdiags
 import HiptmairPrecond
 import time
-import memory_profiler
 import MatrixOperations as MO
 
 def HiptmairMatrixSetup(mesh, N, M):
@@ -72,10 +71,10 @@ def HiptmairMatrixSetupBoundary(mesh, N, M,dim):
 
     # mesh.geometry().dim()
     path = os.path.abspath(os.path.join(inspect.getfile(inspect.currentframe()), ".."))
-    if __version__ == '1.6.0':
-        gradient_code = open(os.path.join(path, 'DiscreteGradientSecond.cpp'), 'r').read()
-    else:
-        gradient_code = open(os.path.join(path, 'DiscreteGradient.cpp'), 'r').read()
+    # if __version__ == '1.6.0':
+    gradient_code = open(os.path.join(path, 'DiscreteGradientSecond.cpp'), 'r').read()
+    # else:
+        # gradient_code = open(os.path.join(path, 'DiscreteGradient.cpp'), 'r').read()
     compiled_gradient_module = compile_extension_module(code=gradient_code)
     tic()
     if dim == 3:

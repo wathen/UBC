@@ -4,7 +4,7 @@ import sys
 petsc4py.init(sys.argv)
 
 from petsc4py import PETSc
-import mshr
+#import mshr
 from dolfin import *
 import sympy as sy
 import numpy as np
@@ -133,24 +133,24 @@ def ExactSolution(mesh, params):
     M1 = sy.diff(u*d-v*b, y)
     M2 = -sy.diff(u*d-v*b, x)
 
-    u0 = Expression((myCCode(u), myCCode(v)))
-    p0 = Expression(myCCode(p))
-    b0 = Expression((myCCode(b), myCCode(d)))
-    r0 = Expression(myCCode(r))
+    u0 = Expression((myCCode(u), myCCode(v)), degree=3)
+    p0 = Expression(myCCode(p), degree=3)
+    b0 = Expression((myCCode(b), myCCode(d)), degree=3)
+    r0 = Expression(myCCode(r), degree=3)
 
     print "  u = (", str(u).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(v).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  p = (", str(p).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  b = (", str(b).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(d).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  r = (", str(r).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
 
-    Laplacian = Expression((myCCode(L1), myCCode(L2)))
-    Advection = Expression((myCCode(A1), myCCode(A2)))
-    gradPres = Expression((myCCode(P1), myCCode(P2)))
-    NScouple = Expression((myCCode(NS1), myCCode(NS2)))
+    Laplacian = Expression((myCCode(L1), myCCode(L2)), degree=3)
+    Advection = Expression((myCCode(A1), myCCode(A2)), degree=3)
+    gradPres = Expression((myCCode(P1), myCCode(P2)), degree=3)
+    NScouple = Expression((myCCode(NS1), myCCode(NS2)), degree=3)
 
-    CurlCurl = Expression((myCCode(C1), myCCode(C2)))
-    gradLagr = Expression((myCCode(R1), myCCode(R2)))
-    Mcouple = Expression((myCCode(M1), myCCode(M2)))
+    CurlCurl = Expression((myCCode(C1), myCCode(C2)), degree=3)
+    gradLagr = Expression((myCCode(R1), myCCode(R2)), degree=3)
+    Mcouple = Expression((myCCode(M1), myCCode(M2)), degree=3)
 
     # pN = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
 
@@ -163,7 +163,8 @@ def ExactSolution(mesh, params):
 def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     parameters['reorder_dofs_serial'] = False
 
-    W = V*Q
+    W = FunctionSpace(mesh, MixedElement([V, Q]))
+
     IS = MO.IndexSet(W)
 
     (u, p) = TrialFunctions(W)
@@ -222,11 +223,11 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     # Mits +=dodim
     u = u*scale
     print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
-    u_k = Function(V)
-    p_k = Function(Q)
+    u_k = Function(FunctionSpace(mesh, V))
+    p_k = Function(FunctionSpace(mesh, Q))
     u_k.vector()[:] = u.getSubVector(IS[0]).array
     p_k.vector()[:] = u.getSubVector(IS[1]).array
-    ones = Function(Q)
+    ones = Function(FunctionSpace(mesh, Q))
     ones.vector()[:]=(0*ones.vector().array()+1)
     p_k.vector()[:] += -assemble(p_k*dx(0))/assemble(ones*dx(0))
     return u_k, p_k
@@ -236,6 +237,8 @@ def Maxwell(V, Q, F, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
+    W = FunctionSpace(mesh, MixedElement([V, Q]))
+
     IS = MO.IndexSet(W)
 
     (b, r) = TrialFunctions(W)
@@ -295,8 +298,8 @@ def Maxwell(V, Q, F, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol):
     print ("{:40}").format("Maxwell solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     u = u*scale
 
-    b_k = Function(V)
-    r_k = Function(Q)
+    b_k = Function(FunctionSpace(mesh, V))
+    r_k = Function(FunctionSpace(mesh, Q))
     b_k.vector()[:] = u.getSubVector(IS[0]).array
     r_k.vector()[:] = u.getSubVector(IS[1]).array
 

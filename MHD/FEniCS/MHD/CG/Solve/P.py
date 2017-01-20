@@ -1,4 +1,4 @@
-from dolfin import assemble, MixedFunctionSpace,tic,toc
+from dolfin import *
 import petsc4py
 import sys
 

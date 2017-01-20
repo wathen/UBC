@@ -44,9 +44,9 @@ def BoundaryIndices(mesh):
     Lagrange = spdiags(LagrangeBoundary,0,mesh.num_vertices(),mesh.num_vertices())
 
     if dim == 3:
-        VelocityBoundary = np.concatenate((LagrangeBoundary,LagrangeBoundary,LagrangeBoundary),axis=1)
+        VelocityBoundary = np.concatenate((LagrangeBoundary,LagrangeBoundary,LagrangeBoundary),axis=0)
     else:
-        VelocityBoundary = np.concatenate((LagrangeBoundary,LagrangeBoundary),axis=1)
+        VelocityBoundary = np.concatenate((LagrangeBoundary,LagrangeBoundary),axis=0)
     Velocity = spdiags(VelocityBoundary,0,dim*mesh.num_vertices(),dim*mesh.num_vertices())
 
     return [Velocity, Magnetic, Lagrange]

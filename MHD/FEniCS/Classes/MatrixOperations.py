@@ -14,7 +14,6 @@ import scipy as Sci
 from math import pi,sin,cos,sqrt
 import scipy.sparse as sps
 import scipy
-import ipdb
 import pandas as pd
 #import petsc4py
 #import sys
@@ -120,7 +119,7 @@ def  PrintStr(string,indent,boarder,preLines="",postLines=""):
 
 def IndexSet(W,type = 'standard'):
     if type == 'standard':
-        if str(W.__class__).find('MixedFunctionSpace') != -1:
+        if str(W.__class__).find('dolfin.functions.functionspace.FunctionSpace') != -1:
             n = W.num_sub_spaces()
             IS = [0]*n
             Start = 0

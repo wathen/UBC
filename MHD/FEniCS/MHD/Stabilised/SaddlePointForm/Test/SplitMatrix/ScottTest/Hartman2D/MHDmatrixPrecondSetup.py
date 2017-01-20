@@ -65,8 +65,10 @@ def FluidNonLinearSetup(Pressure,mu, u_k, mesh):
     print "\n\n"
     return kspFp, Fp
 
-def MagneticSetup(Magnetic, Lagrange, u0, p0, CGtol,params):
+def MagneticSetup(mesh, Magnetic, Lagrange, u0, p0, CGtol,params):
     MO.PrintStr("Preconditioning Magnetic setup",3,"=")
+    Magnetic = FunctionSpace(mesh, Magnetic)
+    Lagrange = FunctionSpace(mesh, Lagrange)
 
     # parameters['linear_algebra_backend'] = 'uBLAS'
     if Magnetic.__str__().find("N1curl2") == -1:

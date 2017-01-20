@@ -9,7 +9,6 @@ petsc4py.init(sys.argv)
 
 from petsc4py import PETSc
 from dolfin import *
-import mshr
 Print = PETSc.Sys.Print
 # from MatrixOperations import *
 import numpy as np
@@ -27,7 +26,6 @@ import Solver as S
 import MHDmatrixPrecondSetup as PrecondSetup
 import NSprecondSetup
 import MHDprec as MHDpreconditioner
-import memory_profiler
 import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
@@ -81,7 +79,7 @@ MU[0]= 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 3
+    level[xx-1] = xx + 0
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -95,24 +93,32 @@ for xx in xrange(1,m):
     parameters['form_compiler']['quadrature_degree'] = -1
     order = 2
     parameters['reorder_dofs_serial'] = False
-    Velocity = VectorFunctionSpace(mesh, "CG", order)
-    Pressure = FunctionSpace(mesh, "CG", order-1)
-    Magnetic = FunctionSpace(mesh, "N1curl", order-1)
-    Lagrange = FunctionSpace(mesh, "CG", order-1)
-    W = MixedFunctionSpace([Velocity, Pressure, Magnetic,Lagrange])
-
-    Velocitydim[xx-1] = Velocity.dim()
-    Pressuredim[xx-1] = Pressure.dim()
-    Magneticdim[xx-1] = Magnetic.dim()
-    Lagrangedim[xx-1] = Lagrange.dim()
+    Velocity = VectorElement("CG", mesh.ufl_cell(), order)
+    Pressure = FiniteElement("CG", mesh.ufl_cell(), order-1)
+    Magnetic = FiniteElement("N1curl", mesh.ufl_cell(), order-1)
+    Lagrange = FiniteElement("CG", mesh.ufl_cell(), order-1)
+    VelocityF = VectorFunctionSpace(mesh, "CG", order)
+    PressureF = FunctionSpace(mesh, "CG", order-1)
+    MagneticF = FunctionSpace(mesh, "N1curl", order-1)
+    LagrangeF = FunctionSpace(mesh, "CG", order-1)
+    #W = MixedFunctionSpace([Velocity, Pressure, Magnetic,Lagrange])
+    W = FunctionSpace(mesh, MixedElement([Velocity, Pressure, Magnetic,Lagrange]))
+#    Velocity = W.sub(0)
+#    Pressure = W.sub(1)
+#    Magnetic = W.sub(2)
+#    Lagrange = W.sub(3)
+    Velocitydim[xx-1] = W.sub(0).dim()
+    Pressuredim[xx-1] = W.sub(1).dim()
+    Magneticdim[xx-1] = W.sub(2).dim()
+    Lagrangedim[xx-1] = W.sub(3).dim()
     Wdim[xx-1] = W.dim()
     print "\n\nW:  ",Wdim[xx-1],"Velocity:  ",Velocitydim[xx-1],"Pressure:  ",Pressuredim[xx-1],"Magnetic:  ",Magneticdim[xx-1],"Lagrange:  ",Lagrangedim[xx-1],"\n\n"
-    dim = [Velocity.dim(), Pressure.dim(), Magnetic.dim(), Lagrange.dim()]
+    dim = [W.sub(0).dim(), W.sub(1).dim(), W.sub(2).dim(), W.sub(3).dim()]
 
     def boundary(x, on_boundary):
         return on_boundary
 
-    FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
+    FSpaces = [VelocityF,PressureF,MagneticF,LagrangeF]
     DimSave[xx-1,:] = np.array(dim)
 
     kappa = 1.0
@@ -140,7 +146,7 @@ for xx in xrange(1,m):
     BC = MHDsetup.BoundaryIndices(mesh)
     MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
     Hiptmairtol = 1e-4
-    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+    HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
 
@@ -189,14 +195,14 @@ for xx in xrange(1,m):
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
-    ones = Function(Pressure)
+    ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     pConst = - assemble(p_k*dx)/assemble(ones*dx)
     p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU, mesh)
-    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh)
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
 
     IS = MO.IndexSet(W, 'Blocks')
 
@@ -210,8 +216,8 @@ for xx in xrange(1,m):
 
     u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
     b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
-    NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
-    M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
+    NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
+    M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
 
     OuterTol = 1e-5
     InnerTol = 1e-5
@@ -225,10 +231,10 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=3), boundary)
         #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0")), boundary)
-        bcr = DirichletBC(W.sub(3),Expression("0.0"), boundary)
+        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=3), boundary)
+        bcr = DirichletBC(W.sub(3),Expression("0.0",degree=3), boundary)
         bcs = [bcu,bcb,bcr]
         initial = Function(W)
         R = action(a,initial);
@@ -239,7 +245,7 @@ for xx in xrange(1,m):
         u.setRandom()
         print "                               Max rhs = ",np.max(b.array)
 
-        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k, mesh)
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
         # b_t = TrialFunction(Velocity)
         # c_t = TestFunction(Velocity)
         # n = FacetNormal(mesh)
@@ -279,7 +285,6 @@ for xx in xrange(1,m):
     TotalTime[xx-1] = time.time() - TotalStart
 
     XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-    dim = [Velocity.dim(), Pressure.dim(), Magnetic.dim(),Lagrange.dim()]
 
 #    ExactSolution = [u0,p0,b0,r0]
 #    errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx-1], errH1r[xx-1] = Iter.Errors(XX,mesh,FSpaces,ExactSolution,order,dim, "CG")
