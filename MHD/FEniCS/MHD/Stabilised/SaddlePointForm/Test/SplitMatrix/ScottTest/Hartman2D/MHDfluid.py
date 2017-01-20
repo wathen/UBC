@@ -9,7 +9,6 @@ petsc4py.init(sys.argv)
 
 from petsc4py import PETSc
 from dolfin import *
-Print = PETSc.Sys.Print
 # from MatrixOperations import *
 import numpy as np
 import PETScIO as IO
