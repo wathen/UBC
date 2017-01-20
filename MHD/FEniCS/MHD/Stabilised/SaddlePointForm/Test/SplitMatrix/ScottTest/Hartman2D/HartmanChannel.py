@@ -133,24 +133,24 @@ def ExactSolution(mesh, params):
     M1 = sy.diff(u*d-v*b, y)
     M2 = -sy.diff(u*d-v*b, x)
 
-    u0 = Expression((myCCode(u), myCCode(v)), degree=3)
-    p0 = Expression(myCCode(p), degree=3)
-    b0 = Expression((myCCode(b), myCCode(d)), degree=3)
-    r0 = Expression(myCCode(r), degree=3)
+    u0 = Expression((myCCode(u), myCCode(v)), degree=4)
+    p0 = Expression(myCCode(p), degree=4)
+    b0 = Expression((myCCode(b), myCCode(d)), degree=4)
+    r0 = Expression(myCCode(r), degree=4)
 
     print "  u = (", str(u).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(v).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  p = (", str(p).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  b = (", str(b).replace('x[0]', 'x').replace('x[1]', 'y'), ", ", str(d).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
     print "  r = (", str(r).replace('x[0]', 'x').replace('x[1]', 'y'), ")\n"
 
-    Laplacian = Expression((myCCode(L1), myCCode(L2)), degree=3)
-    Advection = Expression((myCCode(A1), myCCode(A2)), degree=3)
-    gradPres = Expression((myCCode(P1), myCCode(P2)), degree=3)
-    NScouple = Expression((myCCode(NS1), myCCode(NS2)), degree=3)
+    Laplacian = Expression((myCCode(L1), myCCode(L2)), degree=4)
+    Advection = Expression((myCCode(A1), myCCode(A2)), degree=4)
+    gradPres = Expression((myCCode(P1), myCCode(P2)), degree=4)
+    NScouple = Expression((myCCode(NS1), myCCode(NS2)), degree=4)
 
-    CurlCurl = Expression((myCCode(C1), myCCode(C2)), degree=3)
-    gradLagr = Expression((myCCode(R1), myCCode(R2)), degree=3)
-    Mcouple = Expression((myCCode(M1), myCCode(M2)), degree=3)
+    CurlCurl = Expression((myCCode(C1), myCCode(C2)), degree=4)
+    gradLagr = Expression((myCCode(R1), myCCode(R2)), degree=4)
+    Mcouple = Expression((myCCode(M1), myCCode(M2)), degree=4)
 
     # pN = as_matrix(((Expression(myCCode(J11)), Expression(myCCode(J12))), (Expression(myCCode(J21)), Expression(myCCode(J22)))))
 
