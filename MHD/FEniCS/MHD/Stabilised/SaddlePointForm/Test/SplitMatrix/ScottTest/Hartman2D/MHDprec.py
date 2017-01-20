@@ -733,7 +733,7 @@ class ApproxInv(BaseMyPC):
         # print FC.todense()
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "petsc"
+        OptDB["pc_factor_mat_solver_package"] = "pastix"
 
 
         self.kspA.setType('preonly')

@@ -122,7 +122,7 @@ for xx in xrange(1,m):
 
     kappa = 1.0
     Mu_m = 10.0
-    MU = 1.0/10
+    MU = 1.0
 
     N = FacetNormal(mesh)
 
@@ -139,12 +139,11 @@ for xx in xrange(1,m):
     # kappa = 0.0
     # params = [kappa,Mu_m,MU]
 
-
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
     BC = MHDsetup.BoundaryIndices(mesh)
     MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
-    Hiptmairtol = 1e-4
+    Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
@@ -156,6 +155,7 @@ for xx in xrange(1,m):
         F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
