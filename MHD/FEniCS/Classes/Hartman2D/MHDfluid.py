@@ -204,7 +204,7 @@ for xx in xrange(1,m):
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-4         # tolerance
+    tol = 1.0E-5     # tolerance
     iter = 0            # iteration counter
     maxiter = 5       # max no of iterations allowed
     SolutionTime = 0
@@ -228,10 +228,10 @@ for xx in xrange(1,m):
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=3), boundary)
         #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
-        bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
+        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=3), boundary)
+        bcr = DirichletBC(W.sub(3),Expression("0.0",degree=3), boundary)
         bcs = [bcu,bcb,bcr]
         initial = Function(W)
         R = action(a,initial);

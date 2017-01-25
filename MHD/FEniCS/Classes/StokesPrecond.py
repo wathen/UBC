@@ -91,7 +91,7 @@ class Approx(object):
         kspL.create(comm=PETSc.COMM_WORLD)
         pcL = kspL.getPC()
         kspL.setType('preonly')
-        pcL.setType('gamg')
+        pcL.setType('hypre')
         # kspL.max_it = 1
         kspL.setFromOptions()
         self.kspL = kspL
@@ -100,7 +100,7 @@ class Approx(object):
         kspM.create(comm=PETSc.COMM_WORLD)
         pcM = kspM.getPC()
         kspM.setType('preonly')
-        pcM.setType('gamg')
+        pcM.setType('hypre')
         kspM.setFromOptions()
         self.kspM = kspM
 
