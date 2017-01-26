@@ -65,11 +65,11 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             ksp = PETSc.KSP()
             ksp.create(comm=PETSc.COMM_WORLD)
             pc = ksp.getPC()
-            ksp.setType('fgmres')
+            ksp.setType('gmres')
             pc.setType('python')
 
             OptDB = PETSc.Options()
-            OptDB['ksp_fgmres_restart'] = 100
+            OptDB['ksp_gmres_restart'] = 50
             # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
             reshist = {}
             def monitor(ksp, its, fgnorm):

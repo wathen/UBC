@@ -34,13 +34,13 @@ import HartmanChannel
 m = 4
 
 set_log_active(False)
-errL2u =np.zeros((m-1,1))
-errH1u =np.zeros((m-1,1))
-errL2p =np.zeros((m-1,1))
-errL2b =np.zeros((m-1,1))
-errCurlb =np.zeros((m-1,1))
-errL2r =np.zeros((m-1,1))
-errH1r =np.zeros((m-1,1))
+errL2u = np.zeros((m-1,1))
+errH1u = np.zeros((m-1,1))
+errL2p = np.zeros((m-1,1))
+errL2b = np.zeros((m-1,1))
+errCurlb = np.zeros((m-1,1))
+errL2r = np.zeros((m-1,1))
+errH1r = np.zeros((m-1,1))
 
 
 
@@ -48,7 +48,7 @@ l2uorder =  np.zeros((m-1,1))
 H1uorder =np.zeros((m-1,1))
 l2porder =  np.zeros((m-1,1))
 l2border =  np.zeros((m-1,1))
-Curlborder =np.zeros((m-1,1))
+Curlborder = np.zeros((m-1,1))
 l2rorder =  np.zeros((m-1,1))
 H1rorder = np.zeros((m-1,1))
 
@@ -72,7 +72,7 @@ DimSave = np.zeros((m-1,4))
 dim = 2
 ShowResultPlots = 'yes'
 split = 'Linear'
-MU[0]= 1e0
+MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
@@ -94,22 +94,21 @@ for xx in xrange(1,m):
     Pressure = FiniteElement("CG", mesh.ufl_cell(), order-1)
     Magnetic = FiniteElement("N1curl", mesh.ufl_cell(), order-1)
     Lagrange = FiniteElement("CG", mesh.ufl_cell(), order-1)
+
     VelocityF = VectorFunctionSpace(mesh, "CG", order)
     PressureF = FunctionSpace(mesh, "CG", order-1)
     MagneticF = FunctionSpace(mesh, "N1curl", order-1)
     LagrangeF = FunctionSpace(mesh, "CG", order-1)
-    #W = MixedFunctionSpace([Velocity, Pressure, Magnetic,Lagrange])
     W = FunctionSpace(mesh, MixedElement([Velocity, Pressure, Magnetic,Lagrange]))
-#    Velocity = W.sub(0)
-#    Pressure = W.sub(1)
-#    Magnetic = W.sub(2)
-#    Lagrange = W.sub(3)
+
     Velocitydim[xx-1] = W.sub(0).dim()
     Pressuredim[xx-1] = W.sub(1).dim()
     Magneticdim[xx-1] = W.sub(2).dim()
     Lagrangedim[xx-1] = W.sub(3).dim()
     Wdim[xx-1] = W.dim()
+
     print "\n\nW:  ",Wdim[xx-1],"Velocity:  ",Velocitydim[xx-1],"Pressure:  ",Pressuredim[xx-1],"Magnetic:  ",Magneticdim[xx-1],"Lagrange:  ",Lagrangedim[xx-1],"\n\n"
+
     dim = [W.sub(0).dim(), W.sub(1).dim(), W.sub(2).dim(), W.sub(3).dim()]
 
     def boundary(x, on_boundary):
@@ -125,10 +124,6 @@ for xx in xrange(1,m):
     N = FacetNormal(mesh)
 
     IterType = 'Full'
-    Split = "No"
-    Saddle = "No"
-    Stokes = "No"
-    SetupType = 'python-class'
 
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
@@ -260,8 +255,7 @@ for xx in xrange(1,m):
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
-        if iter <= 3:
-            Mits += mits
+        Mits += mits
         NSits += mits
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)
@@ -277,69 +271,69 @@ for xx in xrange(1,m):
 
     SolTime[xx-1] = SolutionTime/iter
     NSave[xx-1] = (float(NSits)/iter)
-    Mave[xx-1] = (float(Mits)/3)
+    Mave[xx-1] = (float(Mits)/iter)
     iterations[xx-1] = iter
     TotalTime[xx-1] = time.time() - TotalStart
 
     XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
 
-#    ExactSolution = [u0,p0,b0,r0]
-#    errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx-1], errH1r[xx-1] = Iter.Errors(XX,mesh,FSpaces,ExactSolution,order,dim, "CG")
-#    print float(Wdim[xx-1][0])/Wdim[xx-2][0]
-#
-#    if xx > 1:
-#
-#       l2uorder[xx-1] = np.abs(np.log2(errL2u[xx-2]/errL2u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
-#       H1uorder[xx-1] =  np.abs(np.log2(errH1u[xx-2]/errH1u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
-#
-#       l2porder[xx-1] =  np.abs(np.log2(errL2p[xx-2]/errL2p[xx-1])/np.log2((float(Pressuredim[xx-1][0])/Pressuredim[xx-2][0])**(1./2)))
-#
-#       l2border[xx-1] =  np.abs(np.log2(errL2b[xx-2]/errL2b[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
-#       Curlborder[xx-1] =  np.abs(np.log2(errCurlb[xx-2]/errCurlb[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
-#
-#       l2rorder[xx-1] =  np.abs(np.log2(errL2r[xx-2]/errL2r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
-#       H1rorder[xx-1] =  np.abs(np.log2(errH1r[xx-2]/errH1r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
-#
-#
-#import pandas as pd
-#
-#
-#
-#LatexTitles = ["l","DoFu","Dofp","V-L2","L2-order","V-H1","H1-order","P-L2","PL2-order"]
-#LatexValues = np.concatenate((level,Velocitydim,Pressuredim,errL2u,l2uorder,errH1u,H1uorder,errL2p,l2porder), axis=1)
-#LatexTable = pd.DataFrame(LatexValues, columns = LatexTitles)
-#pd.set_option('precision',3)
-#LatexTable = MO.PandasFormat(LatexTable,"V-L2","%2.4e")
-#LatexTable = MO.PandasFormat(LatexTable,'V-H1',"%2.4e")
-#LatexTable = MO.PandasFormat(LatexTable,"H1-order","%1.2f")
-#LatexTable = MO.PandasFormat(LatexTable,'L2-order',"%1.2f")
-#LatexTable = MO.PandasFormat(LatexTable,"P-L2","%2.4e")
-#LatexTable = MO.PandasFormat(LatexTable,'PL2-order',"%1.2f")
-#print LatexTable.to_latex()
-#
-#
-#print "\n\n   Magnetic convergence"
-#MagneticTitles = ["l","B DoF","R DoF","B-L2","L2-order","B-Curl","HCurl-order"]
-#MagneticValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2b,l2border,errCurlb,Curlborder),axis=1)
-#MagneticTable= pd.DataFrame(MagneticValues, columns = MagneticTitles)
-#pd.set_option('precision',3)
-#MagneticTable = MO.PandasFormat(MagneticTable,"B-Curl","%2.4e")
-#MagneticTable = MO.PandasFormat(MagneticTable,'B-L2',"%2.4e")
-#MagneticTable = MO.PandasFormat(MagneticTable,"L2-order","%1.2f")
-#MagneticTable = MO.PandasFormat(MagneticTable,'HCurl-order',"%1.2f")
-#print MagneticTable.to_latex()
-#
-#print "\n\n   Lagrange convergence"
-#LagrangeTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
-#LagrangeValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
-#LagrangeTable= pd.DataFrame(LagrangeValues, columns = LagrangeTitles)
-#pd.set_option('precision',3)
-#LagrangeTable = MO.PandasFormat(LagrangeTable,"R-L2","%2.4e")
-#LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
-#LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
-#LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
-#print LagrangeTable.to_latex()
-#
+    ExactSolution = [u0,p0,b0,r0]
+    errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx-1], errH1r[xx-1] = Iter.Errors(XX,mesh,FSpaces,ExactSolution,order,dim, "CG")
+    print float(Wdim[xx-1][0])/Wdim[xx-2][0]
+
+    if xx > 1:
+
+      l2uorder[xx-1] = np.abs(np.log2(errL2u[xx-2]/errL2u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
+      H1uorder[xx-1] =  np.abs(np.log2(errH1u[xx-2]/errH1u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
+
+      l2porder[xx-1] =  np.abs(np.log2(errL2p[xx-2]/errL2p[xx-1])/np.log2((float(Pressuredim[xx-1][0])/Pressuredim[xx-2][0])**(1./2)))
+
+      l2border[xx-1] =  np.abs(np.log2(errL2b[xx-2]/errL2b[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
+      Curlborder[xx-1] =  np.abs(np.log2(errCurlb[xx-2]/errCurlb[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
+
+      l2rorder[xx-1] =  np.abs(np.log2(errL2r[xx-2]/errL2r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
+      H1rorder[xx-1] =  np.abs(np.log2(errH1r[xx-2]/errH1r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
+
+
+import pandas as pd
+
+
+
+LatexTitles = ["l","DoFu","Dofp","V-L2","L2-order","V-H1","H1-order","P-L2","PL2-order"]
+LatexValues = np.concatenate((level,Velocitydim,Pressuredim,errL2u,l2uorder,errH1u,H1uorder,errL2p,l2porder), axis=1)
+LatexTable = pd.DataFrame(LatexValues, columns = LatexTitles)
+pd.set_option('precision',3)
+LatexTable = MO.PandasFormat(LatexTable,"V-L2","%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,'V-H1',"%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,"H1-order","%1.2f")
+LatexTable = MO.PandasFormat(LatexTable,'L2-order',"%1.2f")
+LatexTable = MO.PandasFormat(LatexTable,"P-L2","%2.4e")
+LatexTable = MO.PandasFormat(LatexTable,'PL2-order',"%1.2f")
+print LatexTable.to_latex()
+
+
+print "\n\n   Magnetic convergence"
+MagneticTitles = ["l","B DoF","R DoF","B-L2","L2-order","B-Curl","HCurl-order"]
+MagneticValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2b,l2border,errCurlb,Curlborder),axis=1)
+MagneticTable= pd.DataFrame(MagneticValues, columns = MagneticTitles)
+pd.set_option('precision',3)
+MagneticTable = MO.PandasFormat(MagneticTable,"B-Curl","%2.4e")
+MagneticTable = MO.PandasFormat(MagneticTable,'B-L2',"%2.4e")
+MagneticTable = MO.PandasFormat(MagneticTable,"L2-order","%1.2f")
+MagneticTable = MO.PandasFormat(MagneticTable,'HCurl-order',"%1.2f")
+print MagneticTable.to_latex()
+
+print "\n\n   Lagrange convergence"
+LagrangeTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
+LagrangeValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
+LagrangeTable= pd.DataFrame(LagrangeValues, columns = LagrangeTitles)
+pd.set_option('precision',3)
+LagrangeTable = MO.PandasFormat(LagrangeTable,"R-L2","%2.4e")
+LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
+LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
+LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
+print LagrangeTable.to_latex()
+
 #
 #
 #
