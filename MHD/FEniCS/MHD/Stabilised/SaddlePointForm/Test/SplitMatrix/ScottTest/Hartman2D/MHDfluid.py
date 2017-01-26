@@ -31,7 +31,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 # import matplotlib.pyplot as plt
 #@profile
-m = 4
+m = 5
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
