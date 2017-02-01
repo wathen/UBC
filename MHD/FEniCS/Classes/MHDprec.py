@@ -91,13 +91,6 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
             self.Ct = A.getSubMatrix(self.b_is,self.u_is)
             self.Bt = A.getSubMatrix(self.p_is,self.u_is)
             self.Dt = A.getSubMatrix(self.r_is,self.b_is)
-        # print self.Ct.view()
-        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
-        #print CFC.shape
-        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
-        #print CFC.size, self.AA.size
-        # MO.StoreMatrix(B,"A")
-        # print FC.todense()
 
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
@@ -126,10 +119,7 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
         OptDB = PETSc.Options()
         kspMX.setOperators(self.AA,self.AA)
         self.kspMX = kspMX
-        # self.kspCGScalar.setType('preonly')
-        # self.kspCGScalar.getPC().setType('lu')
-        # self.kspCGScalar.setFromOptions()
-        # self.kspCGScalar.setPCSide(0)
+
 
         self.kspVector.setType('preonly')
         self.kspVector.getPC().setType('lu')
@@ -145,7 +135,6 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
         xr = br.duplicate()
         self.kspScalar.solve(br, xr)
 
-        # print self.D.size
         x2 = x.getSubVector(self.p_is)
         y2 = x2.duplicate()
         y3 = x2.duplicate()
@@ -153,9 +142,6 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
         self.kspA.solve(x2,y2)
         self.Fp.mult(y2,y3)
         self.kspQ.solve(y3,xp)
-
-
-        # self.kspF.solve(bu1-bu4-bu2,xu)
 
         bb = x.getSubVector(self.b_is)
         xb = bb.duplicate()
@@ -676,6 +662,13 @@ def FluidSchur(A, b):
         return x3
 
 
+
+###############################################################################
+#######################                                 #######################
+#######################       Approx Inv precond        #######################
+#######################                                 #######################
+###############################################################################
+
 class ApproxInv(BaseMyPC):
 
     def __init__(self, W, kspF, kspA, kspQ,Fp,kspScalar, kspCGScalar, kspVector, G, P, A, Hiptmairtol):
@@ -724,13 +717,8 @@ class ApproxInv(BaseMyPC):
             self.C = A.getSubMatrix(self.b_is,self.u_is)
             self.B = A.getSubMatrix(self.p_is,self.u_is)
             self.D = A.getSubMatrix(self.r_is,self.b_is)
-        # print self.Ct.view()
-        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
-        #print CFC.shape
-        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
-        #print CFC.size, self.AA.size
-        # MO.StoreMatrix(B,"A")
-        # print FC.todense()
+
+
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "petsc"
@@ -759,10 +747,6 @@ class ApproxInv(BaseMyPC):
         OptDB = PETSc.Options()
         kspMX.setOperators(self.AA,self.AA)
         self.kspMX = kspMX
-        # self.kspCGScalar.setType('preonly')
-        # self.kspCGScalar.getPC().setType('lu')
-        # self.kspCGScalar.setFromOptions()
-        # self.kspCGScalar.setPCSide(0)
 
         self.kspVector.setType('preonly')
         self.kspVector.getPC().setType('lu')
@@ -773,7 +757,7 @@ class ApproxInv(BaseMyPC):
             Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
             kspS = PETSc.KSP()
             kspS.create(comm=PETSc.COMM_WORLD)
-            pcS = kspMX.getPC()
+            pcS = kspS.getPC()
             kspS.setType('preonly')
             pcS.setType('lu')
             OptDB = PETSc.Options()
@@ -782,8 +766,6 @@ class ApproxInv(BaseMyPC):
 
         print "setup"
     def apply(self, pc, x, y):
-        # print x.array
-        # sss
 
         bu = x.getSubVector(self.u_is)
         invF = bu.duplicate()
@@ -859,15 +841,6 @@ class ApproxInv(BaseMyPC):
         self.kspF.solve(xu1, xu2)
         outU = invF - xu2 + barS;
 
-        # print barF.array
-        # print invS.array
-        # print xp4.array
-        # ssss
-        # print outU.array
-        # print outP.array
-        # print outB.array
-        # print outR.array
-        # sss
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
 
     def ITS(self):
@@ -918,14 +891,6 @@ class ApproxInvA(BaseMyPC):
             self.C = A.getSubMatrix(self.b_is,self.u_is)
             self.B = A.getSubMatrix(self.p_is,self.u_is)
             self.D = A.getSubMatrix(self.r_is,self.b_is)
-        # print self.Ct.view()
-        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
-        #print CFC.shape
-        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
-        #print CFC.size, self.AA.size
-        # MO.StoreMatrix(B,"A")
-        # print FC.todense()
-
 
         if self.Schur == "True":
             Schur = SchurComplement(self.kspF, A.getSubMatrix(self.u_is, self.p_is))
@@ -1016,10 +981,17 @@ class ApproxInvA(BaseMyPC):
         outU = invF - xu2 + barS;
 
         y.array = (np.concatenate([outU.array, outP.array, outB.array, outR.array]))
-        # print y.array
-        # sss
+
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
+
+
+
+###############################################################################
+#######################                                 #######################
+#######################        Block Inv precond        #######################
+#######################                                 #######################
+###############################################################################
 
 
 class BlkInv(BaseMyPC):
@@ -1037,10 +1009,6 @@ class BlkInv(BaseMyPC):
         self.HiptmairIts = 0
         self.CGits = 0
 
-
-
-        # print range(self.W[0].dim(),self.W[0].dim()+self.W[1].dim())
-        # ss
         self.P = P
         self.G = G
         self.AA = A
@@ -1070,13 +1038,7 @@ class BlkInv(BaseMyPC):
             self.C = A.getSubMatrix(self.b_is,self.u_is)
             self.B = A.getSubMatrix(self.p_is,self.u_is)
             self.D = A.getSubMatrix(self.r_is,self.b_is)
-        # print self.Ct.view()
-        #CFC = sp.csr_matrix( (data,(row,column)), shape=(self.W[1].dim(),self.W[1].dim()) )
-        #print CFC.shape
-        #CFC = PETSc.Mat().createAIJ(size=CFC.shape,csr=(CFC.indptr, CFC.indices, CFC.data))
-        #print CFC.size, self.AA.size
-        # MO.StoreMatrix(B,"A")
-        # print FC.todense()
+
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
         OptDB["pc_factor_mat_solver_package"] = "umfpack"
@@ -1105,10 +1067,6 @@ class BlkInv(BaseMyPC):
         OptDB = PETSc.Options()
         kspMX.setOperators(self.AA,self.AA)
         self.kspMX = kspMX
-        # self.kspCGScalar.setType('preonly')
-        # self.kspCGScalar.getPC().setType('lu')
-        # self.kspCGScalar.setFromOptions()
-        # self.kspCGScalar.setPCSide(0)
 
         self.kspVector.setType('preonly')
         self.kspVector.getPC().setType('lu')
@@ -1172,10 +1130,6 @@ class BlkInv(BaseMyPC):
         y.array = (np.concatenate([outU.array, -outP.array, outB.array, outR.array]))
     def ITS(self):
         return self.CGits, self.HiptmairIts , self.CGtime, self.HiptmairTime
-
-
-
-
 
 
 class BlkInvA(BaseMyPC):

@@ -45,10 +45,10 @@ def HiptmairMatrixSetup(mesh, N, M):
 
 def BoundaryEdge(mesh):
     path = os.path.abspath(os.path.join(inspect.getfile(inspect.currentframe()), ".."))
-    if __version__ == '1.6.0':
-        gradient_code = open(os.path.join(path, 'DiscreteGradientSecond.cpp'), 'r').read()
-    else:
-        gradient_code = open(os.path.join(path, 'DiscreteGradient.cpp'), 'r').read()
+    # if __version__ == '1.6.0':
+    gradient_code = open(os.path.join(path, 'DiscreteGradientSecond.cpp'), 'r').read()
+    # else:
+    #     gradient_code = open(os.path.join(path, 'DiscreteGradient.cpp'), 'r').read()
     compiled_gradient_module = compile_extension_module(code=gradient_code)
     B = BoundaryMesh(mesh,"exterior",False)
     FaceBoundary = numpy.sort(B.entity_map(2).array().astype("float_","C"))

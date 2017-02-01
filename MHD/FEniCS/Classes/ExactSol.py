@@ -190,14 +190,14 @@ def NS2D(case,Show="no",type = 'no'):
 
     # u0 = Vec(u ,v, x, y)
     # p0 = Scal(p, x, y)
-    u0 = Expression((ccode(u),ccode(v)))
-    p0 = Expression(ccode(p))
+    u0 = Expression((ccode(u),ccode(v)), degree=4)
+    p0 = Expression(ccode(p), degree=4)
     # Laplacian = Vec(L1, L2, x, y)
     # Advection = Vec(A1, A2, x, y)
     # gradPres = Vec(P1, P2, x, y)
-    Laplacian = Expression((ccode(L1),ccode(L2)))
-    Advection = Expression((ccode(A1),ccode(A2)))
-    gradPres = Expression((ccode(P1),ccode(P2)))
+    Laplacian = Expression((ccode(L1),ccode(L2)), degree=4)
+    Advection = Expression((ccode(A1),ccode(A2)), degree=4)
+    gradPres = Expression((ccode(P1),ccode(P2)), degree=4)
     if Show == "no":
         Print2D(u,v,p,"NS")
     if type == "MHD":
@@ -320,11 +320,11 @@ def NS3D(case,Show="no",type="no"):
     P2 = diff(p,y)
     P3 = diff(p,z)
 
-    u0 = Expression((ccode(u),ccode(v),ccode(w)))
-    p0 = Expression(ccode(p))
-    Laplacian = Expression((ccode(L1),ccode(L2),ccode(L3)))
-    Advection = Expression((ccode(A1),ccode(A2),ccode(A3)))
-    gradPres = Expression((ccode(P1),ccode(P2),ccode(P3)))
+    u0 = Expression((ccode(u),ccode(v),ccode(w)), degree=4)
+    p0 = Expression(ccode(p), degree=4)
+    Laplacian = Expression((ccode(L1),ccode(L2),ccode(L3)), degree=4)
+    Advection = Expression((ccode(A1),ccode(A2),ccode(A3)), degree=4)
+    gradPres = Expression((ccode(P1),ccode(P2),ccode(P3)), degree=4)
 
     # if Show == 'no':
     #     Print3D(u,v,w,p,"NS")
@@ -431,16 +431,16 @@ def M2D(case, Show="no",type="no", Mass = 0):
 
     u0 = Vec(u,v,x,y)
     p0 = Scal(p,x,y)
-    # u0 = Expression((ccode(u),ccode(v)))
-    # p0 = Expression(ccode(p).replace('M_PI','pi'))
+    # u0 = Expression((ccode(u),ccode(v)), degree=4)
+    # p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
 
 
     CurlCurl = Vec(L1,L2,x,y)
     gradPres = Vec(P1,P2,x,y)
     CurlMass = 1
-    # CurlCurl = Expression((ccode(L1),ccode(L2)))
-    # gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi')))
-    # CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)))
+    # CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
+    # gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode, degree=4(P2).replace('M_PI','pi')))
+    # CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)), degree=4)
     # print latex(u)
     # print latex(v)
     # print latex(w)
@@ -542,11 +542,11 @@ def M3D(case,Show="no",type="no",Mass=0):
     P3 = diff(p,z)
 
 
-    u0 = Expression((ccode(u),ccode(v),ccode(w)))
-    p0 = Expression(ccode(p).replace('M_PI','pi'))
-    CurlCurl = Expression((ccode(L1),ccode(L2),ccode(L3)))
-    gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi'),ccode(P3).replace('M_PI','pi')))
-    CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2),ccode(Mass*w+L3)))
+    u0 = Expression((ccode(u),ccode(v),ccode(w)), degree=4)
+    p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
+    CurlCurl = Expression((ccode(L1),ccode(L2),ccode(L3)), degree=4)
+    gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi'),ccode(P3).replace('M_PI','pi')), degree=4)
+    CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2),ccode(Mass*w+L3)), degree=4)
 
 
     # if Show == 'no':
@@ -594,8 +594,8 @@ def MHD2D(NScase,Mcase, Show="no"):
 
     M1 = diff(u*d-v*b,y)
     M2 = -diff(u*d-v*b,x)
-    NS_Couple = Expression((ccode(NS1),ccode(NS2)))
-    M_Couple = Expression((ccode(M1),ccode(M2)))
+    NS_Couple = Expression((ccode(NS1),ccode(NS2)), degree=4)
+    M_Couple = Expression((ccode(M1),ccode(M2)), degree=4)
 
     return u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple
 
@@ -629,8 +629,8 @@ def MHD3D(NScase,Mcase,Show="no"):
     M1 = n*e - d*p
     M2 = b*p - m*e
     M3 = m*d - n*b
-    NS_Couple = Expression((ccode(NS1),ccode(NS2),ccode(NS3)))
-    M_Couple = Expression((ccode(M1),ccode(M2),ccode(M3)))
+    NS_Couple = Expression((ccode(NS1),ccode(NS2),ccode(NS3)), degree=4)
+    M_Couple = Expression((ccode(M1),ccode(M2),ccode(M3)), degree=4)
 
     return u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple
 

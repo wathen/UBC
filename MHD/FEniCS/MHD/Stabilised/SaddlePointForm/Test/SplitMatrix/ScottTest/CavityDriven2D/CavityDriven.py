@@ -4,20 +4,23 @@ import sys
 petsc4py.init(sys.argv)
 
 from petsc4py import PETSc
-import mshr
 from dolfin import *
 import sympy as sy
 import numpy as np
 import ExactSol
 import MatrixOperations as MO
 import CheckPetsc4py as CP
+import MaxwellPrecond as MP
+import StokesPrecond
 from  dolfin import __version__
+import time
 
 def Domain(n):
-    mesh = RectangleMesh(-1., -1., 1., 1.,n,n)
+    mesh = UnitSquareMesh(n, n)
+    # RectangleMesh(Point(-1., -1.), Point(1., 1.), n, n)
     class Left(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[0], -1.0)
+            return near(x[0], 0.0)
 
     class Right(SubDomain):
         def inside(self, x, on_boundary):
@@ -25,7 +28,7 @@ def Domain(n):
 
     class Bottom(SubDomain):
         def inside(self, x, on_boundary):
-            return near(x[1], -1.0)
+            return near(x[1], 0.0)
 
     class Top(SubDomain):
         def inside(self, x, on_boundary):
@@ -57,11 +60,13 @@ def Domain(n):
 
 
 # Sets up the initial guess for the MHD problem
-def Stokes(V, Q, F, params, boundaries, domains):
+def Stokes(V, Q, F, params, boundaries, domains, mesh):
     parameters['reorder_dofs_serial'] = False
 
-    W = V*Q
+    W = FunctionSpace(mesh, MixedElement([V, Q]))
+
     IS = MO.IndexSet(W)
+
     mesh = W.mesh()
     (u, p) = TrialFunctions(W)
     (v, q) = TestFunctions(W)
@@ -76,58 +81,51 @@ def Stokes(V, Q, F, params, boundaries, domains):
 
     def boundary(x, on_boundary):
         return on_boundary
-    class u0(Expression):
-        def __init__(self, mesh):
-            self.mesh = mesh
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = 1.0
-            values[1] = 0
-        def value_shape(self):
-            return (2,)
-    u0 = u0(mesh)
-    bcu1 = DirichletBC(W.sub(0), Expression(("0.0","0.0")), boundaries, 1)
-    bcu2 = DirichletBC(W.sub(0), u0, boundaries, 2)
+
+    bcu1 = DirichletBC(W.sub(0), Expression(("0.0","0.0"), degree=4), boundaries, 1)
+    bcu2 = DirichletBC(W.sub(0), Expression(("1.0","0.0"), degree=4), boundaries, 2)
     bcu = [bcu1, bcu2]
 
     A, b = assemble_system(a, L, bcu)
     A, b = CP.Assemble(A, b)
-    # print b.array
-    # sss
+    pp = params[2]*inner(grad(v), grad(u))*dx + (1./params[2])*p*q*dx
+    P, Pb = assemble_system(pp, L, bcu)
+    P, Pb = CP.Assemble(P, Pb)
+
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
     pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-    # print b.array
-    # bbb
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(StokesPrecond.Approx(W, 1))
+    ksp.setOperators(A,P)
+
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,A)
     del A
+    start_time = time.time()
     ksp.solve(b,u)
-    # Mits +=dodim
+    print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+
     u = u*scale
-    u_k = Function(V)
-    p_k = Function(Q)
+    u_k = Function(FunctionSpace(mesh, V))
+    p_k = Function(FunctionSpace(mesh, Q))
     u_k.vector()[:] = u.getSubVector(IS[0]).array
     p_k.vector()[:] = u.getSubVector(IS[1]).array
-    ones = Function(Q)
+    ones = Function(FunctionSpace(mesh, Q))
     ones.vector()[:]=(0*ones.vector().array()+1)
-    p_k.vector()[:] += -assemble(p_k*dx('everywhere'))/assemble(ones*dx('everywhere'))
+    p_k.vector()[:] += -assemble(p_k*dx("everywhere"))/assemble(ones*dx("everywhere"))
     return u_k, p_k
 
-
-def Maxwell(V, Q, F, params):
+def Maxwell(V, Q, F, params, HiptmairMatrices, Hiptmairtol, mesh):
     parameters['reorder_dofs_serial'] = False
 
-    W = V*Q
+    W = FunctionSpace(mesh, MixedElement([V, Q]))
+
     IS = MO.IndexSet(W)
 
     print params
@@ -142,44 +140,36 @@ def Maxwell(V, Q, F, params):
 
     def boundary(x, on_boundary):
         return on_boundary
-    class b0(Expression):
-        def __init__(self, mesh):
-            self.mesh = mesh
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = 1.0
-            values[1] = 0
-        def value_shape(self):
-            return (2,)
-    b0 = b0(mesh)
 
-    bcb = DirichletBC(W.sub(0), b0, boundary)
-    bcr = DirichletBC(W.sub(1), Expression(("0.0")), boundary)
+    bcb = DirichletBC(W.sub(0), Expression(("1.0","0.0"), degree=4), boundary)
+    bcr = DirichletBC(W.sub(1), Expression(("0.0"), degree=4), boundary)
     bc = [bcb, bcr]
 
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
     pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    if __version__ != '1.6.0':
-        OptDB['pc_factor_mat_solver_package']  = "mumps"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+
+
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,A)
     del A
+    start_time = time.time()
     ksp.solve(b,u)
+    print ("{:40}").format("Maxwell solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+
     u = u*scale
 
-    b_k = Function(V)
-    r_k = Function(Q)
+    b_k = Function(FunctionSpace(mesh, V))
+    r_k = Function(FunctionSpace(mesh, Q))
     b_k.vector()[:] = u.getSubVector(IS[0]).array
     r_k.vector()[:] = u.getSubVector(IS[1]).array
-
     return b_k, r_k

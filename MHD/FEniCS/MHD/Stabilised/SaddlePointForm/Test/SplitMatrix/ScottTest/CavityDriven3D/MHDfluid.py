@@ -9,7 +9,6 @@ petsc4py.init(sys.argv)
 
 from petsc4py import PETSc
 from dolfin import *
-import mshr
 Print = PETSc.Sys.Print
 # from MatrixOperations import *
 import numpy as np
@@ -18,7 +17,7 @@ import common
 import scipy
 import scipy.io
 import time
-
+import matplotlib.pylab as plt
 import BiLinear as forms
 import IterOperations as Iter
 import MatrixOperations as MO
@@ -28,13 +27,15 @@ import Solver as S
 import MHDmatrixPrecondSetup as PrecondSetup
 import NSprecondSetup
 import MHDprec as MHDpreconditioner
-import memory_profiler
 import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import CavityDriven
+import FEniCSplot as Fplt
+import matplotlib.pylab as plt
+
 #@profile
-m = 2
+m = 4
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -81,7 +82,7 @@ split = 'Linear'
 MU[0]= 1e0
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 4
+    level[xx-1] = xx + 0
     nn = 2**(level[xx-1])
 
 
@@ -89,31 +90,36 @@ for xx in xrange(1,m):
     # Create mesh and define function space
     nn = int(nn)
     NN[xx-1] = nn/2
-    parameters["form_compiler"]["quadrature_degree"] = -1
     mesh, boundaries, domains = CavityDriven.Domain(nn)
 
+    parameters['form_compiler']['quadrature_degree'] = -1
     order = 2
     parameters['reorder_dofs_serial'] = False
-    Velocity = VectorFunctionSpace(mesh, "CG", order)
-    Pressure = FunctionSpace(mesh, "CG", order-1)
-    Magnetic = FunctionSpace(mesh, "N1curl", order-1)
-    Lagrange = FunctionSpace(mesh, "CG", order-1)
-    W = MixedFunctionSpace([Velocity, Pressure, Magnetic,Lagrange])
-    # W = Velocity*Pressure*Magnetic*Lagrange
-    Velocitydim[xx-1] = Velocity.dim()
-    Pressuredim[xx-1] = Pressure.dim()
-    Magneticdim[xx-1] = Magnetic.dim()
-    Lagrangedim[xx-1] = Lagrange.dim()
-    Wdim[xx-1] = W.dim()
-    print "\n\nW:  ",Wdim[xx-1],"Velocity:  ",Velocitydim[xx-1],"Pressure:  ",Pressuredim[xx-1],"Magnetic:  ",Magneticdim[xx-1],"Lagrange:  ",Lagrangedim[xx-1],"\n\n"
-    dim = [Velocity.dim(), Pressure.dim(), Magnetic.dim(), Lagrange.dim()]
+    Velocity = VectorElement("CG", mesh.ufl_cell(), order)
+    Pressure = FiniteElement("CG", mesh.ufl_cell(), order-1)
+    Magnetic = FiniteElement("N1curl", mesh.ufl_cell(), order-1)
+    Lagrange = FiniteElement("CG", mesh.ufl_cell(), order-1)
 
+    VelocityF = VectorFunctionSpace(mesh, "CG", order)
+    PressureF = FunctionSpace(mesh, "CG", order-1)
+    MagneticF = FunctionSpace(mesh, "N1curl", order-1)
+    LagrangeF = FunctionSpace(mesh, "CG", order-1)
+    W = FunctionSpace(mesh, MixedElement([Velocity, Pressure, Magnetic,Lagrange]))
+
+    Velocitydim[xx-1] = W.sub(0).dim()
+    Pressuredim[xx-1] = W.sub(1).dim()
+    Magneticdim[xx-1] = W.sub(2).dim()
+    Lagrangedim[xx-1] = W.sub(3).dim()
+    Wdim[xx-1] = W.dim()
+
+    print "\n\nW:  ",Wdim[xx-1],"Velocity:  ",Velocitydim[xx-1],"Pressure:  ",Pressuredim[xx-1],"Magnetic:  ",Magneticdim[xx-1],"Lagrange:  ",Lagrangedim[xx-1],"\n\n"
+
+    dim = [W.sub(0).dim(), W.sub(1).dim(), W.sub(2).dim(), W.sub(3).dim()]
 
     def boundary(x, on_boundary):
         return on_boundary
 
-
-    FSpaces = [Velocity,Pressure,Magnetic,Lagrange]
+    FSpaces = [VelocityF,PressureF,MagneticF,LagrangeF]
 
     kappa = 1.0
     Mu_m = 10.0
@@ -128,24 +134,24 @@ for xx in xrange(1,m):
     SetupType = 'python-class'
     params = [kappa,Mu_m,MU]
 
-    F_M = Expression(("0.0","0.0","0.0"))
-    F_S = Expression(("0.0","0.0","0.0"))
+    F_M = Expression(("0.0","0.0","0.0"), degree=4)
+    F_S = Expression(("0.0","0.0","0.0"), degree=4)
 
     n = FacetNormal(mesh)
 
-    r0 = Expression(("0.0"))
-    b0 = Expression(("1.0", "0.0", "0.0"))
-    u0 = Expression(("1.0/sqrt(2.)", "1.0/sqrt(2.)", "0.0"))
+    r0 = Expression(("0.0"), degree=4)
+    b0 = Expression(("1.0", "0.0", "0.0"), degree=4)
+    u0 = Expression(("1.0/sqrt(2.)", "1.0/sqrt(2.)", "0.0"), degree=4)
 
-    Hiptmairtol = 1e-3
-    HiptmairMatrices = PrecondSetup.MagneticSetup(Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+    Hiptmairtol = 1e-6
+    HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
 
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
 
-    u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, u0, params, boundaries, domains)
-    b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, b0, params, HiptmairMatrices, Hiptmairtol)
+    u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_S, u0, params, boundaries, domains, mesh)
+    b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, b0, params, HiptmairMatrices, Hiptmairtol, mesh)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     (u, p, b, r) = TrialFunctions(W)
@@ -184,65 +190,72 @@ for xx in xrange(1,m):
 
     # u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-10,Neumann=None,options ="New")
 
-    ones = Function(Pressure)
+    ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
-    # pConst = - assemble(p_k*dx)/assemble(ones*dx)
-    # p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
+    pConst = - assemble(p_k*dx)/assemble(ones*dx)
+    p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
+    x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
-    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(Pressure, MU)
-    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(Pressure, MU, u_k)
-    #plot(b_k)
+    KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
+    kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
 
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-4     # tolerance
+    tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 3       # max no of iterations allowed
+    maxiter = 5       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
+    # parameters['linear_algebra_backend'] = 'uBLAS'
 
-    u_is = PETSc.IS().createGeneral(range(Velocity.dim()))
-    NS_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim()))
-    M_is = PETSc.IS().createGeneral(range(Velocity.dim()+Pressure.dim(),W.dim()))
+    u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+    b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+    NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
+    M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
 
     OuterTol = 1e-5
     InnerTol = 1e-5
-    NSits =0
-    Mits =0
-
-    TotalStart =time.time()
+    NSits = 0
+    Mits = 0
+    TotalStart = time.time()
     SolutionTime = 0
+
+
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0), Expression(("0.0","0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2), Expression(("0.0","0.0","0.0")), boundary)
-        bcr = DirichletBC(W.sub(3), Expression("0.0"), boundary)
-        bcs = [bcu, bcb, bcr]
-
+        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0"), degree=4), boundary)
+        #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0","0.0"),degree=4), boundary)
+        bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
+        bcs = [bcu,bcb,bcr]
+        initial = Function(W)
+        R = action(a,initial);
+        DR = derivative(R, initial);
         A, b = assemble_system(a, L, bcs)
-        # if iter == 2:
-        # ss
-
         A, b = CP.Assemble(A,b)
         u = b.duplicate()
-        n = FacetNormal(mesh)
-        b_t = TrialFunction(Velocity)
-        c_t = TestFunction(Velocity)
-        mat = as_matrix([[b_k[2]*b_k[2]+b_k[1]*b_k[1],-b_k[1]*b_k[0],-b_k[0]*b_k[2]],
-                         [-b_k[1]*b_k[0],b_k[0]*b_k[0]+b_k[2]*b_k[2],-b_k[2]*b_k[1]],
-                       [-b_k[0]*b_k[2],-b_k[1]*b_k[2],b_k[0]*b_k[0]+b_k[1]*b_k[1]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(aa)
-        bcu.apply(ShiftedMass)
-        ShiftedMass = CP.Assemble(ShiftedMass)
+        u.setRandom()
+        print "                               Max rhs = ",np.max(b.array)
+
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
+        # b_t = TrialFunction(Velocity)
+        # c_t = TestFunction(Velocity)
+        # n = FacetNormal(mesh)
+        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        # ShiftedMass = assemble(aa)
+        # bcu.apply(ShiftedMass)
+        # ShiftedMass = CP.Assemble(ShiftedMass)
+        ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
+        Options = 'p4'
 
         stime = time.time()
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time()- stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
         Mits += mits
@@ -269,7 +282,6 @@ for xx in xrange(1,m):
     TotalTime[xx-1] = time.time() - TotalStart
 
     XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-    dim = [Velocity.dim(), Pressure.dim(), Magnetic.dim(),Lagrange.dim()]
 
 
 
@@ -293,21 +305,29 @@ else:
     IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
 print IterTable.to_latex()
 
-b = b_k.vector().array()
-b = b/np.linalg.norm(b)
-B = Function(Magnetic)
-B.vector()[:] = b
 
-p = plot(u_k)
-# p.write_png()
+# p = plot(u_k, mode = "glyphs", interactive=True)
+# plt.show()
+# p.write_pdf()
+file = File("u_k.pvd")
+file << u_k
 
-p = plot(p_k)
-# p.write_png()
+# p = plot(p_k, interactive=True)
+# plt.show()
+# p.write_pdf()
+file = File("p_k.pvd")
+file << p_k
 
-p = plot(b_k)
-# p.write_png()
+# p = plot(b_k, mode = "glyphs", interactive=True)
+# plt.show()
+# p.write_pdf()
+file = File("b_k.pvd")
+file << b_k
 
-p = plot(r_k)
-# p.write_png()
-
+# p = plot(r_k, interactive=True)
+# plt.show()
+# p.write_pdf()
+file = File("r_k.pvd")
+file << r_k
+# interactive()
 # ssss

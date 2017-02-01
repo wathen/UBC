@@ -408,3 +408,17 @@ MO.StoreMatrix(DimSave, "dim")
 #    interactive()
 
 interactive()
+
+# \begin{tabular}{lrrrrrll}
+# \toprule
+# {} &    l &        DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its & Av Inner its \\
+# \midrule
+# 0 &  4.0 &  3.556e+03 &          0.888 &              5.287 &                5.0 &         28.4 &         28.4 \\
+# 1 &  5.0 &  1.376e+04 &          7.494 &             38.919 &                5.0 &         26.8 &         26.8 \\
+# 2 &  6.0 &  5.415e+04 &         42.334 &            217.070 &                5.0 &         28.8 &         28.8 \\
+# 3 &  7.0 &  2.148e+05 &        196.081 &           1001.671 &                5.0 &         28.4 &         28.4 \\
+# 4 &  8.0 &  8.556e+05 &        843.574 &           4294.126 &                5.0 &         28.2 &         28.2 \\
+# 5 &  9.0 &  3.415e+06 &       3865.731 &          15683.881 &                4.0 &         28.2 &         28.2 \\
+# \bottomrule
+# \end{tabular}
+

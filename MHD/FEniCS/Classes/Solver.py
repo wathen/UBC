@@ -76,7 +76,7 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
                 reshist[its] = fgnorm
                 print its,"    OUTER:", fgnorm
             # ksp.setMonitor(monitor)
-            ksp.max_it = 500
+            ksp.max_it = 200
             # ksp.setTolerances(1e-5)
 
             W = Fspace
