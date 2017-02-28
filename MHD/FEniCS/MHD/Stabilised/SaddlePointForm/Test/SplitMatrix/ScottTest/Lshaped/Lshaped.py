@@ -546,18 +546,18 @@ def SolutionSetUp():
     u = rho**l*((1+l)*sy.sin(phi)*psi + sy.cos(phi)*psi_prime)
     v = rho**l*(-(1+l)*sy.cos(phi)*psi + sy.sin(phi)*psi_prime)
 
-    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=4)
-    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+#    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=4)
+#    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
 
     p = -rho**(l-1)*((1+l)**2*psi_prime + psi_3prime)/(1-l)
-    pu0 = Expression(sy.ccode(p), degree=4)
-    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=4)
+#    pu0 = Expression(sy.ccode(p), degree=4)
+#    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=4)
 
     f = rho**(2./3)*sy.sin((2./3)*phi)
     b = sy.diff(f,x)
     d = sy.diff(f,y)
-    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
-    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+#    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
+#    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
 
 
     b0 = CombineExpression(b, d)
@@ -579,10 +579,7 @@ def SolutionSetUp():
     # Curl-curl
     C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
     C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
-
-
-
-
+    
     NS1 = -d*(sy.diff(d,x)-sy.diff(b,y))
     NS2 = b*(sy.diff(d,x)-sy.diff(b,y))
 
@@ -605,12 +602,14 @@ def SolutionSetUp():
     Advection = CombineExpression(A1, A2)
     gradPres = CombineExpression(P1, P2)
     CurlCurl = CombineExpression(C1, C2)
-    gradR = Expression(('0.0','0.0'))
+    gradR = Expression(('0.0','0.0'), degree=4)
     NS_Couple = CombineExpression(NS1, NS2)
     M_Couple = CombineExpression(M1, M2)
     print '                                             ', toc()
+    
+    return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
-    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
+#    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
 
 
