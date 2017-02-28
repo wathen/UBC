@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# interpolate scalar gradient onto nedelec space
-
 import petsc4py
 import sys
 
@@ -139,8 +137,6 @@ for xx in xrange(1,m):
     #     F_M = Mu_m*kappa*CurlCurl+gradR -kappa*M_Couple
     params = [kappa,Mu_m,MU]
     u0, p0, b0, r0, F_NS, F_M, F_MX, F_S, gradu0, Neumann, p0vec, bNone = Lshaped.SolutionMeshSetup(mesh, params, uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple)
-    F_M = Expression(("0.0","0.0"), degree=4)
-    F_S = Expression(("0.0","0.0"), degree=4)
     n = FacetNormal(mesh)
 
     # Neumann = interpolate(p0, Pressure)*n - grad(interpolate(u0,Velocity))*n
@@ -155,9 +151,21 @@ for xx in xrange(1,m):
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
 
 
-    u_k, p_k = Lshaped.Stokes(Velocity, Pressure, F_S, u0, p0, Neumann, params, boundaries, domains, mesh)
+    u_k, p_k = Lshaped.Stokes(Velocity, Pressure, F_NS, u0, p0, Neumann, params, boundaries, domains, mesh)
     b_k, r_k = Lshaped.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, boundaries, bNone, mesh, HiptmairMatrices, Hiptmairtol)
+    file = File("u_k.pvd")
+    file << u_k
 
+    file = File("p_k.pvd")
+    file << p_k
+
+    file = File("b_k.pvd")
+    file << b_k
+
+    file = File("r_k.pvd")
+    file << r_k
+    # print p_k.vector().array()
+    # sss
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
@@ -257,11 +265,10 @@ for xx in xrange(1,m):
 
         stime = time.time()
         u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
-
         Soltime = time.time() - stime
+
         MO.StrTimePrint("MHD solve, time: ", Soltime)
-        if iter <= 3:
-            Mits += mits
+        Mits += mits
         NSits += mits
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)

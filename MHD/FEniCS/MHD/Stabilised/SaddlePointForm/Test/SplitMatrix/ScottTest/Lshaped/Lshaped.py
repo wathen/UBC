@@ -14,64 +14,13 @@ from  dolfin import __version__
 import MaxwellPrecond as MP
 import StokesPrecond
 import time
+import mshr
 
 def Domain(n):
 
     # defining the L-shaped domain
-    # domain = mshr.Rectangle(Point(-1., -1.), Point(1., 1.)) - mshr.Rectangle(Point(0., -1.), Point(1., 0.) )
-    # mesh = mshr.generate_mesh(domain, n)
-    if __version__ == '1.6.0':
-        mesh = RectangleMesh(Point(-1., -1.), Point(1., 1.),n,n)
-    else:
-        mesh = RectangleMesh(Point(-1., -1.), Point(1., 1.),n,n)
-    cell_f = CellFunction('size_t', mesh, 0)
-    for cell in cells(mesh):
-        v = cell.get_vertex_coordinates()
-        y = v[np.arange(0,6,2)]
-        x = v[np.arange(1,6,2)]
-        xone = np.ones(3)
-        xone[x > 0] = 0
-        yone = np.ones(3)
-        yone[y < 0] = 0
-        if np.sum(xone)+ np.sum(yone)>5.5:
-            cell_f[cell] = 1
-    mesh = SubMesh(mesh, cell_f, 0)
-
-
-    # cell_markers = CellFunction("bool", mesh)
-    # cell_markers.set_all(False)
-    # origin = Point(0., 0.)
-    # for cell in cells(mesh):
-    #     p = cell.midpoint()
-    #     if abs(p.distance(origin)) < 0.6:
-    #         cell_markers[cell] = True
-
-    # mesh = refine(mesh, cell_markers)
-
-
-    # cell_markers = CellFunction("bool", mesh)
-    # cell_markers.set_all(False)
-    # origin = Point(0., 0.)
-    # for cell in cells(mesh):
-    #     p = cell.midpoint()
-    #     if abs(p.distance(origin)) < 0.4:
-    #         cell_markers[cell] = True
-
-    # mesh = refine(mesh, cell_markers)
-
-
-    # cell_markers = CellFunction("bool", mesh)
-    # cell_markers.set_all(False)
-    # origin = Point(0., 0.)
-    # for cell in cells(mesh):
-    #     p = cell.midpoint()
-    #     if abs(p.distance(origin)) < 0.2:
-    #         cell_markers[cell] = True
-
-    # mesh = refine(mesh, cell_markers)
-
-
-
+    domain = mshr.Rectangle(Point(-1., -1.), Point(1., 1.)) - mshr.Rectangle(Point(0., -1.), Point(1., 0.) )
+    mesh = mshr.generate_mesh(domain, n)
     # Creating classes that define the boundary of the domain
     class Left(SubDomain):
         def inside(self, x, on_boundary):
