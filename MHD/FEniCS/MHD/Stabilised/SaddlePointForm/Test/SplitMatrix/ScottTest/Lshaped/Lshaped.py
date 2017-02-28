@@ -871,7 +871,7 @@ def Stokes(V, Q, F, u0, p0, gradu0, params,boundaries, domains, mesh):
     pc.setType('lu')
     OptDB = PETSc.Options()
     # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    OptDB['pc_factor_mat_solver_package']  = "pastix"
     OptDB['pc_factor_mat_ordering_type']  = "rcm"
     ksp.setFromOptions()
     ksp.setOperators(A,A)

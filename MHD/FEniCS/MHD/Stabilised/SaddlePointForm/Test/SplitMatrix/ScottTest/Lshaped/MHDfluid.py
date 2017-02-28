@@ -233,7 +233,6 @@ for xx in xrange(1,m):
     SolutionTime = 0
     while eps > tol  and iter < maxiter:
         iter += 1
-        iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
         bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=3), boundary)
