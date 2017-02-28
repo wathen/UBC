@@ -537,7 +537,6 @@ def SolutionSetUp():
     rho = sy.sqrt(x**2 + y**2)
     phi = sy.atan2(y,x)
 
-    # looked at all the exact solutions and they seems to be the same as the paper.....
     psi = (sy.sin((1+l)*phi)*sy.cos(l*omega))/(1+l) - sy.cos((1+l)*phi) - (sy.sin((1-l)*phi)*sy.cos(l*omega))/(1-l) + sy.cos((1-l)*phi)
 
     psi_prime = polart(psi, x, y)
@@ -546,24 +545,24 @@ def SolutionSetUp():
     u = rho**l*((1+l)*sy.sin(phi)*psi + sy.cos(phi)*psi_prime)
     v = rho**l*(-(1+l)*sy.cos(phi)*psi + sy.sin(phi)*psi_prime)
 
-#    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=4)
-#    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=4)
+    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
 
     p = -rho**(l-1)*((1+l)**2*psi_prime + psi_3prime)/(1-l)
-#    pu0 = Expression(sy.ccode(p), degree=4)
-#    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=4)
+    pu0 = Expression(sy.ccode(p), degree=4)
+    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=4)
 
     f = rho**(2./3)*sy.sin((2./3)*phi)
     b = sy.diff(f,x)
     d = sy.diff(f,y)
-#    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
-#    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
+    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
 
 
-    b0 = CombineExpression(b, d)
-    u0 = CombineExpression(u, v)
-    p0 = CombineExpression(p)
-    r0 = Expression('0.0', degree=4)
+    # b0 = CombineExpression(b, d)
+    # u0 = CombineExpression(u, v)
+    # p0 = CombineExpression(p)
+    ru0 = Expression('0.0', degree=4)
 
     #Laplacian
     L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
@@ -579,7 +578,7 @@ def SolutionSetUp():
     # Curl-curl
     C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
     C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
-    
+
     NS1 = -d*(sy.diff(d,x)-sy.diff(b,y))
     NS2 = b*(sy.diff(d,x)-sy.diff(b,y))
 
@@ -589,238 +588,240 @@ def SolutionSetUp():
     # graduu0 = Expression(sy.ccode(sy.diff(u, rho) + (1./rho)*sy.diff(u,, degree=4 phi)))
     # graduu0 = Expression((sy.ccode(sy.diff(u, rho)),sy.ccode(sy.diff(v,, degree=4 rho))))
 
-
-# Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)), degree=4)
-# Advection = Expression((sy.ccode(A1),sy.ccode(A2)), degree=4)
-# gradPres = Expression((sy.ccode(P1),sy.ccode(P2)), degree=4)
-# CurlCurl = Expression((sy.ccode(C1),sy.ccode(C2)), degree=4)
-# gradR = Expression(('0.0','0.0'), degree=4)
-# NS_Couple = Expression((sy.ccode(NS1),sy.ccode(NS2)), degree=4)
-# M_Couple = Expression((sy.ccode(M1),sy.ccode(M2)), degree=4)
     tic()
-    Laplacian = CombineExpression(L1, L2)
-    Advection = CombineExpression(A1, A2)
-    gradPres = CombineExpression(P1, P2)
-    CurlCurl = CombineExpression(C1, C2)
+    Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)), degree=4)
+    Advection = Expression((sy.ccode(A1),sy.ccode(A2)), degree=4)
+    gradPres = Expression((sy.ccode(P1),sy.ccode(P2)), degree=4)
+    CurlCurl = Expression((sy.ccode(C1),sy.ccode(C2)), degree=4)
     gradR = Expression(('0.0','0.0'), degree=4)
-    NS_Couple = CombineExpression(NS1, NS2)
-    M_Couple = CombineExpression(M1, M2)
+    NS_Couple = Expression((sy.ccode(NS1),sy.ccode(NS2)), degree=4)
+    M_Couple = Expression((sy.ccode(M1),sy.ccode(M2)), degree=4)
     print '                                             ', toc()
-    
-    return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
-#    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
+    # tic()
+    # Laplacian = CombineExpression(L1, L2)
+    # Advection = CombineExpression(A1, A2)
+    # gradPres = CombineExpression(P1, P2)
+    # CurlCurl = CombineExpression(C1, C2)
+    # gradR = Expression(('0.0','0.0'), degree=4)
+    # NS_Couple = CombineExpression(NS1, NS2)
+    # M_Couple = CombineExpression(M1, M2)
+    # print '                                             ', toc()
 
+    # return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
-
-# def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple):
-
-
-#     class u0(Expression):
-#         def __init__(self, mesh, uu0, ub0, **kwargs):
-#             self.mesh = mesh
-#             self.u0 = uu0
-#             self.b0 = ub0
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#                 values[1] = 0.0
-#             else:
-#                 if x[1] < 0:
-#                     values[0] = self.b0(x[0], x[1])[0]
-#                     values[1] = self.b0(x[0], x[1])[1]
-#                 else:
-#                     values[0] = self.u0(x[0], x[1])[0]
-#                     values[1] = self.u0(x[0], x[1])[1]
-#         def value_shape(self):
-#             return (2,)
-
-#     class p0(Expression):
-#         def __init__(self, mesh, pu0, pb0, **kwargs):
-#             self.mesh = mesh
-#             self.p0 = pu0
-#             self.b0 = pb0
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#             else:
-#                 if x[1] < 0:
-#                     values[0] = self.b0(x[0], x[1])
-#                 else:
-#                     values[0] = self.p0(x[0], x[1])
-
-#     class b0(Expression):
-#         def __init__(self, mesh, bu0, bb0, **kwargs):
-#             self.mesh = mesh
-#             self.b0 = bu0
-#             self.bb0 = bb0
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#                 values[1] = 0.0
-#             else:
-#                 if x[1] < 0:
-#                     values[0] = self.bb0(x[0], x[1])[0]
-#                     values[1] = self.bb0(x[0], x[1])[1]
-#                 else:
-#                     values[0] = self.b0(x[0], x[1])[0]
-#                     values[1] = self.b0(x[0], x[1])[1]
-#                 # print values
-#         def value_shape(self):
-#             return (2,)
-
-#     class bNone(Expression):
-#         def __init__(self, mesh, bu0, bb0, **kwargs):
-#             self.mesh = mesh
-#             self.b0 = bu0
-#             self.bb0 = bb0
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#                 values[1] = 0.0
-#             else:
-#                 if x[1] < 0:
-#                     values[0] = 1.
-#                     values[1] = 0.0
-#                 else:
-#                     values[0] = 0.0
-#                     values[1] = 1.
-#                 # print values
-#         def value_shape(self):
-#             return (2,)
-
-#         def value_shape(self):
-#             return (2,)
+    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
 
-#     class r0(Expression):
-#         def __init__(self, mesh, element=None, **kwargs):
-#             self.mesh = mesh
-#         def eval(self, values, x):
-#             values[0] = 1.0
-#         # def value_shape(self):
-#         #     return ( )
+
+def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple):
 
 
-#     class F_NS(Expression):
-#         def __init__(self, mesh, Laplacian, Advection, gradPres, NS_Couple,  params, **kwargs):
-#             self.mesh = mesh
-#             self.Laplacian = Laplacian
-#             self.Advection = Advection
-#             self.gradPres = gradPres
-#             self.NS_Couple = NS_Couple
-#             self.params = params
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#                 values[1] = 0.0
-#             else:
-#                 r = sqrt(x[0]**2 + x[1]**2)
-#                 theta = np.arctan2(x[1],x[0])
-#                 if theta < 0:
-#                     theta += 2*np.pi
+    class u0(Expression):
+        def __init__(self, mesh, uu0, ub0, **kwargs):
+            self.mesh = mesh
+            self.u0 = uu0
+            self.b0 = ub0
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+                values[1] = 0.0
+            else:
+                if x[1] < 0:
+                    values[0] = self.b0(x[0], x[1])[0]
+                    values[1] = self.b0(x[0], x[1])[1]
+                else:
+                    values[0] = self.u0(x[0], x[1])[0]
+                    values[1] = self.u0(x[0], x[1])[1]
+        def value_shape(self):
+            return (2,)
 
-#                 values[0] =  self.Advection(r,theta)[0] - self.params[0]*self.NS_Couple(r,theta)[0]
-#                 values[1] =  self.Advection(r,theta)[1] - self.params[0]*self.NS_Couple(r,theta)[1]
-#                 # ssss
-#                 # print values
+    class p0(Expression):
+        def __init__(self, mesh, pu0, pb0, **kwargs):
+            self.mesh = mesh
+            self.p0 = pu0
+            self.b0 = pb0
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+            else:
+                if x[1] < 0:
+                    values[0] = self.b0(x[0], x[1])
+                else:
+                    values[0] = self.p0(x[0], x[1])
 
-#         def value_shape(self):
-#             return (2,)
+    class b0(Expression):
+        def __init__(self, mesh, bu0, bb0, **kwargs):
+            self.mesh = mesh
+            self.b0 = bu0
+            self.bb0 = bb0
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+                values[1] = 0.0
+            else:
+                if x[1] < 0:
+                    values[0] = self.bb0(x[0], x[1])[0]
+                    values[1] = self.bb0(x[0], x[1])[1]
+                else:
+                    values[0] = self.b0(x[0], x[1])[0]
+                    values[1] = self.b0(x[0], x[1])[1]
+                # print values
+        def value_shape(self):
+            return (2,)
 
-#     class F_S(Expression):
-#         def __init__(self, mesh, Laplacian, gradPres, params, **kwargs):
-#             self.mesh = mesh
-#             self.Laplacian = Laplacian
-#             self.gradPres = gradPres
-#             self.params = params
-#         def eval_cell(self, values, x, ufc_cell):
-#                 values[0] = 0
-#                 values[1] = 0
-#                 # print r, theta, self.Laplacian(r,theta)
+    class bNone(Expression):
+        def __init__(self, mesh, bu0, bb0, **kwargs):
+            self.mesh = mesh
+            self.b0 = bu0
+            self.bb0 = bb0
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+                values[1] = 0.0
+            else:
+                if x[1] < 0:
+                    values[0] = 1.
+                    values[1] = 0.0
+                else:
+                    values[0] = 0.0
+                    values[1] = 1.
+                # print values
+        def value_shape(self):
+            return (2,)
 
-#         def value_shape(self):
-#             return (2,)
-
-
-#         # params[1]*params[0]*CurlCurl+gradR -params[0]*M_Couple
-#     class F_M(Expression):
-#         def __init__(self, mesh, CurlCurl, gradR ,M_Couple, params, **kwargs):
-#             self.mesh = mesh
-#             self.CurlCurl = CurlCurl
-#             self.gradR = gradR
-#             self.M_Couple = M_Couple
-#             self.params = params
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 0.0
-#                 values[1] = 0.0
-#             else:
-#                 r = sqrt(x[0]**2 + x[1]**2)
-#                 theta = np.arctan2(x[1],x[0])
-#                 if theta < 0:
-#                     theta += 2*np.pi
-#                 values[0] = - self.params[0]*self.M_Couple(r,theta)[0]
-#                 values[1] = - self.params[0]*self.M_Couple(r,theta)[1]
-
-#         def value_shape(self):
-#             return (2,)
-#     class F_MX(Expression):
-#         def __init__(self, mesh, **kwargs):
-#             self.mesh = mesh
-#         def eval_cell(self, values, x, ufc_cell):
-#             values[0] = 0.0
-#             values[1] = 0.0
+        def value_shape(self):
+            return (2,)
 
 
-#         def value_shape(self):
-#             return (2,)
+    class r0(Expression):
+        def __init__(self, mesh, element=None, **kwargs):
+            self.mesh = mesh
+        def eval(self, values, x):
+            values[0] = 1.0
+        # def value_shape(self):
+        #     return ( )
 
 
-#     class Neumann(Expression):
-#         def __init__(self, mesh, pu0, graduu0, params, n, **kwargs):
-#             self.mesh = mesh
-#             self.p0 = pu0
-#             self.gradu0 = graduu0
-#             self.params = params
-#             self.n = n
-#         def eval_cell(self, values, x, ufc_cell):
-#             if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
-#                 values[0] = 2.0
-#                 values[1] = 0.0
-#             else:
-#                 # print x[0], x[1]
-#                 r = sqrt(x[0]**2 + x[1]**2)
-#                 theta = np.arctan2(x[1],x[0])
-#                 if theta < 0:
-#                     theta += 2*np.pi
-#                 # cell = Cell(self.mesh, ufc_cell.index)
-#                 # print ufc_cell
-#                 # n = cell.normal(ufc_cell.local_facet)
-#                 # n = FacetNormal(self.mesh)
-#                 # print self.n
-#                 # sss
-#                 values[0] = (self.p0(r,theta) - self.params[0]*self.gradu0(r,theta)[021])
-#                 # print -(self.p0(r,theta) - self.params[0]*self.gradu0(r,theta))
-#                 values[1] = -(self.params[0]*self.gradu0(r,theta)[1])
+    class F_NS(Expression):
+        def __init__(self, mesh, Laplacian, Advection, gradPres, NS_Couple,  params, **kwargs):
+            self.mesh = mesh
+            self.Laplacian = Laplacian
+            self.Advection = Advection
+            self.gradPres = gradPres
+            self.NS_Couple = NS_Couple
+            self.params = params
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+                values[1] = 0.0
+            else:
+                r = sqrt(x[0]**2 + x[1]**2)
+                theta = np.arctan2(x[1],x[0])
+                if theta < 0:
+                    theta += 2*np.pi
 
-#         def value_shape(self):
-#             return (2,)
+                values[0] =  self.Advection(r,theta)[0] - self.params[0]*self.NS_Couple(r,theta)[0]
+                values[1] =  self.Advection(r,theta)[1] - self.params[0]*self.NS_Couple(r,theta)[1]
+                # ssss
+                # print values
 
-#     u0 = u0(mesh, uu0, ub0, degree=4)
-#     p0 = p0(mesh, pu0, pb0, degree=4)
-#     bNone = bNone(mesh, bu0, bb0, degree=4)
-#     # p0vec = p0Vec(mesh, pu0, degree=4)
-#     b0 = b0(mesh, bu0, bb0, degree=4)
-#     r0 = r0(mesh, degree=4)
-#     F_NS = F_NS(mesh, Laplacian, Advection, gradPres, NS_Couple, params, degree=4)
-#     F_M = F_M(mesh, CurlCurl, gradR, M_Couple, params, degree=4)
-#     F_MX = F_MX(mesh, degree=4)
-#     F_S = F_S(mesh, Laplacian, gradPres, params, degree=4)
-#     # gradu0 = gradu0(mesh, graduu0)
-#     # Neumann = Neumann(mesh, pu0, graduu0, params, FacetNormal(mesh))
-#     # NeumannGrad = NeumannGrad(mesh, p0, graduu0, params, FacetNormal(mesh))
-#     return u0, p0, b0, r0, F_NS, F_M, F_MX, F_S, 1, 1, 1, bNone
+        def value_shape(self):
+            return (2,)
+
+    class F_S(Expression):
+        def __init__(self, mesh, Laplacian, gradPres, params, **kwargs):
+            self.mesh = mesh
+            self.Laplacian = Laplacian
+            self.gradPres = gradPres
+            self.params = params
+        def eval_cell(self, values, x, ufc_cell):
+                values[0] = 0
+                values[1] = 0
+                # print r, theta, self.Laplacian(r,theta)
+
+        def value_shape(self):
+            return (2,)
+
+
+        # params[1]*params[0]*CurlCurl+gradR -params[0]*M_Couple
+    class F_M(Expression):
+        def __init__(self, mesh, CurlCurl, gradR ,M_Couple, params, **kwargs):
+            self.mesh = mesh
+            self.CurlCurl = CurlCurl
+            self.gradR = gradR
+            self.M_Couple = M_Couple
+            self.params = params
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 0.0
+                values[1] = 0.0
+            else:
+                r = sqrt(x[0]**2 + x[1]**2)
+                theta = np.arctan2(x[1],x[0])
+                if theta < 0:
+                    theta += 2*np.pi
+                values[0] = - self.params[0]*self.M_Couple(r,theta)[0]
+                values[1] = - self.params[0]*self.M_Couple(r,theta)[1]
+
+        def value_shape(self):
+            return (2,)
+    class F_MX(Expression):
+        def __init__(self, mesh, **kwargs):
+            self.mesh = mesh
+        def eval_cell(self, values, x, ufc_cell):
+            values[0] = 0.0
+            values[1] = 0.0
+
+
+        def value_shape(self):
+            return (2,)
+
+
+    class Neumann(Expression):
+        def __init__(self, mesh, pu0, graduu0, params, n, **kwargs):
+            self.mesh = mesh
+            self.p0 = pu0
+            self.gradu0 = graduu0
+            self.params = params
+            self.n = n
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[0]) < 1e-3 and abs(x[1]) < 1e-3:
+                values[0] = 2.0
+                values[1] = 0.0
+            else:
+                # print x[0], x[1]
+                r = sqrt(x[0]**2 + x[1]**2)
+                theta = np.arctan2(x[1],x[0])
+                if theta < 0:
+                    theta += 2*np.pi
+                # cell = Cell(self.mesh, ufc_cell.index)
+                # print ufc_cell
+                # n = cell.normal(ufc_cell.local_facet)
+                # n = FacetNormal(self.mesh)
+                # print self.n
+                # sss
+                values[0] = (self.p0(r,theta) - self.params[0]*self.gradu0(r,theta)[021])
+                # print -(self.p0(r,theta) - self.params[0]*self.gradu0(r,theta))
+                values[1] = -(self.params[0]*self.gradu0(r,theta)[1])
+
+        def value_shape(self):
+            return (2,)
+
+    u0 = u0(mesh, uu0, ub0, degree=4)
+    p0 = p0(mesh, pu0, pb0, degree=4)
+    bNone = bNone(mesh, bu0, bb0, degree=4)
+    # p0vec = p0Vec(mesh, pu0, degree=4)
+    b0 = b0(mesh, bu0, bb0, degree=4)
+    r0 = r0(mesh, degree=4)
+    F_NS = F_NS(mesh, Laplacian, Advection, gradPres, NS_Couple, params, degree=4)
+    F_M = F_M(mesh, CurlCurl, gradR, M_Couple, params, degree=4)
+    F_MX = F_MX(mesh, degree=4)
+    F_S = F_S(mesh, Laplacian, gradPres, params, degree=4)
+    # gradu0 = gradu0(mesh, graduu0)
+    # Neumann = Neumann(mesh, pu0, graduu0, params, FacetNormal(mesh))
+    # NeumannGrad = NeumannGrad(mesh, p0, graduu0, params, FacetNormal(mesh))
+    return u0, p0, b0, r0, F_NS, F_M, F_MX, F_S, 1, 1, 1, bNone
 
 
 
@@ -866,23 +867,23 @@ def Stokes(V, Q, F, u0, p0, gradu0, params,boundaries, domains, mesh):
     ksp = PETSc.KSP()
     ksp.create(comm=PETSc.COMM_WORLD)
     pc = ksp.getPC()
-    # ksp.setType('preonly')
-    # pc.setType('lu')
-    # OptDB = PETSc.Options()
-    # # if __version__ != '1.6.0':
-    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    # ksp.setFromOptions()
-    # ksp.setOperators(A,A)
+    ksp.setType('preonly')
+    pc.setType('lu')
+    OptDB = PETSc.Options()
+    # if __version__ != '1.6.0':
+    OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    ksp.setFromOptions()
+    ksp.setOperators(A,A)
 
-    ksp = PETSc.KSP().create()
-    ksp.setTolerances(1e-8)
-    ksp.max_it = 200
-    pc = ksp.getPC()
-    pc.setType(PETSc.PC.Type.PYTHON)
-    ksp.setType('minres')
-    pc.setPythonContext(StokesPrecond.Approx(W, 1))
-    ksp.setOperators(A,P)
+    # ksp = PETSc.KSP().create()
+    # ksp.setTolerances(1e-8)
+    # ksp.max_it = 200
+    # pc = ksp.getPC()
+    # pc.setType(PETSc.PC.Type.PYTHON)
+    # ksp.setType('minres')
+    # pc.setPythonContext(StokesPrecond.Approx(W, 1))
+    # ksp.setOperators(A,P)
 
     scale = b.norm()
     b = b/scale
