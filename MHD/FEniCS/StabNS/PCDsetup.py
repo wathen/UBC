@@ -27,8 +27,8 @@ def PCDKSPsetup(F, Q, A):
     kspQ = PETSc.KSP()
     kspQ.create(comm=PETSc.COMM_WORLD)
     pcA = kspQ.getPC()
-    kspQ.setType('cg')
-    pcA.setType('jacobi')
+    kspQ.setType('preonly')
+    pcA.setType('hypre')
     kspQ.setTolerances(tol)
     kspQ.setFromOptions()
 

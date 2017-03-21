@@ -33,9 +33,10 @@ import MHDmatrixSetup as MHDsetup
 import CavityDriven
 import FEniCSplot as Fplt
 import matplotlib.pylab as plt
+import ipdb
 
 #@profile
-m = 4
+m = 5
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -185,10 +186,6 @@ for xx in xrange(1,m):
     Couple = -params[0]*inner(cross(u_k,b_k),curl(c))*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-
-
-
-    # u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-10,Neumann=None,options ="New")
 
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)

@@ -26,15 +26,14 @@ def PCDKSPlinear(A, Q):
     kspA.create(comm=PETSc.COMM_WORLD)
     pcA = kspA.getPC()
     kspA.setType('preonly')
-    kspA.max_it = 1
     pcA.setType('hypre')
     kspA.setFromOptions()
 
     kspQ = PETSc.KSP()
     kspQ.create(comm=PETSc.COMM_WORLD)
-    pcA = kspQ.getPC()
-    kspQ.setType('cg')
-    pcA.setType('bjacobi')
+    pcQ = kspQ.getPC()
+    kspQ.setType('preonly')
+    pcQ.setType('hypre')
     kspQ.setFromOptions()
 
     kspA.setOperators(A,A)
@@ -47,7 +46,7 @@ def PCDKSPnonlinear(F):
     OptDB['pc_hypre_type'] = 'boomeramg'
     OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
     OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
-    OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
+    # OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
     kspF = PETSc.KSP()
     kspF.create(comm=PETSc.COMM_WORLD)
     pcF = kspF.getPC()
@@ -69,7 +68,7 @@ def Ksp(BQB):
     OptDB['pc_hypre_type'] = 'boomeramg'
     OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
     OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
-    OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
+    # OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
     # OptDB = PETSc.Options()
     # OptDB["pc_factor_mat_ordering_type"] = "rcm"
     # OptDB["pc_factor_mat_solver_package"] = "mumps"
