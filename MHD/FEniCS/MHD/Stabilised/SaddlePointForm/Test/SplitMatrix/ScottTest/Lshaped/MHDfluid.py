@@ -29,7 +29,7 @@ import MHDmatrixSetup as MHDsetup
 import Lshaped
 # import matplotlib.pyplot as plt
 #@profile
-m = 4
+m = 8
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -153,20 +153,22 @@ for xx in xrange(1,m):
 
     u_k, p_k = Lshaped.Stokes(Velocity, Pressure, F_NS, u0, p0, Neumann, params, boundaries, domains, mesh)
     b_k, r_k = Lshaped.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, boundaries, bNone, mesh, HiptmairMatrices, Hiptmairtol)
-    file = File("u_k.pvd")
-    file << u_k
 
-    file = File("p_k.pvd")
-    file << p_k
-
-    file = File("b_k.pvd")
-    file << b_k
-
-    file = File("r_k.pvd")
-    file << r_k
     # print p_k.vector().array()
     # sss
+    # file = File("u_k.pvd")
+    # file << u_k
 
+    # file = File("p_k.pvd")
+    # file << p_k
+
+    # file = File("b_k.pvd")
+    # file << b_k
+
+    # file = File("r_k.pvd")
+    # file << r_k
+
+    # ss
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
 
@@ -263,7 +265,7 @@ for xx in xrange(1,m):
         Options = 'p4'
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time() - stime
 
         MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -382,23 +384,17 @@ print IterTable
 
 # tableName = "2d_Lshaped_nu="+str(MU)+"_nu_m="+str(Mu_m)+"_kappa="+str(kappa)+"_l="+str(np.min(level))+"-"+str(np.max(level))+"Approx.tex"
 # IterTable.to_latex(tableName)
+file = File("u_k.pvd")
+file << u_k
 
-# # # if (ShowResultPlots == 'yes'):
-# p = plot(u_k)
-# p.write_png()
-#    plot(u_k)
-#    plot(interpolate(u0,Velocity))
-#
-#    plot(p_k)
-#
-#    plot(interpolate(p0,Pressure))
-#
-#    plot(b_k)
-#    plot(interpolate(b0,Magnetic))
-#
-#    plot(r_k)
-#    plot(interpolate(r0,Lagrange))
-#
-#    interactive()
+file = File("p_k.pvd")
+file << p_k
+
+file = File("b_k.pvd")
+file << b_k
+
+file = File("r_k.pvd")
+file << r_k
+
 
 interactive()

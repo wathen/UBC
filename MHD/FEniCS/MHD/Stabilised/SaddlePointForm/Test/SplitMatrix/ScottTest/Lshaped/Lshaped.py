@@ -113,10 +113,10 @@ def polart(u, x, y):
 #     # d = (1./rho)*sy.diff(f,phi)
 #     d = polary(f, rho, phi)
 
-#     bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
+#     bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=3)
 
 #     r = sy.diff(phi,rho)
-#     ru0 = Expression(sy.ccode(r), degree=4)
+#     ru0 = Expression(sy.ccode(r), degree=3)
 
 
 #     # Defining polarx and polary as the x and y derivatives with respect to polar coordinates (rho, phi). Writing the right handside with respect to cartesian coords
@@ -183,14 +183,14 @@ def polart(u, x, y):
 #     M22 = -sy.diff(c, rho)
 #     FF = sy.diff(u, rho) + (1./rho)*sy.diff(v, phi)
 
-#     graduu0 = Expression((sy.ccode(sy.diff(u, rho)),sy.ccode(sy.diff(v, rho))), degree=4)
-#     Laplacian = Expression((sy.ccode(L11),sy.ccode(L22)), degree=4)
-#     Advection = Expression((sy.ccode(A11),sy.ccode(A22)), degree=4)
-#     gradPres = Expression((sy.ccode(P11),sy.ccode(P22)), degree=4)
-#     CurlCurl = Expression((sy.ccode(C11),sy.ccode(C22)), degree=4)
-#     gradR = Expression((sy.ccode(R11).replace('M_PI','pi'),sy.ccode(R22).replace('M_PI','pi')), degree=4)
-#     NS_Couple = Expression((sy.ccode(NS11),sy.ccode(NS22)), degree=4)
-#     M_Couple = Expression((sy.ccode(M11),sy.ccode(M22)), degree=4)
+#     graduu0 = Expression((sy.ccode(sy.diff(u, rho)),sy.ccode(sy.diff(v, rho))), degree=3)
+#     Laplacian = Expression((sy.ccode(L11),sy.ccode(L22)), degree=3)
+#     Advection = Expression((sy.ccode(A11),sy.ccode(A22)), degree=3)
+#     gradPres = Expression((sy.ccode(P11),sy.ccode(P22)), degree=3)
+#     CurlCurl = Expression((sy.ccode(C11),sy.ccode(C22)), degree=3)
+#     gradR = Expression((sy.ccode(R11).replace('M_PI','pi'),sy.ccode(R22).replace('M_PI','pi')), degree=3)
+#     NS_Couple = Expression((sy.ccode(NS11),sy.ccode(NS22)), degree=3)
+#     M_Couple = Expression((sy.ccode(M11),sy.ccode(M22)), degree=3)
 
 #     # ignore this! Just removes the singularity (atan2(0,0) = NaN) and makes all functions zero at the origin
 #     class u0(Expression):
@@ -490,22 +490,22 @@ def polart(u, x, y):
 #     NS1 = NScouple.readline()
 #     NS2 = NScouple.readline()
 
-#     uu0 = Expression(((u),(v)), degree=4)
-#     ub0 = Expression((str((u)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'),str((v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
-#     pu0 = Expression((p), degree=4)
-#     pb0 = Expression(str((p)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'), degree=4)
+#     uu0 = Expression(((u),(v)), degree=3)
+#     ub0 = Expression((str((u)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'),str((v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+#     pu0 = Expression((p), degree=3)
+#     pb0 = Expression(str((p)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'), degree=3)
 
-#     bu0 = Expression(((b),(d)), degree=4)
-#     bb0 = Expression((str((b)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'),str((d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
-#     ru0 = Expression('0.0', degree=4)
+#     bu0 = Expression(((b),(d)), degree=3)
+#     bb0 = Expression((str((b)).replace('atan2(x[1], x[0])','(atan2(x[1], x, [0])+2*pi)'),str((d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+#     ru0 = Expression('0.0', degree=3)
 
-#     Laplacian = Expression(((L1),(L2)), degree=4)
-#     Advection = Expression(((A1),(A2)), degree=4)
-#     gradPres = Expression(((P1),(P2)), degree=4)
-#     CurlCurl = Expression(((C1),(C2)), degree=4)
-#     gradR = Expression(('0.0','0.0'), degree=4)
-#     NS_Couple = Expression(((NS1),(NS2)), degree=4)
-#     M_Couple = Expression(((M1),(M2)), degree=4)
+#     Laplacian = Expression(((L1),(L2)), degree=3)
+#     Advection = Expression(((A1),(A2)), degree=3)
+#     gradPres = Expression(((P1),(P2)), degree=3)
+#     CurlCurl = Expression(((C1),(C2)), degree=3)
+#     gradR = Expression(('0.0','0.0'), degree=3)
+#     NS_Couple = Expression(((NS1),(NS2)), degree=3)
+#     M_Couple = Expression(((M1),(M2)), degree=3)
 #     print '                                             ', toc()
 #     ssss
 #     return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
@@ -520,10 +520,10 @@ def CombineExpression(*values):
     if len(values) == 2:
         u = values[0]
         v = values[1]
-        return Expression((("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] < 0.0 ? " + sy.ccode(u) + " : "+ str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), ("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] <= 0.0 ? " + sy.ccode(v) + " : "+ str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'))), degree=4)
+        return Expression((("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] < 0.0 ? " + sy.ccode(u) + " : "+ str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), ("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] <= 0.0 ? " + sy.ccode(v) + " : "+ str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'))), degree=3)
     else:
         u = values[0]
-        return Expression(("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] < 0.0 ? " + sy.ccode(u) + " : "+ str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+        return Expression(("std::abs(x[0]) <= 1e-3 & std::abs(x[1]) <= 1e-3 ? 0 : x[1] < 0.0 ? " + sy.ccode(u) + " : "+ str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
 
 def SolutionSetUp():
     tic()
@@ -545,24 +545,24 @@ def SolutionSetUp():
     u = rho**l*((1+l)*sy.sin(phi)*psi + sy.cos(phi)*psi_prime)
     v = rho**l*(-(1+l)*sy.cos(phi)*psi + sy.sin(phi)*psi_prime)
 
-    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=4)
-    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+    uu0 = Expression((sy.ccode(u),sy.ccode(v)), degree=3)
+    ub0 = Expression((str(sy.ccode(u)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(v)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
 
     p = -rho**(l-1)*((1+l)**2*psi_prime + psi_3prime)/(1-l)
-    pu0 = Expression(sy.ccode(p), degree=4)
-    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=4)
+    pu0 = Expression(sy.ccode(p), degree=3)
+    pb0 = Expression(str(sy.ccode(p)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'), degree=3)
 
     f = rho**(2./3)*sy.sin((2./3)*phi)
     b = sy.diff(f,x)
     d = sy.diff(f,y)
-    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=4)
-    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=4)
+    bu0 = Expression((sy.ccode(b),sy.ccode(d)), degree=3)
+    bb0 = Expression((str(sy.ccode(b)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(d)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
 
 
     # b0 = CombineExpression(b, d)
     # u0 = CombineExpression(u, v)
     # p0 = CombineExpression(p)
-    ru0 = Expression('0.0', degree=4)
+    ru0 = Expression('0.0', degree=3)
 
     #Laplacian
     L1 = sy.diff(u,x,x)+sy.diff(u,y,y)
@@ -574,7 +574,6 @@ def SolutionSetUp():
     P1 = sy.diff(p,x)
     P2 = sy.diff(p,y)
 
-
     # Curl-curl
     C1 = sy.diff(d,x,y) - sy.diff(b,y,y)
     C2 = sy.diff(b,x,y) - sy.diff(d,x,x)
@@ -585,17 +584,32 @@ def SolutionSetUp():
     M1 = sy.diff(u*d-v*b,y)
     M2 = -sy.diff(u*d-v*b,x)
     print '                                             ', toc()
-    # graduu0 = Expression(sy.ccode(sy.diff(u, rho) + (1./rho)*sy.diff(u,, degree=4 phi)))
-    # graduu0 = Expression((sy.ccode(sy.diff(u, rho)),sy.ccode(sy.diff(v,, degree=4 rho))))
+    # graduu0 = Expression(sy.ccode(sy.diff(u, rho) + (1./rho)*sy.diff(u,, degree=3 phi)))
+    # graduu0 = Expression((sy.ccode(sy.diff(u, rho)),sy.ccode(sy.diff(v,, degree=3 rho))))
 
     tic()
-    Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)), degree=4)
-    Advection = Expression((sy.ccode(A1),sy.ccode(A2)), degree=4)
-    gradPres = Expression((sy.ccode(P1),sy.ccode(P2)), degree=4)
-    CurlCurl = Expression((sy.ccode(C1),sy.ccode(C2)), degree=4)
-    gradR = Expression(('0.0','0.0'), degree=4)
-    NS_Couple = Expression((sy.ccode(NS1),sy.ccode(NS2)), degree=4)
-    M_Couple = Expression((sy.ccode(M1),sy.ccode(M2)), degree=4)
+    # Laplacian = Expression((sy.ccode(L1),sy.ccode(L2)), degree=3)
+    # Advection = Expression((sy.ccode(A1),sy.ccode(A2)), degree=3)
+    # gradPres = Expression((sy.ccode(P1),sy.ccode(P2)), degree=3)
+    # CurlCurl = Expression((sy.ccode(C1),sy.ccode(C2)), degree=3)
+    # gradR = Expression(('0.0','0.0'), degree=3)
+    # NS_Couple = Expression((sy.ccode(NS1),sy.ccode(NS2)), degree=3)
+    # M_Couple = Expression((sy.ccode(M1),sy.ccode(M2)), degree=3)
+
+    LaplacianU = Expression((sy.ccode(L1),sy.ccode(L2)), degree=3)
+    AdvectionU = Expression((sy.ccode(A1),sy.ccode(A2)), degree=3)
+    gradPresU = Expression((sy.ccode(P1),sy.ccode(P2)), degree=3)
+    CurlCurlU = Expression((sy.ccode(C1),sy.ccode(C2)), degree=3)
+    gradR = Expression(('0.0','0.0'), degree=3)
+    NS_CoupleU = Expression((sy.ccode(NS1),sy.ccode(NS2)), degree=3)
+    M_CoupleU = Expression((sy.ccode(M1),sy.ccode(M2)), degree=3)
+
+    LaplacianB = Expression((str(sy.ccode(L1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(L2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+    AdvectionB = Expression((str(sy.ccode(A1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(A2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+    gradPresB = Expression((str(sy.ccode(P1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(P2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+    CurlCurlB = Expression((str(sy.ccode(C1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(C2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+    NS_CoupleB = Expression((str(sy.ccode(NS1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(NS2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
+    M_CoupleB = Expression((str(sy.ccode(M1)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)'),str(sy.ccode(M2)).replace('atan2(x[1], x[0])','(atan2(x[1], x[0])+2*pi)')), degree=3)
     print '                                             ', toc()
 
     # tic()
@@ -603,20 +617,21 @@ def SolutionSetUp():
     # Advection = CombineExpression(A1, A2)
     # gradPres = CombineExpression(P1, P2)
     # CurlCurl = CombineExpression(C1, C2)
-    # gradR = Expression(('0.0','0.0'), degree=4)
+    # gradR = Expression(('0.0','0.0'), degree=3)
     # NS_Couple = CombineExpression(NS1, NS2)
     # M_Couple = CombineExpression(M1, M2)
     # print '                                             ', toc()
 
     # return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
+    # return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian , Advection , gradPres , CurlCurl , gradR, NS_Couple , M_Couple
 
-    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
+    return uu0, ub0, pu0, pb0, bu0, bb0, ru0, [LaplacianU, LaplacianB], [AdvectionU, AdvectionB], [gradPresU, gradPresB], [CurlCurlU, CurlCurlB], gradR, [NS_CoupleU, NS_CoupleB], [M_CoupleU, M_CoupleB]
 
 
 
 def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple):
 
-
+    print bb0
     class u0(Expression):
         def __init__(self, mesh, uu0, ub0, **kwargs):
             self.mesh = mesh
@@ -698,7 +713,7 @@ def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian,
         def __init__(self, mesh, element=None, **kwargs):
             self.mesh = mesh
         def eval(self, values, x):
-            values[0] = 1.0
+            values[0] = 0.0
         # def value_shape(self):
         #     return ( )
 
@@ -716,13 +731,21 @@ def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian,
                 values[0] = 0.0
                 values[1] = 0.0
             else:
-                r = sqrt(x[0]**2 + x[1]**2)
-                theta = np.arctan2(x[1],x[0])
-                if theta < 0:
-                    theta += 2*np.pi
+                if x[1] > 0:
+                    values[0] =  -self.params[2]*self.Laplacian[0](x[0], x[1])[0] + self.Advection[0](x[0], x[1])[0] - self.params[0]*self.NS_Couple[0](x[0], x[1])[0]
+                    values[1] =  -self.params[2]*self.Laplacian[0](x[0], x[1])[1] + self.Advection[0](x[0], x[1])[1] - self.params[0]*self.NS_Couple[0](x[0], x[1])[1]
+                else:
+                    values[0] =  -self.params[2]*self.Laplacian[1](x[0], x[1])[0] + self.Advection[1](x[0], x[1])[0] - self.params[0]*self.NS_Couple[1](x[0], x[1])[0]
+                    values[1] =  -self.params[2]*self.Laplacian[1](x[0], x[1])[1] + self.Advection[1](x[0], x[1])[1] - self.params[0]*self.NS_Couple[1](x[0], x[1])[1]
+                # r = sqrt(x[0]**2 + x[1]**2)
+                # theta = np.arctan2(x[1],x[0])
+                # r = sqrt(x[0]**2 + x[1]**2)
+                # theta = np.arctan2(x[1],x[0])
+                # if theta < 0:
+                #     theta += 2*np.pi
 
-                values[0] =  self.Advection(r,theta)[0] - self.params[0]*self.NS_Couple(r,theta)[0]
-                values[1] =  self.Advection(r,theta)[1] - self.params[0]*self.NS_Couple(r,theta)[1]
+                # values[0] =  -self.params[2]*self.Laplacian(r,theta)[0] + self.Advection(r,theta)[0] - self.params[0]*self.NS_Couple(r,theta)[0]
+                # values[1] =  -self.params[2]*self.Laplacian(r,theta)[1] + self.Advection(r,theta)[1] - self.params[0]*self.NS_Couple(r,theta)[1]
                 # ssss
                 # print values
 
@@ -757,12 +780,18 @@ def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian,
                 values[0] = 0.0
                 values[1] = 0.0
             else:
-                r = sqrt(x[0]**2 + x[1]**2)
-                theta = np.arctan2(x[1],x[0])
-                if theta < 0:
-                    theta += 2*np.pi
-                values[0] = - self.params[0]*self.M_Couple(r,theta)[0]
-                values[1] = - self.params[0]*self.M_Couple(r,theta)[1]
+                if x[1] > 0:
+                    values[0] = self.params[1]*self.params[0]*self.CurlCurl[0](x[0], x[1])[0]+self.gradR(x[0], x[1])[0] - self.params[0]*self.M_Couple[0](x[0], x[1])[0]
+                    values[1] = self.params[1]*self.params[0]*self.CurlCurl[0](x[0], x[1])[1]+self.gradR(x[0], x[1])[1] - self.params[0]*self.M_Couple[0](x[0], x[1])[1]
+                else:
+                    values[0] = self.params[1]*self.params[0]*self.CurlCurl[1](x[0], x[1])[0]+self.gradR(x[0], x[1])[0] - self.params[0]*self.M_Couple[1](x[0], x[1])[0]
+                    values[1] = self.params[1]*self.params[0]*self.CurlCurl[1](x[0], x[1])[1]+self.gradR(x[0], x[1])[1] - self.params[0]*self.M_Couple[1](x[0], x[1])[1]
+                # r = sqrt(x[0]**2 + x[1]**2)
+                # theta = np.arctan2(x[1],x[0])
+                # if theta < 0:
+                #     theta += 2*np.pi
+                # values[0] = self.params[1]*self.params[0]*self.CurlCurl(r,theta)[0]+self.gradR(r,theta)[0] - self.params[0]*self.M_Couple(r,theta)[0]
+                # values[1] = self.params[1]*self.params[0]*self.CurlCurl(r,theta)[1]+self.gradR(r,theta)[1] - self.params[0]*self.M_Couple(r,theta)[1]
 
         def value_shape(self):
             return (2,)
@@ -808,16 +837,16 @@ def SolutionMeshSetup(mesh, params,uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian,
         def value_shape(self):
             return (2,)
 
-    u0 = u0(mesh, uu0, ub0, degree=4)
-    p0 = p0(mesh, pu0, pb0, degree=4)
-    bNone = bNone(mesh, bu0, bb0, degree=4)
-    # p0vec = p0Vec(mesh, pu0, degree=4)
-    b0 = b0(mesh, bu0, bb0, degree=4)
-    r0 = r0(mesh, degree=4)
-    F_NS = F_NS(mesh, Laplacian, Advection, gradPres, NS_Couple, params, degree=4)
-    F_M = F_M(mesh, CurlCurl, gradR, M_Couple, params, degree=4)
-    F_MX = F_MX(mesh, degree=4)
-    F_S = F_S(mesh, Laplacian, gradPres, params, degree=4)
+    u0 = u0(mesh, uu0, ub0, degree=3)
+    p0 = p0(mesh, pu0, pb0, degree=3)
+    bNone = bNone(mesh, bu0, bb0, degree=3)
+    # p0vec = p0Vec(mesh, pu0, degree=3)
+    b0 = b0(mesh, bu0, bb0, degree=3)
+    r0 = r0(mesh, degree=3)
+    F_NS = F_NS(mesh, Laplacian, Advection, gradPres, NS_Couple, params, degree=3)
+    F_M = F_M(mesh, CurlCurl, gradR, M_Couple, params, degree=3)
+    F_MX = F_MX(mesh, degree=3)
+    F_S = F_S(mesh, Laplacian, gradPres, params, degree=3)
     # gradu0 = gradu0(mesh, graduu0)
     # Neumann = Neumann(mesh, pu0, graduu0, params, FacetNormal(mesh))
     # NeumannGrad = NeumannGrad(mesh, p0, graduu0, params, FacetNormal(mesh))
@@ -864,26 +893,26 @@ def Stokes(V, Q, F, u0, p0, gradu0, params,boundaries, domains, mesh):
     P, Pb = assemble_system(pp, L, bcu)
     P, Pb = CP.Assemble(P, Pb)
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    # if __version__ != '1.6.0':
-    OptDB['pc_factor_mat_solver_package']  = "pastix"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
-    ksp.setOperators(A,A)
-
-    # ksp = PETSc.KSP().create()
-    # ksp.setTolerances(1e-8)
-    # ksp.max_it = 200
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
     # pc = ksp.getPC()
-    # pc.setType(PETSc.PC.Type.PYTHON)
-    # ksp.setType('minres')
-    # pc.setPythonContext(StokesPrecond.Approx(W, 1))
-    # ksp.setOperators(A,P)
+    # ksp.setType('preonly')
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # # if __version__ != '1.6.0':
+    # OptDB['pc_factor_mat_solver_package']  = "pastix"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
+    # ksp.setOperators(A,A)
+
+    ksp = PETSc.KSP().create()
+    ksp.setTolerances(1e-8)
+    ksp.max_it = 200
+    pc = ksp.getPC()
+    pc.setType(PETSc.PC.Type.PYTHON)
+    ksp.setType('minres')
+    pc.setPythonContext(StokesPrecond.Approx(W, 1))
+    ksp.setOperators(A,P)
 
     scale = b.norm()
     b = b/scale
@@ -894,7 +923,6 @@ def Stokes(V, Q, F, u0, p0, gradu0, params,boundaries, domains, mesh):
     u = u*scale
     print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     # Mits +=dodim
-    u = u*scale
     u_k = Function(FunctionSpace(mesh, V))
     p_k = Function(FunctionSpace(mesh, Q))
     u_k.vector()[:] = u.getSubVector(IS[0]).array
@@ -926,7 +954,7 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries, bNone, mesh, HiptmairMatrices, 
         return on_boundary
 
     bcb1 = DirichletBC(W.sub(0), b0, boundaries,1)
-    bcb2 = DirichletBC(W.sub(0), Expression(("0.0","0.0"), degree=4), boundaries,2)
+    bcb2 = DirichletBC(W.sub(0), Expression(("0.0","0.0"), degree=3), boundaries,2)
     bcb3 = DirichletBC(W.sub(0), bNone, boundaries,2)
     bcb4 = DirichletBC(W.sub(0), b0, boundaries,2)
 
@@ -937,15 +965,15 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries, bNone, mesh, HiptmairMatrices, 
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
+    # pc = ksp.getPC()
+    # ksp.setType('preonly')
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
 
     ksp = PETSc.KSP().create()
     ksp.setTolerances(1e-8)
@@ -961,7 +989,6 @@ def Maxwell(V, Q, F, b0, r0, params, boundaries, bNone, mesh, HiptmairMatrices, 
     start_time = time.time()
     ksp.solve(b,u)
     print ("{:40}").format("Maxwell solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
-    u = u*scale
     u = u*scale
     b_k = Function(FunctionSpace(mesh, V))
     r_k = Function(FunctionSpace(mesh, Q))
