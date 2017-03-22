@@ -31,7 +31,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 # import matplotlib.pyplot as plt
 #@profile
-m = 8
+m = 6
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -80,6 +80,7 @@ NLtol = [1e-6, 1e-6, 1e-6, 1e-6, 1e-5, 1e-5, 1e-5, 1e-5, 1e-4, 1e-4, 1e-4, 1e-4,
 Ltol = [1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3]
 
 TableValues = np.zeros((m-1,len(Ltol)*2))
+TotalTime = np.zeros((m-1,len(Ltol)))
 Decouple = ["P", "MD", "CD"]
 # ii = 0
 DecoupleType = "Full"
@@ -223,7 +224,7 @@ for xx in xrange(1,m):
         eps = 1.0           # error measure ||u-u_k||
         tol = NL         # tolerance
         iter = 0            # iteration counter
-        maxiter = 20       # max no of iterations allowed
+        maxiter = 25       # max no of iterations allowed
         SolutionTime = 0
         outer = 0
         # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -308,7 +309,7 @@ for xx in xrange(1,m):
         NSave[xx-1] = (float(NSits)/iter)
         Mave[xx-1] = (float(Mits)/iter)
         iterations[xx-1] = iter
-        TotalTime[xx-1] = time.time() - TotalStart
+        TotalTime[xx-1, j] = time.time() - TotalStart
 
         XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
 
@@ -325,8 +326,6 @@ print "\n\n   Iterations"
 result = [None]*(len(NLtol)+len(Ltol))
 result[::2] = NLtol
 result[1::2] = Ltol
-# print result
-# print [str(i) for i in result]
 l = ["l", "DoF"]
 for i in range(len(result)/2):
     l.append("NL")
@@ -338,7 +337,19 @@ print len(IterValues)
 IterTable = pd.DataFrame(IterValues, columns = IterTitles)
 print IterTable.to_latex()
 print IterTable
-[4.00000000e+00, 3.55600000e+03, 1.00000000e+00, 4.80000000e+01, 1.00000000e+00, 3.80000000e+01, 1.00000000e+00, 3.30000000e+01, 1.00000000e+00, 3.30000000e+01, 1.00000000e+00, 4.00000000e+01, 1.00000000e+00, 3.80000000e+01, 1.00000000e+00, 3.80000000e+01, 1.00000000e+00, 3.40000000e+01, 1.00000000e+00, 4.00000000e+01, 1.00000000e+00, 3.90000000e+01, 1.00000000e+00, 3.50000000e+01, 1.00000000e+00, 3.40000000e+01, 1.00000000e+00, 4.10000000e+01, 1.00000000e+00, 3.80000000e+01, 1.00000000e+00, 3.50000000e+01, 1.00000000e+00, 3.20000000e+01]
+
+
+print "\n\n   Iterations"
+result[1::2] = Ltol
+l = ["l", "DoF"]
+for i in range(len(result)/2):
+    l.append("time")
+IterValues = np.concatenate((level,Wdim,TotalTime),axis=1)
+print l
+print len(l)
+IterTable = pd.DataFrame(IterValues, columns = l)
+print IterTable.to_latex()
+print IterTable
 
 # \begin{tabular}{lrrrrrll}
 # \toprule
