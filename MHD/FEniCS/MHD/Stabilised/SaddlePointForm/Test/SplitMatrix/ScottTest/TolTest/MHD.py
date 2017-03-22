@@ -87,12 +87,36 @@ Decouple = ["P", "MD", "CD"]
 # ii = 0
 DecoupleType = "Full"
 IterType = "Full"
+
+# def clearscreen(numlines=100):
+#     """Clear the console.
+#     numlines is an optional argument used only as a fall-back.
+#     """
+#     import os
+#     if os.name == "posix":
+#         # Unix/Linux/MacOS/BSD/etc
+#         os.system('clear')
+#     elif os.name in ("nt", "dos", "ce"):
+#         # DOS/Windows
+#         os.system('CLS')
+#     else:
+#         # Fallback for other operating systems.
+#         print '\n' * numlines
+def clearscreen(n=1):
+    CURSOR_UP_ONE = '\x1b[1A'
+    ERASE_LINE = '\x1b[2K'
+    for _ in range(n):
+        sys.stdout.write(CURSOR_UP_ONE)
+        sys.stdout.write(ERASE_LINE)
+
 for xx in xrange(1,m):
     ii = 0
     for j in range(0, len(Ltol)):
 
         NL = NLtol[j]
         Linear = Ltol[j]
+        MO.PrintStr("Nonlinear tol: " + str(NL) + "  Linear tol: "+str(Linear),2,"=","\n\n","\n")
+
         print xx
         level[xx-1] = xx + 3
         nn = 2**(level[xx-1])
@@ -150,7 +174,7 @@ for xx in xrange(1,m):
         # kappa = 0.0
         # params = [kappa,Mu_m,MU]
 
-        MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
+        MO.PrintStr("Setting up initial guess matricies",2,"=","\n\n","\n")
         BCtime = time.time()
         BC = MHDsetup.BoundaryIndices(mesh)
         MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
@@ -248,7 +272,7 @@ for xx in xrange(1,m):
         bcs = [bcu,bcb,bcr]
         A, b = assemble_system(a, L, bcs)
         A, b = CP.Assemble(A,b)
-
+        clearscreen(60)
         while eps > tol and b.norm() > tol  and iter < maxiter:
             iter += 1
             MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
@@ -297,6 +321,8 @@ for xx in xrange(1,m):
 
             A, b = assemble_system(a, L, bcs)
             A, b = CP.Assemble(A,b)
+            clearscreen(40)
+
 
             # b = assemble(L)
             # for bc in bcs:
@@ -320,8 +346,7 @@ for xx in xrange(1,m):
         TableValues[xx-1, ii+1] = (float(Mits)/iter)
         ii += 2
 
-    print TableValues
-    print SolTime
+
 
 import pandas as pd
 print "\n\n   Iterations"
