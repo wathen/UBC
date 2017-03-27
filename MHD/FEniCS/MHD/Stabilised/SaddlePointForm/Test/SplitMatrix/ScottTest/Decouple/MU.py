@@ -332,17 +332,18 @@ print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
 
 
-
-# \begin{tabular}{lrrrrrll}
-# \toprule
-# {} &    l &        DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its & Av Inner its \\
-# \midrule
-# 0 &  4.0 &  3.556e+03 &          0.888 &              5.287 &                5.0 &         28.4 &         28.4 \\
-# 1 &  5.0 &  1.376e+04 &          7.494 &             38.919 &                5.0 &         26.8 &         26.8 \\
-# 2 &  6.0 &  5.415e+04 &         42.334 &            217.070 &                5.0 &         28.8 &         28.8 \\
-# 3 &  7.0 &  2.148e+05 &        196.081 &           1001.671 &                5.0 &         28.4 &         28.4 \\
-# 4 &  8.0 &  8.556e+05 &        843.574 &           4294.126 &                5.0 &         28.2 &         28.2 \\
-# 5 &  9.0 &  3.415e+06 &       3865.731 &          15683.881 &                4.0 &         28.2 &         28.2 \\
-# \bottomrule
+# {\setlength{\tabcolsep}{.21em} \begin{table}
+#     \begin{tabular}{|cc|ccc|ccc|ccc|ccc|}
+# \hline
+# \multicolumn{2}{|c|}{} & \multicolumn{3}{|c|}{tol$_{\rm L}=$1e-6} & \multicolumn{3}{|c|}{tol$_{\rm L}=$1e-5} & \multicolumn{3}{|c|}{tol$_{\rm L}=$1e-4} & \multicolumn{3}{|c|}{tol$_{\rm L}=$1e-3} \\
+# $\ell$ & DoF & it$_{\rm NL}$ & it$_{\rm L}$ & time & it$_{\rm NL}$ & it$_{\rm L}$ & time & it$_{\rm NL}$ &  it$_{\rm L}$ & time & it$_{\rm NL}$ & tol$_{\rm L}$ & time \\
+# \hline
+# 4 & 3,556  & 5 & 36.0 & 2.16 & 6 & 33.2 & 2.49 & - & 29.0 & 9.40 & - & 25.1 & 8.48 \\
+# 5 & 13,764  & 5 & 42.0 & 13.58 & 5 & 37.8 & 12.12 & 12 & 33.7 & 26.69 & - & 29.8 & 48.09 \\
+# 6 & 54,148  & 5 & 42.2 & 57.71 & 5 & 39.4 & 54.47 & 5 & 37.2 & 51.36 & - & 31.4 & 220.93 \\
+# 7 & 214,788  & 5 & 51.6 & 299.48 & 5 & 41.2 & 240.10 & 5 & 38.6 & 231.42 & - & 32.9 & 985.58 \\
+# 8 & 855,556  & 5 & 52.4 & 1485.20 & 5 & 42.0 & 1230.99 & 5 & 35.6 & 1126.70 & 20 & 35.0 & 4306.09 \\
+# \hline
 # \end{tabular}
-
+# \caption{tol$_{\rm NL}=$1e-4}
+# \end{table}}

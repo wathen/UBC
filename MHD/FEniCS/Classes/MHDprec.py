@@ -94,7 +94,7 @@ class InnerOuterMAGNETICinverse(BaseMyPC):
 
         OptDB = PETSc.Options()
         OptDB["pc_factor_mat_ordering_type"] = "rcm"
-        OptDB["pc_factor_mat_solver_package"] = "umfpack"
+        OptDB["pc_factor_mat_solver_package"] = "pastix"
 
         self.kspA.setType('preonly')
         self.kspA.getPC().setType('lu')
