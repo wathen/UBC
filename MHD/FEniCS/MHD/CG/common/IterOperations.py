@@ -180,6 +180,7 @@ def PicardToleranceDecouple(x,U,FSpaces,dim,NormType,iter,SaddlePoint = "No"):
 
     u = Function(FSpaces[0])
     u.vector()[:] = uu
+    u_ = assemble(inner(u,u)*dx)
     diffu = u.vector().array()
 
     # if SaddlePoint == "Yes":
@@ -199,17 +200,22 @@ def PicardToleranceDecouple(x,U,FSpaces,dim,NormType,iter,SaddlePoint = "No"):
     p = Function(FSpaces[1])
     print FSpaces[1].dim()
     p.vector()[:] = pp
+    p_ = assemble(p*p*dx)
+
     ones = Function(FSpaces[1])
     ones.vector()[:]=(0*ones.vector().array()+1)
     pp = Function(FSpaces[1])
-    pp.vector()[:] = p.vector().array()- assemble(p*dx)/assemble(ones*dx)
+    pp.vector()[:] = p.vector().array() - assemble(p*dx)/assemble(ones*dx)
+    p_ = assemble(p*p*dx)
     p = pp.vector().array()
     b = Function(FSpaces[2])
     b.vector()[:] = bb
+    b_ = assemble(inner(b,b)*dx)
     diffb = b.vector().array()
 
     r = Function(FSpaces[3])
     r.vector()[:] = rr
+    r_ = assemble(r*r*dx)
     # print diffu
     if (NormType == '2'):
         epsu = splin.norm(diffu)/sqrt(dim[0])
@@ -244,6 +250,8 @@ def PicardToleranceDecouple(x,U,FSpaces,dim,NormType,iter,SaddlePoint = "No"):
 
 
     print 'u-norm=%g   p-norm=%g  \n b-norm=%g   r-norm=%g' % (epsu,epsp,epsb,epsr), '\n\n\n'
+    print 'u-norm=%g   p-norm=%g  \n b-norm=%g   r-norm=%g' % (u_,p_,b_,r_), '\n\n\n'
+
     return u,p,b,r,epsu+epsp+epsb+epsr
 
 

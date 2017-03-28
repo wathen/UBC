@@ -279,10 +279,11 @@ for kk in range(0,4):
             while eps > tol and b.norm() > tol  and iter < maxiter:
                 iter += 1
                 MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
-
-
+                inner(L, L)*dx
                 u = b.duplicate()
-                u.setRandom()
+                MO.PrintStr(str(assemble(inner(L, L)*dx)),60,"=","\n\n","\n\n")
+
+                # u.setRandom()
                 print "                               Max rhs = ",np.max(b.array)
 
                 kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
@@ -300,6 +301,11 @@ for kk in range(0,4):
 
                 stime = time.time()
                 u, mits,nsits = S.solve(A,b,u,params,W,'Directs',IterType,Linear,Linear,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+                qq = Function(W)
+                qq.vector()[:] = u.array
+
+                # qq = uu+pp+bb+rr
+                # MO.PrintStr(str(u.norm())+"  "+str(assemble(inner(qq, qq)*dx)),6,"=","\n\n","\n\n")
 
                 Soltime = time.time() - stime
                 MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -316,15 +322,17 @@ for kk in range(0,4):
                 r_k.assign(r1)
                 uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
                 x = IO.arrayToVec(uOld)
-                MO.PrintStr(str(b.norm())+"  "+str(eps),70,"=","\n\n","\n\n")
+                MO.PrintStr(str(b.norm())+"  "+str(eps),80,"=","\n\n","\n\n")
 
+
+                # ss
                 if eps > 1e10:
                     iter = 100000
                     break
 
                 A, b = assemble_system(a, L, bcs)
                 A, b = CP.Assemble(A,b)
-                clearscreen(40)
+                # clearscreen(40)
 
 
                 # b = assemble(L)
