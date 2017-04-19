@@ -201,7 +201,7 @@ for xx in xrange(1,m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 5       # max no of iterations allowed
+    maxiter = 50       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -211,14 +211,14 @@ for xx in xrange(1,m):
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
 
-    OuterTol = 1e-5
-    InnerTol = 1e-5
+    OuterTol = 1e-4
+    InnerTol = 1e-4
     NSits = 0
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
 
-
+    bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
@@ -238,15 +238,15 @@ for xx in xrange(1,m):
         print "                               Max rhs = ",np.max(b.array)
 
         kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
-        # b_t = TrialFunction(Velocity)
-        # c_t = TestFunction(Velocity)
-        # n = FacetNormal(mesh)
-        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        # ShiftedMass = assemble(aa)
-        # bcu.apply(ShiftedMass)
-        # ShiftedMass = CP.Assemble(ShiftedMass)
-        ShiftedMass = A.getSubMatrix(u_is, u_is)
+        b_t = TrialFunction(VelocityF)
+        c_t = TestFunction(VelocityF)
+        n = FacetNormal(mesh)
+        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        ShiftedMass = assemble(aa)
+        bcu1.apply(ShiftedMass)
+        ShiftedMass = CP.Assemble(ShiftedMass)
+        # ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
 
@@ -267,6 +267,7 @@ for xx in xrange(1,m):
         r_k.assign(r1)
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
+        # eps = b.norm()
     # iter = 1
 
     SolTime[xx-1] = SolutionTime/iter

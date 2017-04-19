@@ -1,0 +1,7 @@
+\begin{tabular}{lrrrrrll}
+\toprule
+{} &    l &     DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its & Av Inner its \\
+\midrule
+0 &  4.0 &  3556.0 &          0.138 &             17.441 &               50.0 &         26.8 &         26.8 \\
+\bottomrule
+\end{tabular}

@@ -76,11 +76,11 @@ MU[0] = 1e0
 # NLtol = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
 # Ltol = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
 
-NLtol = [1e-4, 1e-4, 1e-4, 1e-4]
-Ltol = [1e-6, 1e-5, 1e-4, 1e-3]
+NLtol = [1e-6, 1e-6, 1e-6, 1e-6]
+Ltol = [1e-5, 1e-4, 1e-3, 1e-2]
 
-NLtol = [1e-6, 1e-6, 1e-6, 1e-6, 1e-5, 1e-5, 1e-5, 1e-5, 1e-4, 1e-4, 1e-4, 1e-4, 1e-3, 1e-3, 1e-3, 1e-3]
-Ltol = [1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3]
+# NLtol = [1e-6, 1e-6, 1e-6, 1e-6, 1e-5, 1e-5, 1e-5, 1e-5, 1e-4, 1e-4, 1e-4, 1e-4, 1e-3, 1e-3, 1e-3, 1e-3]
+# Ltol = [1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3, 1e-6, 1e-5, 1e-4, 1e-3]
 TableValues = np.zeros((m-1,12))
 TotalTime = np.zeros((m-1,1))
 Decouple = ["P", "MD", "CD"]
@@ -269,6 +269,7 @@ for kk in range(0,4):
             Mits = 0
             TotalStart = time.time()
             SolutionTime = 0
+            bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
             bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
             bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
             bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
@@ -276,26 +277,25 @@ for kk in range(0,4):
             A, b = assemble_system(a, L, bcs)
             A, b = CP.Assemble(A,b)
             clearscreen(60)
-            while eps > tol and b.norm() > tol  and iter < maxiter:
+            while eps > tol  and iter < maxiter:
                 iter += 1
                 MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
-                inner(L, L)*dx
+                # inner(L, L)*dx
                 u = b.duplicate()
-                MO.PrintStr(str(assemble(inner(L, L)*dx)),60,"=","\n\n","\n\n")
+                # MO.PrintStr(str(assemble(inner(L, L)*dx)),60,"=","\n\n","\n\n")
 
                 # u.setRandom()
                 print "                               Max rhs = ",np.max(b.array)
 
                 kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
-                (u1, p1, b1, r1) = TrialFunctions(W)
-                (v1, q1, c1, s1) = TestFunctions(W)
+                b_t = TrialFunction(VelocityF)
+                c_t = TestFunction(VelocityF)
                 n = FacetNormal(mesh)
                 mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-                aa = params[2]*inner(grad(u1), grad(v1))*dx(W.mesh()) + inner((grad(u1)*u_k),v1)*dx(W.mesh()) +(1./2)*div(u_k)*inner(v1,u1)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(v1,u1)*ds(W.mesh())+kappa/Mu_m*inner(mat*u1,v1)*dx(W.mesh())
+                aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
                 ShiftedMass = assemble(aa)
-                bcu.apply(ShiftedMass)
+                bcu1.apply(ShiftedMass)
                 ShiftedMass = CP.Assemble(ShiftedMass)
-                ShiftedMass = A.getSubMatrix(u_is, u_is)
                 kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
                 Options = 'p4'
 
@@ -324,7 +324,7 @@ for kk in range(0,4):
                 x = IO.arrayToVec(uOld)
                 MO.PrintStr(str(b.norm())+"  "+str(eps),80,"=","\n\n","\n\n")
 
-
+                eps = np.linalg.norm(b.array)
                 # ss
                 if eps > 1e10:
                     iter = 100000

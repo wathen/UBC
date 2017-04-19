@@ -1,0 +1,7 @@
+\begin{tabular}{lrrrllll}
+\toprule
+{} &    l &  B DoF &  R DoF &        R-L2 & L2-order &        R-H1 & H1-order \\
+\midrule
+0 &  4.0 &  800.0 &  289.0 &  1.3178e-02 &     0.00 &  5.2010e-01 &     0.00 \\
+\bottomrule
+\end{tabular}
