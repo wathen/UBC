@@ -222,17 +222,16 @@ for xx in xrange(1,m):
     TotalStart = time.time()
     SolutionTime = 0
     print L1
-    b = assemble(L +  (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT))
+    b = assemble(L1)
     for bc in bcs:
         bc.apply(b)
-    b = CP.Assemble(b)
-    normb = b.norm()
+    b = b.array()
+    normb = np.linalg.norm(b)
 
     bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
-
 
         initial = Function(W)
         R = action(a,initial);
@@ -247,17 +246,31 @@ for xx in xrange(1,m):
         b_t = TrialFunction(VelocityF)
         c_t = TestFunction(VelocityF)
         n = FacetNormal(mesh)
-        mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        ShiftedMass = assemble(aa)
-        bcu1.apply(ShiftedMass)
-        ShiftedMass = CP.Assemble(ShiftedMass)
-        # ShiftedMass = A.getSubMatrix(u_is, u_is)
+        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
+        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
+        # ShiftedMass = assemble(aa)
+        # bcu1.apply(ShiftedMass)
+        # ShiftedMass = CP.Assemble(ShiftedMass)
+        ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
+        # if iter > 1:
+        #     # print (b-uold).array
+        #     # eps = np.linalg.norm((b-uold))
+        #     # uold = b
+        #     w = Function(W)
+        #     # u2 = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
+
+        #     # u1 = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+        #     print (A*u11-b).norm()
+        #     w.vector()[:] = ((u).array)
+        #     eps1 = sqrt(assemble(inner(w,w)*dx))
+        #     print "2222222         ", eps1
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u11 = u
+
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -272,10 +285,20 @@ for xx in xrange(1,m):
         b_k.assign(b1)
         r_k.assign(r1)
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-        x = IO.arrayToVec(uOld)
+        # X = x
+        # x = IO.arrayToVec(uOld)
+        # w = Function(W)
+        # # u2 = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
 
-        eps = b.norm()/normb
-        MO.StrTimePrint("Error: ", eps)
+        # # u1 = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+        # A, b = assemble_system(a, L, bcs)
+        # A, b = CP.Assemble(A,b)
+        # print (A*u-b).norm()
+
+        # w.vector()[:] = ((A*u-b).array)
+        # eps = sqrt(assemble(inner(w,w)*dx))
+        # print "2222222         ", eps
+        # eps = b.norm()/normb
 
     # iter = 1
 

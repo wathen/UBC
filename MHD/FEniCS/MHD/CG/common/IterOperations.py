@@ -206,7 +206,7 @@ def PicardToleranceDecouple(x,U,FSpaces,dim,NormType,iter,SaddlePoint = "No"):
     ones.vector()[:]=(0*ones.vector().array()+1)
     pp = Function(FSpaces[1])
     pp.vector()[:] = p.vector().array() - assemble(p*dx)/assemble(ones*dx)
-    p_ = assemble(p*p*dx)
+    p_ = assemble(pp*pp*dx)
     p = pp.vector().array()
     b = Function(FSpaces[2])
     b.vector()[:] = bb
@@ -246,11 +246,16 @@ def PicardToleranceDecouple(x,U,FSpaces,dim,NormType,iter,SaddlePoint = "No"):
         b.vector()[:] = RHS[dim[0]+dim[1]:dim[0]+dim[1]+dim[2]]
         r.vector()[:] = RHS[dim[0]+dim[1]+dim[2]:]
 
-
-
+    # print diffu.dot(diffu) + pp.dot(pp) + diffb.dot(diffb) + r.dot(r)
+    # epsu = sqrt(u_)/sqrt(dim[0])
+    # epsp = sqrt(p_)/sqrt(dim[1])
+    # epsb = sqrt(b_)/sqrt(dim[2])
+    # epsr = sqrt(r_)/sqrt(dim[3])
+        # uOld = np.concatenate((diffu, pp.vector().array(), diffb, r.vector().array()), axis=0)
+    # print np.linalg.norm(uOld)/sum(dim)
 
     print 'u-norm=%g   p-norm=%g  \n b-norm=%g   r-norm=%g' % (epsu,epsp,epsb,epsr), '\n\n\n'
-    print 'u-norm=%g   p-norm=%g  \n b-norm=%g   r-norm=%g' % (u_,p_,b_,r_), '\n\n\n'
+    print 'u-norm=%g   p-norm=%g  \n b-norm=%g   r-norm=%g' % (sqrt(u_), sqrt(p_), sqrt(b_), sqrt(r_)), '\n\n\n'
 
     return u,p,b,r,epsu+epsp+epsb+epsr
 
