@@ -76,7 +76,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 3
+    level[xx-1] = xx + 4
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -186,7 +186,7 @@ for xx in xrange(1,m):
     Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-
+    L1 = Lns + Lmaxwell
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     pConst = - assemble(p_k*dx)/assemble(ones*dx)
@@ -210,24 +210,30 @@ for xx in xrange(1,m):
     b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
-
-    OuterTol = 1e-4
-    InnerTol = 1e-4
+    bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
+    #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+    bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
+    bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
+    bcs = [bcu,bcb,bcr]
+    OuterTol = 1e-5
+    InnerTol = 1e-5
     NSits = 0
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
+    print L1
+    b = assemble(L +  (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT))
+    for bc in bcs:
+        bc.apply(b)
+    b = CP.Assemble(b)
+    normb = b.norm()
 
     bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
-        #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
-        bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
-        bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
-        bcs = [bcu,bcb,bcr]
+
         initial = Function(W)
         R = action(a,initial);
         DR = derivative(R, initial);
@@ -267,7 +273,10 @@ for xx in xrange(1,m):
         r_k.assign(r1)
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
-        # eps = b.norm()
+
+        eps = b.norm()/normb
+        MO.StrTimePrint("Error: ", eps)
+
     # iter = 1
 
     SolTime[xx-1] = SolutionTime/iter
