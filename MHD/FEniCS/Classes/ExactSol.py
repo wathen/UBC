@@ -409,37 +409,37 @@ def M2D(case, Show="no",type="no", Mass = 0):
     P2 = diff(p,y)
     # print L1
     # print L2
-    class Vec(Expression):
-        def __init__(self, u ,v, X, Y):
-            self.u = u
-            self.v = v
-            self.X = X
-            self.Y = Y
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.u.subs({self.X:x[0], self.Y:x[1]}).evalf()
-            values[1] = self.v.subs({self.X:x[0], self.Y:x[1]}).evalf()
-        def value_shape(self):
-            return (2,)
+    # class Vec(Expression):
+    #     def __init__(self, u ,v, X, Y):
+    #         self.u = u
+    #         self.v = v
+    #         self.X = X
+    #         self.Y = Y
+    #     def eval_cell(self, values, x, ufc_cell):
+    #         values[0] = self.u.subs({self.X:x[0], self.Y:x[1]}).evalf()
+    #         values[1] = self.v.subs({self.X:x[0], self.Y:x[1]}).evalf()
+    #     def value_shape(self):
+    #         return (2,)
 
-    class Scal(Expression):
-        def __init__(self, p, X, Y):
-            self.p = p
-            self.X = X
-            self.Y = Y
-        def eval_cell(self, values, x, ufc_cell):
-            values[0] = self.p.subs({self.X:x[0], self.Y:x[1]}).evalf()
+    # class Scal(Expression):
+    #     def __init__(self, p, X, Y):
+    #         self.p = p
+    #         self.X = X
+    #         self.Y = Y
+    #     def eval_cell(self, values, x, ufc_cell):
+    #         values[0] = self.p.subs({self.X:x[0], self.Y:x[1]}).evalf()
 
-    u0 = Vec(u,v,x,y)
-    p0 = Scal(p,x,y)
-    # u0 = Expression((ccode(u),ccode(v)), degree=4)
-    # p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
+    # u0 = Vec(u,v,x,y)
+    # p0 = Scal(p,x,y)
+    u0 = Expression((ccode(u),ccode(v)), degree=4)
+    p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
 
 
-    CurlCurl = Vec(L1,L2,x,y)
-    gradPres = Vec(P1,P2,x,y)
-    CurlMass = 1
     # CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
-    # gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode, degree=4(P2).replace('M_PI','pi')))
+    # gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2)).replace('M_PI','pi'), degree=4)
+    CurlMass = 1
+    CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
+    gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi')), degree=4)
     # CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)), degree=4)
     # print latex(u)
     # print latex(v)

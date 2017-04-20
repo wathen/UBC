@@ -19,7 +19,7 @@
 //   representation:                 'auto'
 //   split:                          False
 
-#include "ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df.h"
+#include "ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426.h"
 
 // Based on https://gcc.gnu.org/wiki/Visibility
 #if defined _WIN32 || defined __CYGWIN__
@@ -32,23 +32,23 @@
     #define DLL_EXPORT __attribute__ ((visibility ("default")))
 #endif
 
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise::ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise() : ufc::cell_integral()
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise::ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise() : ufc::cell_integral()
 {
     
 }
 
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise::~ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise()
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise::~ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise()
 {
     
 }
 
-const std::vector<bool> & ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise::enabled_coefficients() const
+const std::vector<bool> & ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise::enabled_coefficients() const
 {
     static const std::vector<bool> enabled({true, true, true, true, true, true, true, true, true, true, true});
     return enabled;
 }
 
-void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise::tabulate_tensor(double * A,
+void ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise::tabulate_tensor(double * A,
                                     const double * const * w,
                                     const double * coordinate_dofs,
                                     int cell_orientation) const
@@ -521,7 +521,7 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherw
     // Optimisations: ('eliminate zeros', False), ('ignore ones', False), ('ignore zero tables', False), ('optimisation', False), ('remove zero terms', False)
     
     // Loop quadrature points for integral.
-    // Number of operations to compute element tensor for following IP loop = 145944
+    // Number of operations to compute element tensor for following IP loop = 84708
     for (unsigned int ip = 0; ip < 12; ip++)
     {
       
@@ -583,53 +583,53 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherw
       for (unsigned int r = 0; r < 30; r++)
       {
         F14 += FE5_C0[ip][r]*w[6][r];
-        F15 += FE5_C0[ip][r]*w[4][r];
-        F16 += FE5_C0[ip][r]*w[5][r];
+        F15 += FE5_C0[ip][r]*w[3][r];
+        F16 += FE5_C0[ip][r]*w[4][r];
         F17 += FE5_C1[ip][r]*w[6][r];
-        F18 += FE5_C1[ip][r]*w[4][r];
-        F19 += FE5_C1[ip][r]*w[5][r];
-        F20 += FE5_C0[ip][r]*w[3][r];
+        F18 += FE5_C1[ip][r]*w[3][r];
+        F19 += FE5_C1[ip][r]*w[4][r];
+        F20 += FE5_C0[ip][r]*w[5][r];
         F21 += FE5_C0[ip][r]*w[2][r];
         F22 += FE5_C0[ip][r]*w[0][r];
         F23 += FE5_C0[ip][r]*w[1][r];
-        F24 += FE5_C1[ip][r]*w[3][r];
+        F24 += FE5_C1[ip][r]*w[5][r];
         F25 += FE5_C1[ip][r]*w[2][r];
         F26 += FE5_C1[ip][r]*w[0][r];
         F27 += FE5_C1[ip][r]*w[1][r];
       } // end loop over 'r'
       
-      // Number of operations for primary indices: 11130
+      // Number of operations for primary indices: 6027
       for (unsigned int j = 0; j < 21; j++)
       {
-        // Number of operations to compute entry: 530
-        A[j] += ((((((((((((((((((((((((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0))))*10.0 + (((FE1_C1[ip][j]*((K[0]*F3 + K[2]*F4)))*(-1.0) + FE1_C0[ip][j]*((K[1]*F3 + K[3]*F4))))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0)))) + ((((FE1_C1[ip][j]*((K[0]*F3 + K[2]*F4)))*(-1.0) + FE1_C0[ip][j]*((K[1]*F3 + K[3]*F4))))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0))))*(-1.0)) + ((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*((-1.0)*(((-1.0)*(((K[0]*F3 + K[2]*F4))*F6) + F5*((K[1]*F3 + K[3]*F4)))))) + ((((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0))))*10.0)*(-1.0)) + (((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*((-1.0)*(((-1.0)*(((K[0]*F3 + K[2]*F4))*F6) + F5*((K[1]*F3 + K[3]*F4))))))*(-1.0)) + (((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]) + (K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j])))*(-1.0))*F7)*(-1.0)) + (FE1_C2[ip][j]*((-1.0)*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11)))))*(-1.0)) + ((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]) + (K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j])))*(-1.0))*F7) + FE1_C2[ip][j]*((-1.0)*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11))))) + (((FE1_C0[ip][j]*F5 + FE1_C1[ip][j]*F6))*(0.5*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11)))))*(-1.0)) + ((FE1_C0[ip][j]*((F5*((K[0]*F8 + K[2]*F9)) + F6*((K[1]*F8 + K[3]*F9)))) + FE1_C1[ip][j]*((F5*((K[0]*F10 + K[2]*F11)) + F6*((K[1]*F10 + K[3]*F11))))))*(-1.0)) + ((FE1_C0[ip][j]*F5 + FE1_C1[ip][j]*F6))*(0.5*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11))))) + ((((K[0]*FE1_C5_D10[ip][j] + K[2]*FE1_C5_D01[ip][j]))*((K[0]*F3 + K[2]*F4)) + ((K[1]*FE1_C5_D10[ip][j] + K[3]*FE1_C5_D01[ip][j]))*((K[1]*F3 + K[3]*F4))))*(-1.0)) + ((((K[0]*FE1_C3[ip][j] + K[2]*FE1_C4[ip][j]))*((K[0]*F12 + K[2]*F13)) + ((K[1]*FE1_C3[ip][j] + K[3]*FE1_C4[ip][j]))*((K[1]*F12 + K[3]*F13))))*(-1.0)) + (((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]))*((K[0]*F8 + K[2]*F9)) + ((K[0]*FE1_C1_D10[ip][j] + K[2]*FE1_C1_D01[ip][j]))*((K[0]*F10 + K[2]*F11))) + (((K[1]*FE1_C0_D10[ip][j] + K[3]*FE1_C0_D01[ip][j]))*((K[1]*F8 + K[3]*F9)) + ((K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j]))*((K[1]*F10 + K[3]*F11)))))*(-1.0)) + (FE1_C0[ip][j]*((F5*((K[0]*F8 + K[2]*F9)) + F6*((K[1]*F8 + K[3]*F9)))) + FE1_C1[ip][j]*((F5*((K[0]*F10 + K[2]*F11)) + F6*((K[1]*F10 + K[3]*F11)))))) + (((K[0]*FE1_C5_D10[ip][j] + K[2]*FE1_C5_D01[ip][j]))*((K[0]*F3 + K[2]*F4)) + ((K[1]*FE1_C5_D10[ip][j] + K[3]*FE1_C5_D01[ip][j]))*((K[1]*F3 + K[3]*F4)))) + (((K[0]*FE1_C3[ip][j] + K[2]*FE1_C4[ip][j]))*(((-1.0)*F14 + (10.0*F15 + F16))) + ((K[1]*FE1_C3[ip][j] + K[3]*FE1_C4[ip][j]))*(((-1.0)*F17 + (10.0*F18 + F19))))) + (FE1_C0[ip][j]*(((((-1.0)*F22 + F23) + F21) + (-1.0)*F20)) + FE1_C1[ip][j]*(((((-1.0)*F26 + F27) + F25) + (-1.0)*F24)))) + (((K[0]*FE1_C3[ip][j] + K[2]*FE1_C4[ip][j]))*((K[0]*F12 + K[2]*F13)) + ((K[1]*FE1_C3[ip][j] + K[3]*FE1_C4[ip][j]))*((K[1]*F12 + K[3]*F13)))) + ((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]))*((K[0]*F8 + K[2]*F9)) + ((K[0]*FE1_C1_D10[ip][j] + K[2]*FE1_C1_D01[ip][j]))*((K[0]*F10 + K[2]*F11))) + (((K[1]*FE1_C0_D10[ip][j] + K[3]*FE1_C0_D01[ip][j]))*((K[1]*F8 + K[3]*F9)) + ((K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j]))*((K[1]*F10 + K[3]*F11)))))*W12[ip]*det;
+        // Number of operations to compute entry: 287
+        A[j] += (((((((((((((((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0))))*10.0)*(-1.0) + ((((FE1_C1[ip][j]*((K[0]*F3 + K[2]*F4)))*(-1.0) + FE1_C0[ip][j]*((K[1]*F3 + K[3]*F4))))*(((-1.0)*((K[1]*K[0]*F0 + K[1]*K[2]*F1 + K[3]*K[0]*F2 + K[3]*K[2]*F0)) + (K[0]*K[1]*F0 + K[0]*K[3]*F1 + K[2]*K[1]*F2 + K[2]*K[3]*F0))))*(-1.0)) + (((((K[1]*K[0]*FE1_C3_D10[ip][j] + K[1]*K[2]*FE1_C4_D10[ip][j] + K[3]*K[0]*FE1_C3_D01[ip][j] + K[3]*K[2]*FE1_C3_D10[ip][j]))*(-1.0) + (K[0]*K[1]*FE1_C3_D10[ip][j] + K[0]*K[3]*FE1_C4_D10[ip][j] + K[2]*K[1]*FE1_C3_D01[ip][j] + K[2]*K[3]*FE1_C3_D10[ip][j])))*((-1.0)*(((-1.0)*(((K[0]*F3 + K[2]*F4))*F6) + F5*((K[1]*F3 + K[3]*F4))))))*(-1.0)) + (((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]) + (K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j])))*(-1.0))*F7)*(-1.0)) + (FE1_C2[ip][j]*((-1.0)*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11)))))*(-1.0)) + (((FE1_C0[ip][j]*F5 + FE1_C1[ip][j]*F6))*(0.5*(((K[0]*F8 + K[2]*F9) + (K[1]*F10 + K[3]*F11)))))*(-1.0)) + ((FE1_C0[ip][j]*((F5*((K[0]*F8 + K[2]*F9)) + F6*((K[1]*F8 + K[3]*F9)))) + FE1_C1[ip][j]*((F5*((K[0]*F10 + K[2]*F11)) + F6*((K[1]*F10 + K[3]*F11))))))*(-1.0)) + ((((K[0]*FE1_C5_D10[ip][j] + K[2]*FE1_C5_D01[ip][j]))*((K[0]*F3 + K[2]*F4)) + ((K[1]*FE1_C5_D10[ip][j] + K[3]*FE1_C5_D01[ip][j]))*((K[1]*F3 + K[3]*F4))))*(-1.0)) + ((((K[0]*FE1_C3[ip][j] + K[2]*FE1_C4[ip][j]))*((K[0]*F12 + K[2]*F13)) + ((K[1]*FE1_C3[ip][j] + K[3]*FE1_C4[ip][j]))*((K[1]*F12 + K[3]*F13))))*(-1.0)) + (((((K[0]*FE1_C0_D10[ip][j] + K[2]*FE1_C0_D01[ip][j]))*((K[0]*F8 + K[2]*F9)) + ((K[0]*FE1_C1_D10[ip][j] + K[2]*FE1_C1_D01[ip][j]))*((K[0]*F10 + K[2]*F11))) + (((K[1]*FE1_C0_D10[ip][j] + K[3]*FE1_C0_D01[ip][j]))*((K[1]*F8 + K[3]*F9)) + ((K[1]*FE1_C1_D10[ip][j] + K[3]*FE1_C1_D01[ip][j]))*((K[1]*F10 + K[3]*F11)))))*(-1.0)) + (((K[0]*FE1_C3[ip][j] + K[2]*FE1_C4[ip][j]))*(((-1.0)*F14 + (10.0*F15 + F16))) + ((K[1]*FE1_C3[ip][j] + K[3]*FE1_C4[ip][j]))*(((-1.0)*F17 + (10.0*F18 + F19))))) + (FE1_C0[ip][j]*(((((-1.0)*F22 + F23) + F21) + (-1.0)*F20)) + FE1_C1[ip][j]*(((((-1.0)*F26 + F27) + F25) + (-1.0)*F24))))*W12[ip]*det;
       } // end loop over 'j'
     } // end loop over 'ip'
 }
 
-extern "C" DLL_EXPORT ufc::cell_integral * create_ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise()
+extern "C" DLL_EXPORT ufc::cell_integral * create_ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise()
 {
-  return new ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise();
+  return new ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise();
 }
 
 
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise::ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise() : ufc::exterior_facet_integral()
-{
-    
-}
-
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise::~ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise()
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise::ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise() : ufc::exterior_facet_integral()
 {
     
 }
 
-const std::vector<bool> & ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise::enabled_coefficients() const
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise::~ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise()
+{
+    
+}
+
+const std::vector<bool> & ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise::enabled_coefficients() const
 {
     static const std::vector<bool> enabled({false, false, false, false, false, false, false, true, false, false, false});
     return enabled;
 }
 
-void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise::tabulate_tensor(double * A,
+void ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise::tabulate_tensor(double * A,
                                     const double * const * w,
                                     const double * coordinate_dofs,
                                     std::size_t facet,
@@ -774,10 +774,10 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_m
     {
     case 0:
       {
-        // Total number of operations to compute element tensor (from this point): 2124
+        // Total number of operations to compute element tensor (from this point): 1284
       
       // Loop quadrature points for integral.
-      // Number of operations to compute element tensor for following IP loop = 2124
+      // Number of operations to compute element tensor for following IP loop = 1284
       for (unsigned int ip = 0; ip < 4; ip++)
       {
         
@@ -792,21 +792,21 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_m
           F1 += FE2_f0_C1[ip][r]*w[7][r];
         } // end loop over 'r'
         
-        // Number of operations for primary indices: 483
+        // Number of operations for primary indices: 273
         for (unsigned int j = 0; j < 21; j++)
         {
-          // Number of operations to compute entry: 23
-          A[j] += (((((FE0_f0_C0[ip][j]*F0 + FE0_f0_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0) + (((FE0_f0_C0[ip][j]*F0 + FE0_f0_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*W4[ip]*det;
+          // Number of operations to compute entry: 13
+          A[j] += ((((FE0_f0_C0[ip][j]*F0 + FE0_f0_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0)*W4[ip]*det;
         } // end loop over 'j'
       } // end loop over 'ip'
         break;
       }
     case 1:
       {
-        // Total number of operations to compute element tensor (from this point): 2124
+        // Total number of operations to compute element tensor (from this point): 1284
       
       // Loop quadrature points for integral.
-      // Number of operations to compute element tensor for following IP loop = 2124
+      // Number of operations to compute element tensor for following IP loop = 1284
       for (unsigned int ip = 0; ip < 4; ip++)
       {
         
@@ -821,21 +821,21 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_m
           F1 += FE2_f1_C1[ip][r]*w[7][r];
         } // end loop over 'r'
         
-        // Number of operations for primary indices: 483
+        // Number of operations for primary indices: 273
         for (unsigned int j = 0; j < 21; j++)
         {
-          // Number of operations to compute entry: 23
-          A[j] += (((((FE0_f1_C0[ip][j]*F0 + FE0_f1_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0) + (((FE0_f1_C0[ip][j]*F0 + FE0_f1_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*W4[ip]*det;
+          // Number of operations to compute entry: 13
+          A[j] += ((((FE0_f1_C0[ip][j]*F0 + FE0_f1_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0)*W4[ip]*det;
         } // end loop over 'j'
       } // end loop over 'ip'
         break;
       }
     case 2:
       {
-        // Total number of operations to compute element tensor (from this point): 2124
+        // Total number of operations to compute element tensor (from this point): 1284
       
       // Loop quadrature points for integral.
-      // Number of operations to compute element tensor for following IP loop = 2124
+      // Number of operations to compute element tensor for following IP loop = 1284
       for (unsigned int ip = 0; ip < 4; ip++)
       {
         
@@ -850,11 +850,11 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_m
           F1 += FE2_f2_C1[ip][r]*w[7][r];
         } // end loop over 'r'
         
-        // Number of operations for primary indices: 483
+        // Number of operations for primary indices: 273
         for (unsigned int j = 0; j < 21; j++)
         {
-          // Number of operations to compute entry: 23
-          A[j] += (((((FE0_f2_C0[ip][j]*F0 + FE0_f2_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0) + (((FE0_f2_C0[ip][j]*F0 + FE0_f2_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*W4[ip]*det;
+          // Number of operations to compute entry: 13
+          A[j] += ((((FE0_f2_C0[ip][j]*F0 + FE0_f2_C1[ip][j]*F1))*(0.5*((n0*F0 + n1*F1))))*(-1.0))*(-1.0)*W4[ip]*det;
         } // end loop over 'j'
       } // end loop over 'ip'
         break;
@@ -863,59 +863,59 @@ void ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_m
     
 }
 
-extern "C" DLL_EXPORT ufc::exterior_facet_integral * create_ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise()
+extern "C" DLL_EXPORT ufc::exterior_facet_integral * create_ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise()
 {
-  return new ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise();
+  return new ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise();
 }
 
 
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main() : ufc::form()
-{
-    // Do nothing
-}
-
-ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::~ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main()
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main() : ufc::form()
 {
     // Do nothing
 }
 
-const char * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::signature() const
+ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::~ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main()
 {
-    return "829b07f038438ee979d28ff9feefc654a974c671bf385e0cd1e041a3cf6696520ec7feede156e08e8283816a287924ed9fb4718fd8cc461ef330a2241b2ccff4";
+    // Do nothing
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::rank() const
+const char * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::signature() const
+{
+    return "d3a1ddcb875aafb4fba238906ac45c31be68a0158ab4a2796032ec8846243f0bd8d00c34b1aa7ce708c31ee658453525c16dfed7a7e0b57aaa6108065f49a8b8";
+}
+
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::rank() const
 {
     return 1;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::num_coefficients() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::num_coefficients() const
 {
     return 11;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::original_coefficient_position(std::size_t i) const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::original_coefficient_position(std::size_t i) const
 {
     static const std::vector<std::size_t> position({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     return position[i];
 }
 
-ufc::finite_element * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_coordinate_finite_element() const
+ufc::finite_element * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_coordinate_finite_element() const
 {
     return create_ffc_element_8fb97a81157753ea74ad04769eb1aebe604ce903_finite_element_main();
 }
 
-ufc::dofmap * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_coordinate_dofmap() const
+ufc::dofmap * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_coordinate_dofmap() const
 {
     return create_ffc_element_8fb97a81157753ea74ad04769eb1aebe604ce903_dofmap_main();
 }
 
-ufc::coordinate_mapping * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_coordinate_mapping() const
+ufc::coordinate_mapping * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_coordinate_mapping() const
 {
     return nullptr;
 }
 
-ufc::finite_element * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_finite_element(std::size_t i) const
+ufc::finite_element * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_finite_element(std::size_t i) const
 {
     switch (i)
     {
@@ -984,7 +984,7 @@ ufc::finite_element * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_mai
     return 0;
 }
 
-ufc::dofmap * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_dofmap(std::size_t i) const
+ufc::dofmap * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_dofmap(std::size_t i) const
 {
     switch (i)
     {
@@ -1053,168 +1053,168 @@ ufc::dofmap * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::creat
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_cell_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_cell_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_exterior_facet_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_exterior_facet_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_interior_facet_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_interior_facet_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_vertex_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_vertex_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_custom_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_custom_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_cutcell_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_cutcell_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_interface_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_interface_subdomain_id() const
 {
     return 0;
 }
 
-std::size_t ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::max_overlap_subdomain_id() const
+std::size_t ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::max_overlap_subdomain_id() const
 {
     return 0;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_cell_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_cell_integrals() const
 {
     return true;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_exterior_facet_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_exterior_facet_integrals() const
 {
     return true;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_interior_facet_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_interior_facet_integrals() const
 {
     return false;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_vertex_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_vertex_integrals() const
 {
     return false;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_custom_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_custom_integrals() const
 {
     return false;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_cutcell_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_cutcell_integrals() const
 {
     return false;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_interface_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_interface_integrals() const
 {
     return false;
 }
 
-bool ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::has_overlap_integrals() const
+bool ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::has_overlap_integrals() const
 {
     return false;
 }
 
-ufc::cell_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_cell_integral(std::size_t subdomain_id) const
+ufc::cell_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_cell_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::exterior_facet_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_exterior_facet_integral(std::size_t subdomain_id) const
+ufc::exterior_facet_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_exterior_facet_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::interior_facet_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_interior_facet_integral(std::size_t subdomain_id) const
+ufc::interior_facet_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_interior_facet_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::vertex_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_vertex_integral(std::size_t subdomain_id) const
+ufc::vertex_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_vertex_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::custom_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_custom_integral(std::size_t subdomain_id) const
+ufc::custom_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_custom_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::cutcell_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_cutcell_integral(std::size_t subdomain_id) const
+ufc::cutcell_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_cutcell_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::interface_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_interface_integral(std::size_t subdomain_id) const
+ufc::interface_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_interface_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::overlap_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_overlap_integral(std::size_t subdomain_id) const
+ufc::overlap_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_overlap_integral(std::size_t subdomain_id) const
 {
     return 0;
 }
 
-ufc::cell_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_cell_integral() const
+ufc::cell_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_cell_integral() const
 {
-    return new ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_cell_integral_main_otherwise();
+    return new ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_cell_integral_main_otherwise();
 }
 
-ufc::exterior_facet_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_exterior_facet_integral() const
+ufc::exterior_facet_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_exterior_facet_integral() const
 {
-    return new ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_exterior_facet_integral_main_otherwise();
+    return new ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_exterior_facet_integral_main_otherwise();
 }
 
-ufc::interior_facet_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_interior_facet_integral() const
+ufc::interior_facet_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_interior_facet_integral() const
 {
     return 0;
 }
 
-ufc::vertex_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_vertex_integral() const
+ufc::vertex_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_vertex_integral() const
 {
     return 0;
 }
 
-ufc::custom_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_custom_integral() const
+ufc::custom_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_custom_integral() const
 {
     return 0;
 }
 
-ufc::cutcell_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_cutcell_integral() const
+ufc::cutcell_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_cutcell_integral() const
 {
     return 0;
 }
 
-ufc::interface_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_interface_integral() const
+ufc::interface_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_interface_integral() const
 {
     return 0;
 }
 
-ufc::overlap_integral * ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main::create_default_overlap_integral() const
+ufc::overlap_integral * ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main::create_default_overlap_integral() const
 {
     return 0;
 }
 
-extern "C" DLL_EXPORT ufc::form * create_ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main()
+extern "C" DLL_EXPORT ufc::form * create_ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main()
 {
-  return new ffc_form_948182e96ddbc37f625634cdf6ba52a4c5c961df_form_main();
+  return new ffc_form_fef2d5bbf124608e9a6178e9140da51b2e5b9426_form_main();
 }
 

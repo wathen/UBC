@@ -201,7 +201,7 @@ for xx in xrange(1,m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 5       # max no of iterations allowed
+    maxiter = 50       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'

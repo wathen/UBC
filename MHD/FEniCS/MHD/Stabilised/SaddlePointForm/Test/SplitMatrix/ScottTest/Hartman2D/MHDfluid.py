@@ -29,9 +29,10 @@ import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
+import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 7
+m = 4
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -76,7 +77,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 4
+    level[xx-1] = xx + 3
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -128,9 +129,10 @@ for xx in xrange(1,m):
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
     trunc = 4
-    u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple = HartmanChannel.ExactSolution(mesh, params)
+    # u0, p0, b0, r0, pN, Laplacian, Advection, gradPres, NScouple, CurlCurl, gradLagr, Mcouple = HartmanChannel.ExactSolution(mesh, params)
     # kappa = 0.0
     # params = [kappa,Mu_m,MU]
+    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD2D(1, 1)
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
@@ -141,12 +143,12 @@ for xx in xrange(1,m):
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
 
-    F_NS = -MU*Laplacian + Advection + gradPres - kappa*NScouple
+    F_NS = -MU*Laplacian + Advection + gradPres - kappa*NS_Couple
     if kappa == 0.0:
-        F_M = Mu_m*CurlCurl + gradLagr - kappa*Mcouple
+        F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
     else:
-        F_M = Mu_m*kappa*CurlCurl + gradLagr - kappa*Mcouple
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, pN, params, mesh, boundaries, domains)
+        F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh, boundaries, domains)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
 
@@ -167,7 +169,7 @@ for xx in xrange(1,m):
     CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx
     Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
 
-    a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
+    a = m11 + m12 + m21 + a11 + a21 + a12 #+ Couple + CoupleT
 
     Lns  = inner(v, F_NS)*dx #- inner(pN*n,v)*ds(2)
     Lmaxwell  = inner(c, F_M)*dx
@@ -186,7 +188,6 @@ for xx in xrange(1,m):
     Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
 
     L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-    L1 = Lns + Lmaxwell
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     pConst = - assemble(p_k*dx)/assemble(ones*dx)
@@ -201,41 +202,37 @@ for xx in xrange(1,m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 50       # max no of iterations allowed
+    maxiter = 5       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
 
     u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+    p_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
     b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+    r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
     bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
-    #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0")), boundary)
+    bcp = DirichletBC(W.sub(1),Expression(("0.0"), degree=4), boundary)
     bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
     bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
-    bcs = [bcu,bcb,bcr]
+    bcs = [bcu, bcb, bcr]
     OuterTol = 1e-5
     InnerTol = 1e-5
     NSits = 0
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
-    print L1
-    b = assemble(L1)
-    for bc in bcs:
-        bc.apply(b)
-    b = b.array()
-    normb = np.linalg.norm(b)
 
     bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
-        initial = Function(W)
-        R = action(a,initial);
-        DR = derivative(R, initial);
+        # initial = Function(W)
+        # R = action(a,initial);
+        # DR = derivative(R, initial);
         A, b = assemble_system(a, L, bcs)
         A, b = CP.Assemble(A,b)
         u = b.duplicate()
@@ -254,22 +251,12 @@ for xx in xrange(1,m):
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
-        # if iter > 1:
-        #     # print (b-uold).array
-        #     # eps = np.linalg.norm((b-uold))
-        #     # uold = b
-        #     w = Function(W)
-        #     # u2 = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
 
-        #     # u1 = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-        #     print (A*u11-b).norm()
-        #     w.vector()[:] = ((u).array)
-        #     eps1 = sqrt(assemble(inner(w,w)*dx))
-        #     print "2222222         ", eps1
+            # print (u11-u).norm()
+
 
         stime = time.time()
         u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
-        u11 = u
 
 
         Soltime = time.time() - stime
@@ -285,6 +272,27 @@ for xx in xrange(1,m):
         b_k.assign(b1)
         r_k.assign(r1)
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
+        if iter > 1:
+            p11 = u.getSubVector(p_is)
+            p22 = u11.getSubVector(p_is)
+            P1 = Function(PressureF)
+            P1.vector()[:] = p11.array
+            P1.vector()[:] += - assemble(P1*dx)/assemble(ones*dx)
+            # x11 = np.concatenate((u.getSubVector(u_is).array, P, u.getSubVector(b_is).array, u.getSubVector(r_is).array), axis=0)
+            P2 = Function(PressureF)
+            P2.vector()[:] = p22.array
+            P2.vector()[:] += - assemble(P2*dx)/assemble(ones*dx)
+            # x22 = np.concatenate((u11.getSubVector(u_is).array, P, u11.getSubVector(b_is).array, u11.getSubVector(r_is).array), axis=0)
+            print P1, P2
+            U = u.getSubVector(u_is).array - u11.getSubVector(u_is).array
+            P = P1.vector().array() - P2.vector().array()
+            B = u.getSubVector(b_is).array - u11.getSubVector(b_is).array
+            R = u.getSubVector(r_is).array - u11.getSubVector(r_is).array
+            print np.linalg.norm(U)/VelocityF.dim(), " ", np.linalg.norm(P)/PressureF.dim(), " ", np.linalg.norm(B)/MagneticF.dim(), " ", np.linalg.norm(R)/LagrangeF.dim()
+
+        u11 = u
+
+
         # X = x
         # x = IO.arrayToVec(uOld)
         # w = Function(W)
@@ -326,6 +334,7 @@ for xx in xrange(1,m):
 
       l2rorder[xx-1] =  np.abs(np.log2(errL2r[xx-2]/errL2r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
       H1rorder[xx-1] =  np.abs(np.log2(errH1r[xx-2]/errH1r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
+
 
 
 import pandas as pd
@@ -407,39 +416,30 @@ else:
     IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
 print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
-# print " \n  Outer Tol:  ",OuterTol, "Inner Tol:   ", InnerTol
 
-# tableName = "2d_Lshaped_nu="+str(MU)+"_nu_m="+str(Mu_m)+"_kappa="+str(kappa)+"_l="+str(np.min(level))+"-"+str(np.max(level))+"Approx.tex"
-# IterTable.to_latex(tableName)
+file = File("u_k.pvd")
+file << u_k
 
-# # # if (ShowResultPlots == 'yes'):
+file = File("p_k.pvd")
+file << p_k
 
-#    plot(interpolate(u0,Velocity))
-#
-# u = plot(interpolate(u0,Velocity))
-# p = plot(interpolate(pN2,Pressure))
-# b = plot(interpolate(b0,Magnetic))
-# u.write_png()
-# p.write_png()
-# b.write_png()
+file = File("b_k.pvd")
+file << b_k
 
-# u = plot(u_k)
-# p = plot(p_k)
-# b = plot(b_k)
-# u.write_png()
-# p.write_png()
-# b.write_png()
+file = File("r_k.pvd")
+file << r_k
 
-#
-#    plot(interpolate(p0,Pressure))
-#
-#    plot(interpolate(b0,Magnetic))
-#
-#    plot(r_k)
-#    plot(interpolate(r0,Lagrange))
-#
-#    interactive()
+file = File("u0.pvd")
+file << interpolate(u0, VelocityF)
 
+file = File("p0.pvd")
+file << interpolate(p0, PressureF)
+
+file = File("b0.pvd")
+file << interpolate(b0, MagneticF)
+
+file = File("r0.pvd")
+file << interpolate(r0, LagrangeF)
 interactive()
 
 # \begin{tabular}{lrrrrrll}
