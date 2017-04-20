@@ -148,9 +148,13 @@ for xx in xrange(1,m):
         F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
     else:
         F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh, boundaries, domains)
-    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+    # u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh, boundaries, domains)
+    # b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
+    u_k = Function(VelocityF)
+    p_k = Function(PressureF)
+    b_k = Function(MagneticF)
+    r_k = Function(LagrangeF)
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
@@ -187,11 +191,7 @@ for xx in xrange(1,m):
     CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
     Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
 
-    L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
-    ones = Function(PressureF)
-    ones.vector()[:]=(0*ones.vector().array()+1)
-    pConst = - assemble(p_k*dx)/assemble(ones*dx)
-    p_k.vector()[:] += - assemble(p_k*dx)/assemble(ones*dx)
+    L = Lns + Lmaxwell #- (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
@@ -213,10 +213,10 @@ for xx in xrange(1,m):
     r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
-    bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0"), degree=4), boundary)
+    bcu = DirichletBC(W.sub(0), u0, boundary)
     bcp = DirichletBC(W.sub(1),Expression(("0.0"), degree=4), boundary)
-    bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0"),degree=4), boundary)
-    bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
+    bcb = DirichletBC(W.sub(2), b0, boundary)
+    bcr = DirichletBC(W.sub(3), r0, boundary)
     bcs = [bcu, bcb, bcr]
     OuterTol = 1e-5
     InnerTol = 1e-5
@@ -238,7 +238,6 @@ for xx in xrange(1,m):
         u = b.duplicate()
         # u.setRandom()
         print "                               Max rhs = ",np.max(b.array)
-        MO.PrintStr("residual "+str(b.norm()),40,"=","\n\n","\n\n")
 
         kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
         b_t = TrialFunction(VelocityF)
@@ -266,32 +265,22 @@ for xx in xrange(1,m):
         NSits += mits
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)
-        u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
+        eps = (u-x).norm()
+        u1 = Function(VelocityF)
+        p1 = Function(PressureF)
+        b1 = Function(MagneticF)
+        r1 = Function(LagrangeF)
+        u1.vector()[:] = u.getSubVector(u_is).array
+        p1.vector()[:] = u.getSubVector(p_is).array
+        b1.vector()[:] = u.getSubVector(b_is).array
+        r1.vector()[:] = u.getSubVector(r_is).array
+
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         u_k.assign(u1)
         p_k.assign(p1)
         b_k.assign(b1)
         r_k.assign(r1)
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-        if iter > 1:
-            p11 = u.getSubVector(p_is)
-            p22 = u11.getSubVector(p_is)
-            P1 = Function(PressureF)
-            P1.vector()[:] = p11.array
-            P1.vector()[:] += - assemble(P1*dx)/assemble(ones*dx)
-            # x11 = np.concatenate((u.getSubVector(u_is).array, P, u.getSubVector(b_is).array, u.getSubVector(r_is).array), axis=0)
-            P2 = Function(PressureF)
-            P2.vector()[:] = p22.array
-            P2.vector()[:] += - assemble(P2*dx)/assemble(ones*dx)
-            # x22 = np.concatenate((u11.getSubVector(u_is).array, P, u11.getSubVector(b_is).array, u11.getSubVector(r_is).array), axis=0)
-            print P1, P2
-            U = u.getSubVector(u_is).array - u11.getSubVector(u_is).array
-            P = P1.vector().array() - P2.vector().array()
-            B = u.getSubVector(b_is).array - u11.getSubVector(b_is).array
-            R = u.getSubVector(r_is).array - u11.getSubVector(r_is).array
-            print np.linalg.norm(U)/VelocityF.dim(), " ", np.linalg.norm(P)/PressureF.dim(), " ", np.linalg.norm(B)/MagneticF.dim(), " ", np.linalg.norm(R)/LagrangeF.dim()
-
-        u11 = u
 
         # X = x
         # x = IO.arrayToVec(uOld)
