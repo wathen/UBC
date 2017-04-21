@@ -364,8 +364,8 @@ def M2D(case, Show="no",type="no", Mass = 0):
             print "Case ",case-1,":\n"
             Print2D(u,v,p,"M")
     if case == 2:
-        u = y*y*(y-1)
-        v = x*x*(x-1)
+        u = y*(y-1)
+        v = x*(x-1)
         p = y*(y-1)*x*(x-1)
         if Show == "yes":
             case +=1

@@ -160,7 +160,7 @@ def ExactSolution(mesh, params):
 
 
 # Sets up the initial guess for the MHD problem
-def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
+def Stokes(V, Q, F, u0, pN, params, mesh):
     parameters['reorder_dofs_serial'] = False
 
     W = FunctionSpace(mesh, MixedElement([V, Q]))
@@ -171,17 +171,17 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     (v, q) = TestFunctions(W)
     n = FacetNormal(mesh)
 
-    dx = Measure('dx', domain=mesh, subdomain_data=domains)
-    ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+    # dx = Measure('dx', domain=mesh, subdomain_data=domains)
+    # ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
-    a11 = params[2]*inner(grad(v), grad(u))*dx(0)
-    a12 = -div(v)*p*dx(0)
-    a21 = -div(u)*q*dx(0)
+    a11 = params[2]*inner(grad(v), grad(u))*dx
+    a12 = -div(v)*p*dx
+    a21 = -div(u)*q*dx
     a = a11+a12+a21
 
-    L = inner(v, F)*dx(0) #- inner(pN*n,v)*ds(2)
+    L = inner(v, F)*dx #- inner(pN*n,v)*ds(2)
 
-    pp = params[2]*inner(grad(v), grad(u))*dx(0) + (1./params[2])*p*q*dx(0)
+    pp = params[2]*inner(grad(v), grad(u))*dx + (1./params[2])*p*q*dx
     def boundary(x, on_boundary):
         return on_boundary
     # bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
@@ -229,7 +229,7 @@ def Stokes(V, Q, F, u0, pN, params, mesh, boundaries, domains):
     p_k.vector()[:] = u.getSubVector(IS[1]).array
     ones = Function(FunctionSpace(mesh, Q))
     ones.vector()[:]=(0*ones.vector().array()+1)
-    p_k.vector()[:] += -assemble(p_k*dx(0))/assemble(ones*dx(0))
+    p_k.vector()[:] += -assemble(p_k*dx)/assemble(ones*dx)
     return u_k, p_k
 
 
