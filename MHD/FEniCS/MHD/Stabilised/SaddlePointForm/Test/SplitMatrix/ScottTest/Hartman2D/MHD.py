@@ -129,10 +129,6 @@ for xx in xrange(1,m):
 
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
-    trunc = 4
-    # u0, p0, b0, r0, pN, /, Advection, gradPres, NS_Couple, CurlCurl, gradR, M_Couple = HartmanChannel.ExactSolution(mesh, params)
-    # kappa = 0.0
-    # params = [kappa,Mu_m,MU]
     u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD2D(4, 1)
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
@@ -149,8 +145,6 @@ for xx in xrange(1,m):
         F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
     else:
         F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
-    # u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh, boundaries, domains)
-    # b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
     u_k = Function(VelocityF)
     p_k = Function(PressureF)
@@ -175,36 +169,23 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx #- inner(pN*n,v)*ds(2)
+    Lns  = inner(v, F_NS)*dx 
     Lmaxwell  = inner(c, F_M)*dx
-    if kappa == 0.0:
-        m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx
-    else:
-        m11 = params[1]*inner(curl(b_k),curl(c))*dx
-    m21 = inner(c,grad(r_k))*dx
-    m12 = inner(b_k,grad(s))*dx
-
-    a11 = params[2]*inner(grad(v), grad(u_k))*dx + inner((grad(u_k)*u_k),v)*dx + (1./2)*div(u_k)*inner(u_k,v)*dx - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
-    a12 = -div(v)*p_k*dx
-    a21 = -div(u_k)*q*dx
-
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
-    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
-
-    L = Lns + Lmaxwell #- (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
+    
+    L = Lns + Lmaxwell 
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
 
     IS = MO.IndexSet(W, 'Blocks')
-#
+
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 10       # max no of iterations allowed
+    maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -246,7 +227,7 @@ for xx in xrange(1,m):
         norm = (b-A*U).norm()
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct2',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -254,11 +235,20 @@ for xx in xrange(1,m):
         Mits += mits
         NSits += mits
         SolutionTime += Soltime
-        # u = IO.arrayToVec(  u)
+        # u = IO.arrayToVec(u)
+        f = Function(W)
+        f.vector()[:] = u.array
+        f = f.vector()
+        for bc in bcs:
+            bc.apply(f)
+
+        u = IO.arrayToVec(f.array())
+
         u1 = Function(VelocityF)
         p1 = Function(PressureF)
         b1 = Function(MagneticF)
         r1 = Function(LagrangeF)
+
         u1.vector()[:] = u.getSubVector(u_is).array
         p1.vector()[:] = u.getSubVector(p_is).array
         b1.vector()[:] = u.getSubVector(b_is).array
@@ -269,15 +259,16 @@ for xx in xrange(1,m):
         p_k.assign(p1)
         b_k.assign(b1)
         r_k.assign(r1)
+
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         X = x
         x = IO.arrayToVec(uOld)
 
         err = np.divide((x-X).array, x.array,out=np.zeros_like(X.array), where=x.array!=0)
 
-        # eps = (X-x).norm()
         eps = np.linalg.norm(err)
         errors = np.append(errors,eps)
+
         eps = eps/errors[0]
         print '            ssss           ', eps, '   ', (x-X).norm(), "    ", np.linalg.norm(norm)
 
@@ -411,17 +402,4 @@ error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().ar
 file << error
 
 interactive()
-
-# \begin{tabular}{lrrrrrll}
-# \toprule
-# {} &    l &        DoF &  AV solve Time &  Total picard time &  picard iterations & Av Outer its & Av Inner its \\
-# \midrule
-# 0 &  4.0 &  3.556e+03 &          0.888 &              5.287 &                5.0 &         28.4 &         28.4 \\
-# 1 &  5.0 &  1.376e+04 &          7.494 &             38.919 &                5.0 &         26.8 &         26.8 \\
-# 2 &  6.0 &  5.415e+04 &         42.334 &            217.070 &                5.0 &         28.8 &         28.8 \\
-# 3 &  7.0 &  2.148e+05 &        196.081 &           1001.671 &                5.0 &         28.4 &         28.4 \\
-# 4 &  8.0 &  8.556e+05 &        843.574 &           4294.126 &                5.0 &         28.2 &         28.2 \\
-# 5 &  9.0 &  3.415e+06 &       3865.731 &          15683.881 &                4.0 &         28.2 &         28.2 \\
-# \bottomrule
-# \end{tabular}
 
