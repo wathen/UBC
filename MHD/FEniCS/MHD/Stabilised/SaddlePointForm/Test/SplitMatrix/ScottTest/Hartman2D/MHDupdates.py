@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 3
+m = 5
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -146,7 +146,7 @@ for xx in xrange(1,m):
     else:
         F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
 
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh, boundaries, domains)
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
 
@@ -196,7 +196,7 @@ for xx in xrange(1,m):
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-4         # tolerance
+    tol = 1.0E-6         # tolerance
     iter = 0            # iteration counter
     maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
@@ -222,7 +222,7 @@ for xx in xrange(1,m):
     errors = np.array([])
     bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     U = x
-    while eps > tol  and iter < maxiter:
+    while eps > tol and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
@@ -237,9 +237,9 @@ for xx in xrange(1,m):
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         norm = (b-A*U).norm()
-
+        residual = b.norm()
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directi',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -271,7 +271,12 @@ for xx in xrange(1,m):
 
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
-        eps = np.linalg.norm(diff)/x.norm()
+        w = Function(W)
+        w.vector()[:] = diff
+        
+
+        print np.linalg.norm(diff)/x.norm(), residual, sqrt(assemble(inner(w, w)*dx))
+        eps = min(np.linalg.norm(diff)/x.norm(), residual)
 
         print '            ssss           ', eps
 
@@ -360,49 +365,49 @@ else:
 print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
 
-file = File("u_k.pvd")
-file << u_k
-
-file = File("p_k.pvd")
-file << p_k
-
-file = File("b_k.pvd")
-file << b_k
-
-file = File("r_k.pvd")
-file << r_k
-
-file = File("u0.pvd")
-file << interpolate(u0, VelocityF)
-
-file = File("p0.pvd")
-file << interpolate(p0, PressureF)
-
-file = File("b0.pvd")
-file << interpolate(b0, MagneticF)
-
-file = File("r0.pvd")
-file << interpolate(r0, LagrangeF)
-
-file = File("uError.pvd")
-error = Function(VelocityF)
-error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
-file << error
-
-file = File("pError.pvd")
-error = Function(PressureF)
-error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
-file << error
-
-file = File("bError.pvd")
-error = Function(MagneticF)
-error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
-file << error
-
-file = File("rError.pvd")
-error = Function(LagrangeF)
-error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
-file << error
-
+#file = File("u_k.pvd")
+#file << u_k
+#
+#file = File("p_k.pvd")
+#file << p_k
+#
+#file = File("b_k.pvd")
+#file << b_k
+#
+#file = File("r_k.pvd")
+#file << r_k
+#
+#file = File("u0.pvd")
+#file << interpolate(u0, VelocityF)
+#
+#file = File("p0.pvd")
+#file << interpolate(p0, PressureF)
+#
+#file = File("b0.pvd")
+#file << interpolate(b0, MagneticF)
+#
+#file = File("r0.pvd")
+#file << interpolate(r0, LagrangeF)
+#
+#file = File("uError.pvd")
+#error = Function(VelocityF)
+#error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
+#file << error
+#
+#file = File("pError.pvd")
+#error = Function(PressureF)
+#error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
+#file << error
+#
+#file = File("bError.pvd")
+#error = Function(MagneticF)
+#error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
+#file << error
+#
+#file = File("rError.pvd")
+#error = Function(LagrangeF)
+#error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
+#file << error
+#
 interactive()
 
