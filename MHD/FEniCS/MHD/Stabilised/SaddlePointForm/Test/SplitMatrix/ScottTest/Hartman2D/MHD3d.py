@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 4
+m = 5
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -77,7 +77,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 3
+    level[xx-1] = xx + 0
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -87,7 +87,7 @@ for xx in xrange(1,m):
     y0 = 2.
     z0 = 1.
     # mesh, boundaries, domains = HartmanChannel.Domain(nn)
-    mesh = UnitSquareMesh(nn, nn)
+    mesh = UnitCubeMesh(nn, nn, nn)
 
     parameters['form_compiler']['quadrature_degree'] = -1
     order = 2
@@ -121,7 +121,7 @@ for xx in xrange(1,m):
 
     kappa = 1.0
     Mu_m = 10.0
-    MU = 1.0/10
+    MU = 1.0
 
     N = FacetNormal(mesh)
 
@@ -129,13 +129,13 @@ for xx in xrange(1,m):
 
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
-    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD2D(4, 1)
+    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(1, 1)
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
     BC = MHDsetup.BoundaryIndices(mesh)
     MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
-    Hiptmairtol = 1e-3
+    Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
@@ -163,8 +163,8 @@ for xx in xrange(1,m):
     a12 = -div(v)*p*dx
     a21 = -div(u)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx
-    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v, b_k), curl(b))*dx
+    Couple = -params[0]*inner(cross(u, b_k), curl(c))*dx
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
@@ -179,8 +179,8 @@ for xx in xrange(1,m):
     a12 = -div(v)*p_k*dx
     a21 = -div(u_k)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
-    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v, b_k), curl(b_k))*dx
+    Couple = -params[0]*inner(cross(u_k, b_k), curl(c))*dx
 
     Lns  = inner(v, F_NS)*dx
     Lmaxwell  = inner(c, F_M)*dx
@@ -196,9 +196,9 @@ for xx in xrange(1,m):
     ones = Function(PressureF)
     ones.vector()[:]=(0*ones.vector().array()+1)
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-4         # tolerance
+    tol = 1.0E-6         # tolerance
     iter = 0            # iteration counter
-    maxiter = 5       # max no of iterations allowed
+    maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -209,18 +209,18 @@ for xx in xrange(1,m):
     r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
-    bcu = DirichletBC(W.sub(0), Expression(("0.0", "0.0"), degree=4), boundary)
-    bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
+    bcu = DirichletBC(W.sub(0), Expression(("0.0", "0.0", "0.0"), degree=4), boundary)
+    bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
     OuterTol = 1e-5
-    InnerTol = 1e-3
+    InnerTol = 1e-5
     NSits = 0
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
     errors = np.array([])
-    bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
+    bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0","0.0"), degree=4), boundary)
     U = x
     while eps > tol and iter < maxiter:
         iter += 1
@@ -239,7 +239,7 @@ for xx in xrange(1,m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directi',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         U = u
         Soltime = time.time() - stime

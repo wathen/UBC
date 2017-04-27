@@ -115,7 +115,8 @@ for xx in xrange(1,m):
     def boundary(x, on_boundary):
        return on_boundary
 
-    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(4,1)
+    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(1,1)
+    sss
 
     # bc = [u0,p0,b0,r0]
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
@@ -154,7 +155,7 @@ for xx in xrange(1,m):
     boundaries = FacetFunction("size_t", mesh)
     boundaries.set_all(0)
 
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, u0, params, mesh, boundaries, domains)
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, u0, params, mesh)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
     n = FacetNormal(mesh)

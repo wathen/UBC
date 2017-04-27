@@ -326,8 +326,8 @@ def NS3D(case,Show="no",type="no"):
     Advection = Expression((ccode(A1),ccode(A2),ccode(A3)), degree=4)
     gradPres = Expression((ccode(P1),ccode(P2),ccode(P3)), degree=4)
 
-    # if Show == 'no':
-    #     Print3D(u,v,w,p,"NS")
+    if Show == 'no':
+        Print3D(u,v,w,p,"NS")
     if type == "MHD":
         return u,v,w,p,u0, p0, Laplacian, Advection, gradPres
     else:
@@ -469,7 +469,7 @@ def M3D(case,Show="no",type="no",Mass=0):
     y = symbols('x[1]')
     z = symbols('x[2]')
 
-    # PrintStr("Maxwell Exact Solution:",3,"-")
+    PrintStr("Maxwell Exact Solution:",3,"-")
     if case == 1:
         uu = sin(x)*exp(x+y+z)
         uv = sin(y)*exp(x+y+z)
@@ -549,10 +549,10 @@ def M3D(case,Show="no",type="no",Mass=0):
     CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2),ccode(Mass*w+L3)), degree=4)
 
 
-    # if Show == 'no':
-    #     PrintStr("Maxwell Exact Solution:",3,"-")
-    #     print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(v).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(w).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
-    #     print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
+    if Show == 'no':
+        PrintStr("Maxwell Exact Solution:",3,"-")
+        print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(v).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(w).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
+        print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
 
     if type == "MHD":
         if Mass == 0:
@@ -606,7 +606,7 @@ def MHD2D(NScase,Mcase, Show="no"):
 
 
 def MHD3D(NScase,Mcase,Show="no"):
-    # PrintStr("MHD 3D Exact Solution:",5,">","\n","\n")
+    PrintStr("MHD 3D Exact Solution:",5,">","\n","\n")
 
     x = symbols('x[0]')
     y = symbols('x[1]')

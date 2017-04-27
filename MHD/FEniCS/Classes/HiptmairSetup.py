@@ -239,7 +239,7 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     kspCGScalar = PETSc.KSP()
     kspCGScalar.create(comm=PETSc.COMM_WORLD)
     pcCGScalar = kspCGScalar.getPC()
-    kspCGScalar.setType('cg')
+    kspCGScalar.setType('preonly')
     pcCGScalar.setType('hypre')
     kspCGScalar.setTolerances(tol)
     kspCGScalar.setFromOptions()

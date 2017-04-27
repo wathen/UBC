@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 3
+m = 5
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -169,10 +169,10 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx 
+    Lns  = inner(v, F_NS)*dx
     Lmaxwell  = inner(c, F_M)*dx
-    
-    L = Lns + Lmaxwell 
+
+    L = Lns + Lmaxwell
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
@@ -266,10 +266,10 @@ for xx in xrange(1,m):
 
         err = np.divide((x-X).array, x.array,out=np.zeros_like(X.array), where=x.array!=0)
 
-        eps = np.linalg.norm(err)
-        errors = np.append(errors,eps)
+        eps = (x-X).norm()/x.norm()
+        # errors = np.append(errors,eps)
 
-        eps = eps/errors[0]
+        # eps = eps/errors[0]
         print '            ssss           ', eps, '   ', (x-X).norm(), "    ", np.linalg.norm(norm)
 
 

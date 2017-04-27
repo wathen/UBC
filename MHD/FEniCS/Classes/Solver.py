@@ -69,20 +69,20 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             pc.setType('python')
 
             OptDB = PETSc.Options()
-            OptDB['ksp_gmres_restart'] = 50
+            OptDB['ksp_gmres_restart'] = 100
             # FSpace = [Velocity,Magnetic,Pressure,Lagrange]
             reshist = {}
             def monitor(ksp, its, fgnorm):
                 reshist[its] = fgnorm
                 print its,"    OUTER:", fgnorm
             # ksp.setMonitor(monitor)
-            ksp.max_it = 200
+            ksp.max_it = 100
             ksp.setTolerances(OuterTol)
 
             W = Fspace
             FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
 
-            pc.setPythonContext(MHDprec.ApproxInv(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+            pc.setPythonContext(MHDprec.ApproxInvA(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
 
             # OptDB = PETSc.Options()
             # OptDB['pc_factor_mat_solver_package']  = "umfpack"
