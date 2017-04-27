@@ -388,25 +388,25 @@ file << interpolate(b0, MagneticF)
 
 file = File("r0.pvd")
 file << interpolate(r0, LagrangeF)
-#
-#file = File("uError.pvd")
-#error = Function(VelocityF)
-#error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
-#file << error
-#
-#file = File("pError.pvd")
-#error = Function(PressureF)
-#error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
-#file << error
-#
-#file = File("bError.pvd")
-#error = Function(MagneticF)
-#error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
-#file << error
-#
-#file = File("rError.pvd")
-#error = Function(LagrangeF)
-#error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
+
+file = File("uError.pvd")
+error = Function(VelocityF)
+error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
+file << error
+
+file = File("pError.pvd")
+error = Function(PressureF)
+error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
+file << error
+
+file = File("bError.pvd")
+error = Function(MagneticF)
+error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
+file << error
+
+file = File("rError.pvd")
+error = Function(LagrangeF)
+error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
 
 #
 interactive()
