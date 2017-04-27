@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 5
+m = 2
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -77,7 +77,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 2
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -365,29 +365,29 @@ else:
 print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
 
-#file = File("u_k.pvd")
-#file << u_k
-#
-#file = File("p_k.pvd")
-#file << p_k
-#
-#file = File("b_k.pvd")
-#file << b_k
-#
-#file = File("r_k.pvd")
-#file << r_k
-#
-#file = File("u0.pvd")
-#file << interpolate(u0, VelocityF)
-#
-#file = File("p0.pvd")
-#file << interpolate(p0, PressureF)
-#
-#file = File("b0.pvd")
-#file << interpolate(b0, MagneticF)
-#
-#file = File("r0.pvd")
-#file << interpolate(r0, LagrangeF)
+file = File("u_k.pvd")
+file << u_k
+
+file = File("p_k.pvd")
+file << p_k
+
+file = File("b_k.pvd")
+file << b_k
+
+file = File("r_k.pvd")
+file << r_k
+
+file = File("u0.pvd")
+file << interpolate(u0, VelocityF)
+
+file = File("p0.pvd")
+file << interpolate(p0, PressureF)
+
+file = File("b0.pvd")
+file << interpolate(b0, MagneticF)
+
+file = File("r0.pvd")
+file << interpolate(r0, LagrangeF)
 #
 #file = File("uError.pvd")
 #error = Function(VelocityF)
@@ -407,7 +407,7 @@ MO.StoreMatrix(DimSave, "dim")
 #file = File("rError.pvd")
 #error = Function(LagrangeF)
 #error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
-#file << error
+
 #
 interactive()
 
