@@ -33,7 +33,7 @@ import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 
 #@profile
-m = 5
+m = 4
 
 
 errL2u =np.zeros((m-1,1))
@@ -149,11 +149,6 @@ for xx in xrange(1,m):
 
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
     # u_k,p_k,b_k,r_k = common.InitialGuess(FSpaces,[u0,p0,b0,r0],[F_NS,F_M],params,HiptmairMatrices,1e-10,Neumann=Expression(("0","0"), degree=4),options ="New")
-    domains = CellFunction("size_t", mesh)
-    domains.set_all(0)
-
-    boundaries = FacetFunction("size_t", mesh)
-    boundaries.set_all(0)
 
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, u0, params, mesh)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
@@ -242,7 +237,6 @@ for xx in xrange(1,m):
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
         bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0"), degree=4), boundary)
-        #bcu = DirichletBC(W.sub(0),Expression(("0.0","0.0","0.0")), boundary)
         bcb = DirichletBC(W.sub(2),Expression(("0.0","0.0","0.0"),degree=4), boundary)
         bcr = DirichletBC(W.sub(3),Expression("0.0",degree=4), boundary)
         bcs = [bcu,bcb,bcr]
@@ -269,7 +263,7 @@ for xx in xrange(1,m):
         Options = 'p4'
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         Soltime = time.time() - stime
         MO.StrTimePrint("MHD solve, time: ", Soltime)

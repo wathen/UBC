@@ -72,41 +72,39 @@ def Domain(n):
 
 
 # Sets up the initial guess for the MHD problem
-def Stokes(V, Q, F, u0, params, boundaries, domains, mesh):
+def Stokes(V, Q, F, u0, pN, params, mesh):
     parameters['reorder_dofs_serial'] = False
-
 
     W = FunctionSpace(mesh, MixedElement([V, Q]))
 
     IS = MO.IndexSet(W)
 
-    mesh = W.mesh()
     (u, p) = TrialFunctions(W)
     (v, q) = TestFunctions(W)
-    n = FacetNormal(W.mesh())
+    n = FacetNormal(mesh)
 
-    a11 = params[2]*inner(grad(v), grad(u))*dx('everywhere')
-    a12 = -div(v)*p*dx('everywhere')
-    a21 = -div(u)*q*dx('everywhere')
+    # dx = Measure('dx', domain=mesh, subdomain_data=domains)
+    # ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+
+    a11 = params[2]*inner(grad(v), grad(u))*dx
+    a12 = -div(v)*p*dx
+    a21 = -div(u)*q*dx
     a = a11+a12+a21
 
-    L = inner(v, F)*dx('everywhere') #+ inner(gradu0,v)*ds(2)
+    L = inner(v, F)*dx #- inner(pN*n,v)*ds(2)
 
+    pp = params[2]*inner(grad(v), grad(u))*dx + (1./params[2])*p*q*dx
     def boundary(x, on_boundary):
         return on_boundary
-    bcu1 = DirichletBC(W.sub(0), Expression(("0.0","0.0", "0.0"), degree=4), boundaries, 1)
-    bcu2 = DirichletBC(W.sub(0), u0, boundaries, 2)
-    bcu = [bcu1, bcu2]
-
+    # bcu = DirichletBC(W.sub(0), u0, boundaries, 1)
+    bcu = DirichletBC(W.sub(0), u0, boundary)
+    # bcu = [bcu1, bcu2]
     A, b = assemble_system(a, L, bcu)
     A, b = CP.Assemble(A, b)
-    pp = params[2]*inner(grad(v), grad(u))*dx + (1./params[2])*p*q*dx
+    C = A.getSubMatrix(IS[1],IS[1])
+    u = b.duplicate()
     P, Pb = assemble_system(pp, L, bcu)
     P, Pb = CP.Assemble(P, Pb)
-
-    # print b.array
-    # sss
-    u = b.duplicate()
 
     # ksp = PETSc.KSP()
     # ksp.create(comm=PETSc.COMM_WORLD)
@@ -115,9 +113,10 @@ def Stokes(V, Q, F, u0, params, boundaries, domains, mesh):
     # pc.setType('lu')
     # OptDB = PETSc.Options()
     # # if __version__ != '1.6.0':
-    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # OptDB['pc_factor_mat_solver_package']  = "pastix"
     # OptDB['pc_factor_mat_ordering_type']  = "rcm"
     # ksp.setFromOptions()
+    # ksp.setOperators(A,A)
 
     ksp = PETSc.KSP().create()
     ksp.setTolerances(1e-8)
@@ -127,31 +126,26 @@ def Stokes(V, Q, F, u0, params, boundaries, domains, mesh):
     ksp.setType('minres')
     pc.setPythonContext(StokesPrecond.Approx(W, 1))
     ksp.setOperators(A,P)
-    # print b.array
-    # bbb
+
     scale = b.norm()
     b = b/scale
-    # ksp.setOperators(A,A)
     del A
     start_time = time.time()
     ksp.solve(b,u)
-    print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
-
     # Mits +=dodim
     u = u*scale
-    # print u.array
-    # ss
+    print ("{:40}").format("Stokes solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
     u_k = Function(FunctionSpace(mesh, V))
     p_k = Function(FunctionSpace(mesh, Q))
     u_k.vector()[:] = u.getSubVector(IS[0]).array
     p_k.vector()[:] = u.getSubVector(IS[1]).array
     ones = Function(FunctionSpace(mesh, Q))
     ones.vector()[:]=(0*ones.vector().array()+1)
-    p_k.vector()[:] += -assemble(p_k*dx("everywhere"))/assemble(ones*dx("everywhere"))
+    p_k.vector()[:] += -assemble(p_k*dx)/assemble(ones*dx)
     return u_k, p_k
 
 
-def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol, mesh):
+def Maxwell(V, Q, F, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol):
     parameters['reorder_dofs_serial'] = False
 
     W = V*Q
@@ -161,23 +155,44 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol, mesh):
 
     (b, r) = TrialFunctions(W)
     (c, s) = TestFunctions(W)
-
-    a11 = params[1]*params[2]*inner(curl(b), curl(c))*dx('everywhere')
-    a21 = inner(b,grad(s))*dx('everywhere')
-    a12 = inner(c,grad(r))*dx('everywhere')
-    L = inner(c, F)*dx('everywhere')
+    if params[0] == 0.0:
+        a11 = params[1]*inner(curl(b), curl(c))*dx
+    else:
+        a11 = params[1]*params[0]*inner(curl(b), curl(c))*dx
+    a21 = inner(b,grad(s))*dx
+    a12 = inner(c,grad(r))*dx
+    # print F
+    L = inner(c, F)*dx
     a = a11+a12+a21
 
     def boundary(x, on_boundary):
         return on_boundary
+    # class b0(Expression):
+    #     def __init__(self):
+    #         self.p = 1
+    #     def eval_cell(self, values, x, ufc_cell):
+    #         values[0] = 0.0
+    #         values[1] = 1.0
+    #     def value_shape(self):
+    #         return (2,)
 
     bcb = DirichletBC(W.sub(0), b0, boundary)
-    bcr = DirichletBC(W.sub(1), Expression(("0.0"), degree=4), boundary)
+    bcr = DirichletBC(W.sub(1), r0, boundary)
     bc = [bcb, bcr]
 
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
+
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
+    # pc = ksp.getPC()
+    # ksp.setType('preonly')
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # OptDB['pc_factor_mat_solver_package']  = "pastix"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
 
     ksp = PETSc.KSP().create()
     ksp.setTolerances(1e-8)
@@ -186,7 +201,6 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol, mesh):
     pc.setType(PETSc.PC.Type.PYTHON)
     ksp.setType('minres')
     pc.setPythonContext(MP.Hiptmair(W, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
-
     scale = b.norm()
     b = b/scale
     ksp.setOperators(A,A)
@@ -194,7 +208,6 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol, mesh):
     start_time = time.time()
     ksp.solve(b,u)
     print ("{:40}").format("Maxwell solve, time: "), " ==>  ",("{:4f}").format(time.time() - start_time),("{:9}").format("   Its: "), ("{:4}").format(ksp.its),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
-
     u = u*scale
 
     b_k = Function(FunctionSpace(mesh, V))
@@ -203,3 +216,11 @@ def Maxwell(V, Q, F, b0, params, HiptmairMatrices, Hiptmairtol, mesh):
     r_k.vector()[:] = u.getSubVector(IS[1]).array
 
     return b_k, r_k
+
+
+
+
+
+
+
+

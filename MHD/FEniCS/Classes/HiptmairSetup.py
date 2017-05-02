@@ -262,6 +262,7 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
     ksp = PETSc.KSP().create()
     ksp.setTolerances(tol)
+    #ksp.max_it = 5
     ksp.setType('cg')
     ksp.setOperators(A,A)
     pc = ksp.getPC()

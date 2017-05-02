@@ -28,8 +28,8 @@ import MHDprec as MHDpreconditioner
 import gc
 import MHDmulti
 import MHDmatrixSetup as MHDsetup
-import HartmanChannel
 import ExactSol
+import CavityDriven
 # import matplotlib.pyplot as plt
 #@profile
 m = 4
@@ -129,7 +129,24 @@ for xx in xrange(1,m):
 
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
-    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(7, 1)
+
+    class u0(Expression):
+        def __init__(self, mesh, **kwargs):
+            self.mesh = mesh
+        def eval_cell(self, values, x, ufc_cell):
+            if abs(x[2]-1) < DOLFIN_EPS:
+                values[0] = 1.0
+            else:
+                values[0] = 0.0
+            values[1] = 0.0
+            values[2] = 0.0
+        def value_shape(self):
+            return (3,)
+    u0 = u0(mesh, degree=4)
+    b0 = Expression(("1.0", "0.0", "0.0"), degree=4)
+    r0 = Expression(("0.0"), degree=4)
+    F_NS = Expression(("0.0", "0.0", "0.0"), degree=4)
+    F_M = Expression(("0.0", "0.0", "0.0"), degree=4)
 
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
@@ -137,16 +154,10 @@ for xx in xrange(1,m):
     MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
     Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
-
-    F_NS = -MU*Laplacian + Advection + gradPres - kappa*NS_Couple
-    if kappa == 0.0:
-        F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
-    else:
-        F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
-
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
-    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
-    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+    
+    u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
+    b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
@@ -291,65 +302,7 @@ for xx in xrange(1,m):
 
     XX= np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
 
-    ExactSolution = [u0,p0,b0,r0]
-    errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx-1], errH1r[xx-1] = Iter.Errors(XX,mesh,FSpaces,ExactSolution,order,dim, "CG")
-    print float(Wdim[xx-1][0])/Wdim[xx-2][0]
-
-    if xx > 1:
-
-      l2uorder[xx-1] = np.abs(np.log2(errL2u[xx-2]/errL2u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
-      H1uorder[xx-1] =  np.abs(np.log2(errH1u[xx-2]/errH1u[xx-1])/np.log2((float(Velocitydim[xx-1][0])/Velocitydim[xx-2][0])**(1./2)))
-
-      l2porder[xx-1] =  np.abs(np.log2(errL2p[xx-2]/errL2p[xx-1])/np.log2((float(Pressuredim[xx-1][0])/Pressuredim[xx-2][0])**(1./2)))
-
-      l2border[xx-1] =  np.abs(np.log2(errL2b[xx-2]/errL2b[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
-      Curlborder[xx-1] =  np.abs(np.log2(errCurlb[xx-2]/errCurlb[xx-1])/np.log2((float(Magneticdim[xx-1][0])/Magneticdim[xx-2][0])**(1./2)))
-
-      l2rorder[xx-1] =  np.abs(np.log2(errL2r[xx-2]/errL2r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
-      H1rorder[xx-1] =  np.abs(np.log2(errH1r[xx-2]/errH1r[xx-1])/np.log2((float(Lagrangedim[xx-1][0])/Lagrangedim[xx-2][0])**(1./2)))
-
-
-
 import pandas as pd
-
-
-
-LatexTitles = ["l","DoFu","Dofp","V-L2","L2-order","V-H1","H1-order","P-L2","PL2-order"]
-LatexValues = np.concatenate((level,Velocitydim,Pressuredim,errL2u,l2uorder,errH1u,H1uorder,errL2p,l2porder), axis=1)
-LatexTable = pd.DataFrame(LatexValues, columns = LatexTitles)
-pd.set_option('precision',3)
-LatexTable = MO.PandasFormat(LatexTable,"V-L2","%2.4e")
-LatexTable = MO.PandasFormat(LatexTable,'V-H1',"%2.4e")
-LatexTable = MO.PandasFormat(LatexTable,"H1-order","%1.2f")
-LatexTable = MO.PandasFormat(LatexTable,'L2-order',"%1.2f")
-LatexTable = MO.PandasFormat(LatexTable,"P-L2","%2.4e")
-LatexTable = MO.PandasFormat(LatexTable,'PL2-order',"%1.2f")
-print LatexTable.to_latex()
-
-
-print "\n\n   Magnetic convergence"
-MagneticTitles = ["l","B DoF","R DoF","B-L2","L2-order","B-Curl","HCurl-order"]
-MagneticValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2b,l2border,errCurlb,Curlborder),axis=1)
-MagneticTable= pd.DataFrame(MagneticValues, columns = MagneticTitles)
-pd.set_option('precision',3)
-MagneticTable = MO.PandasFormat(MagneticTable,"B-Curl","%2.4e")
-MagneticTable = MO.PandasFormat(MagneticTable,'B-L2',"%2.4e")
-MagneticTable = MO.PandasFormat(MagneticTable,"L2-order","%1.2f")
-MagneticTable = MO.PandasFormat(MagneticTable,'HCurl-order',"%1.2f")
-print MagneticTable.to_latex()
-
-print "\n\n   Lagrange convergence"
-LagrangeTitles = ["l","B DoF","R DoF","R-L2","L2-order","R-H1","H1-order"]
-LagrangeValues = np.concatenate((level,Magneticdim,Lagrangedim,errL2r,l2rorder,errH1r,H1rorder),axis=1)
-LagrangeTable= pd.DataFrame(LagrangeValues, columns = LagrangeTitles)
-pd.set_option('precision',3)
-LagrangeTable = MO.PandasFormat(LagrangeTable,"R-L2","%2.4e")
-LagrangeTable = MO.PandasFormat(LagrangeTable,'R-H1',"%2.4e")
-LagrangeTable = MO.PandasFormat(LagrangeTable,"L2-order","%1.2f")
-LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
-print LagrangeTable.to_latex()
-
-
 print "\n\n   Iteration table"
 if IterType == "Full":
     IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av Outer its","Av Inner its",]
@@ -381,37 +334,6 @@ file << b_k
 file = File("r_k.pvd")
 file << r_k
 
-file = File("u0.pvd")
-file << interpolate(u0, VelocityF)
-
-file = File("p0.pvd")
-file << interpolate(p0, PressureF)
-
-file = File("b0.pvd")
-file << interpolate(b0, MagneticF)
-
-file = File("r0.pvd")
-file << interpolate(r0, LagrangeF)
-
-file = File("uError.pvd")
-error = Function(VelocityF)
-error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
-file << error
-
-file = File("pError.pvd")
-error = Function(PressureF)
-error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
-file << error
-
-file = File("bError.pvd")
-error = Function(MagneticF)
-error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
-file << error
-
-file = File("rError.pvd")
-error = Function(LagrangeF)
-error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
-file << error
 #
 interactive()
 

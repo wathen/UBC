@@ -297,8 +297,17 @@ def NS3D(case,Show="no",type="no"):
         p = sin(x)*y
         if Show == "yes":
             case +=1
-            print "Case ",case-1,":\n"
-            Print3D(u,v,w,p,"NS")
+            print "case ",case-1,":\n"
+            print3d(u,v,w,p,"ns")
+    if case == 9:
+        u = 1
+        v = 1
+        w = 1
+        p = 1
+        if Show == "yes":
+            case +=1
+            print "case ",case-1,":\n"
+            print3d(u,v,w,p,"ns")
     if u:
         f = 1
     else:
@@ -527,16 +536,33 @@ def M3D(case,Show="no",type="no",Mass=0):
             case +=1
             print "Case ",case-1,":\n"
             Print3D(u,v,w,p,"M")
-
+    if case == 6:
+        u = y
+        v = z
+        w = x
+        p = 0
+        if Show == "yes":
+            case +=1
+            print "Case ",case-1,":\n"
+            Print3D(u,v,w,p,"M")
+    if case == 7:
+        u = 1
+        v = 1
+        w = 1
+        p = 1
+        if Show == "yes":
+            case +=1
+            print "Case ",case-1,":\n"
+            Print3D(u,v,w,p,"M")
     if u:
         f = 1
     else:
         print "No case selected"
         return
 
-    L1 = diff(v,x,y) - diff(u,y,y) - diff(u,z,z) +diff(w,x,z)
-    L2 = diff(w,y,z) - diff(v,z,z) - diff(v,x,x) +diff(u,x,y)
-    L3 = diff(u,x,z) - diff(w,x,x) - diff(w,y,y) +diff(v,y,z)
+    L1 = diff(v,x,y) - diff(u,y,y) - diff(u,z,z) + diff(w,x,z)
+    L2 = diff(w,y,z) - diff(v,z,z) - diff(v,x,x) + diff(u,x,y)
+    L3 = diff(u,x,z) - diff(w,x,x) - diff(w,y,y) + diff(v,y,z)
     P1 = diff(p,x)
     P2 = diff(p,y)
     P3 = diff(p,z)
@@ -550,7 +576,6 @@ def M3D(case,Show="no",type="no",Mass=0):
 
 
     if Show == 'no':
-        PrintStr("Maxwell Exact Solution:",3,"-")
         print "  b = (",str(u).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(v).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),",",str(w).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
         print "  p = (",str(p).replace('x[0]','x').replace('x[1]','y').replace('x[2]','z'),")\n"
 

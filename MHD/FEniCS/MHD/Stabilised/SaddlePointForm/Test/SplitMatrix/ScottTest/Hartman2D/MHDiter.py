@@ -357,49 +357,5 @@ else:
 print IterTable.to_latex()
 MO.StoreMatrix(DimSave, "dim")
 
-file = File("u_k.pvd")
-file << u_k
-
-file = File("p_k.pvd")
-file << p_k
-
-file = File("b_k.pvd")
-file << b_k
-
-file = File("r_k.pvd")
-file << r_k
-
-file = File("u0.pvd")
-file << interpolate(u0, VelocityF)
-
-file = File("p0.pvd")
-file << interpolate(p0, PressureF)
-
-file = File("b0.pvd")
-file << interpolate(b0, MagneticF)
-
-file = File("r0.pvd")
-file << interpolate(r0, LagrangeF)
-
-file = File("uError.pvd")
-error = Function(VelocityF)
-error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
-file << error
-
-file = File("pError.pvd")
-error = Function(PressureF)
-error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
-file << error
-
-file = File("bError.pvd")
-error = Function(MagneticF)
-error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
-file << error
-
-file = File("rError.pvd")
-error = Function(LagrangeF)
-error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
-file << error
-
 interactive()
 

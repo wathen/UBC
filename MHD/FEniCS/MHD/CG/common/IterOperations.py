@@ -68,10 +68,10 @@ def Errors(X,mesh,FSpaces,ExactSolution,k,dim, FS = "CG"):
     errL2p= sqrt(abs(assemble(inner(ErrorP, ErrorP)*dx)))
     MO.StrTimePrint("Pressure L2 error, time: ", toc())
 
-    # parameters["form_compiler"]["quadrature_degree"] = 5
+    parameters["form_compiler"]["quadrature_degree"] = 5
 
-    MagneticE = FunctionSpace(mesh,"N1curl",2)
-    LagrangeE = FunctionSpace(mesh,"CG",2)
+    MagneticE = FunctionSpace(mesh,"N1curl",3)
+    LagrangeE = FunctionSpace(mesh,"CG",3)
     b = interpolate(ExactSolution[2],MagneticE)
     r = interpolate(ExactSolution[3],LagrangeE)
 

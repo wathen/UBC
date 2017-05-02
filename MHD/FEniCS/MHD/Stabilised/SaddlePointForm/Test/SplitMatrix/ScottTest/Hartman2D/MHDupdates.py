@@ -363,6 +363,9 @@ else:
     IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
     IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
 print IterTable.to_latex()
+print "GMRES tolerance: ", InnerTol
+print "NL tolerance: ", tol
+print "Hiptmair tolerance: ", HiptmairTol
 MO.StoreMatrix(DimSave, "dim")
 
 #file = File("u_k.pvd")

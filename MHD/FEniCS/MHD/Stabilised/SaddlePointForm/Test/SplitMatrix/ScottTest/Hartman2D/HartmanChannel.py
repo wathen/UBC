@@ -194,14 +194,14 @@ def Stokes(V, Q, F, u0, pN, params, mesh):
     P, Pb = assemble_system(pp, L, bcu)
     P, Pb = CP.Assemble(P, Pb)
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
+    # pc = ksp.getPC()
     # ksp.setType('preonly')
     # pc.setType('lu')
     # OptDB = PETSc.Options()
     # # if __version__ != '1.6.0':
-    # OptDB['pc_factor_mat_solver_package']  = "umfpack"
+    # OptDB['pc_factor_mat_solver_package']  = "pastix"
     # OptDB['pc_factor_mat_ordering_type']  = "rcm"
     # ksp.setFromOptions()
     # ksp.setOperators(A,A)
@@ -272,15 +272,15 @@ def Maxwell(V, Q, F, b0, r0, params, mesh,HiptmairMatrices, Hiptmairtol):
     A, b = CP.Assemble(A, b)
     u = b.duplicate()
 
-    ksp = PETSc.KSP()
-    ksp.create(comm=PETSc.COMM_WORLD)
-    pc = ksp.getPC()
-    ksp.setType('preonly')
-    pc.setType('lu')
-    OptDB = PETSc.Options()
-    OptDB['pc_factor_mat_solver_package']  = "umfpack"
-    OptDB['pc_factor_mat_ordering_type']  = "rcm"
-    ksp.setFromOptions()
+    # ksp = PETSc.KSP()
+    # ksp.create(comm=PETSc.COMM_WORLD)
+    # pc = ksp.getPC()
+    # ksp.setType('preonly')
+    # pc.setType('lu')
+    # OptDB = PETSc.Options()
+    # OptDB['pc_factor_mat_solver_package']  = "pastix"
+    # OptDB['pc_factor_mat_ordering_type']  = "rcm"
+    # ksp.setFromOptions()
 
     ksp = PETSc.KSP().create()
     ksp.setTolerances(1e-8)
