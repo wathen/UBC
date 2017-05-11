@@ -32,7 +32,7 @@ import ExactSol
 import CavityDriven
 # import matplotlib.pyplot as plt
 #@profile
-m = 4
+m = 5
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -77,7 +77,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 0
+    level[xx-1] = xx + 1
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -136,9 +136,10 @@ for xx in xrange(1,m):
         def eval_cell(self, values, x, ufc_cell):
             if abs(x[2]-1) < DOLFIN_EPS:
                 values[0] = 1.0
+                values[1] = 1.0
             else:
                 values[0] = 0.0
-            values[1] = 0.0
+                values[1] = 0.0
             values[2] = 0.0
         def value_shape(self):
             return (3,)
@@ -155,7 +156,7 @@ for xx in xrange(1,m):
     Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
-    
+
     u_k, p_k = CavityDriven.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
     b_k, r_k = CavityDriven.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
 
@@ -210,7 +211,7 @@ for xx in xrange(1,m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 100       # max no of iterations allowed
+    maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -228,13 +229,15 @@ for xx in xrange(1,m):
     bcs = [bcu, bcb, bcr]
 
     OuterTol = 1e-5
-    InnerTol = 1e-4
+    InnerTol = 1e-3
     NSits = 0
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
     errors = np.array([])
     U = x
+    Hiptmairtol = 1e-4
+    HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     while eps > tol and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
@@ -253,7 +256,7 @@ for xx in xrange(1,m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directee',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -273,7 +276,7 @@ for xx in xrange(1,m):
         r1.vector()[:] = u.getSubVector(r_is).array
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         diff = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
-        
+
         u1.vector()[:] += u_k.vector().array()
         p1.vector()[:] += p_k.vector().array()
         b1.vector()[:] += b_k.vector().array()
@@ -322,17 +325,7 @@ print "NL tolerance: ", tol
 print "Hiptmair tolerance: ", Hiptmairtol
 MO.StoreMatrix(DimSave, "dim")
 
-file = File("u_k.pvd")
-file << u_k
 
-file = File("p_k.pvd")
-file << p_k
-
-file = File("b_k.pvd")
-file << b_k
-
-file = File("r_k.pvd")
-file << r_k
 
 #
 interactive()

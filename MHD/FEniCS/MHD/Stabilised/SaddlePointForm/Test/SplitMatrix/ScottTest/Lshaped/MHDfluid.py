@@ -29,7 +29,7 @@ import MHDmatrixSetup as MHDsetup
 import Lshaped
 # import matplotlib.pyplot as plt
 #@profile
-m = 8
+m = 4
 
 set_log_active(False)
 errL2u =np.zeros((m-1,1))
@@ -75,7 +75,7 @@ uu0, ub0, pu0, pb0, bu0, bb0, ru0, Laplacian, Advection, gradPres, CurlCurl, gra
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 3
+    level[xx-1] = xx + 5
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -215,9 +215,9 @@ for xx in xrange(1,m):
     IS = MO.IndexSet(W, 'Blocks')
 
     eps = 1.0           # error measure ||u-u_k||
-    tol = 1.0E-5     # tolerance
+    tol = 1.0E-4     # tolerance
     iter = 0            # iteration counter
-    maxiter = 5       # max no of iterations allowed
+    maxiter = 20       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -233,6 +233,12 @@ for xx in xrange(1,m):
     Mits = 0
     TotalStart = time.time()
     SolutionTime = 0
+
+    u_is = PETSc.IS().createGeneral(W.sub(0).dofmap().dofs())
+    p_is = PETSc.IS().createGeneral(W.sub(1).dofmap().dofs())
+    b_is = PETSc.IS().createGeneral(W.sub(2).dofmap().dofs())
+    r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
+    u = x.duplicate()
     while eps > tol  and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
@@ -247,25 +253,18 @@ for xx in xrange(1,m):
         DR = derivative(R, initial);
         A, b = assemble_system(a, L, bcs)
         A, b = CP.Assemble(A,b)
-        u = b.duplicate()
-        u.setRandom()
+        residual = b.norm()
+
         print "                               Max rhs = ",np.max(b.array)
 
         kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
-        # b_t = TrialFunction(Velocity)
-        # c_t = TestFunction(Velocity)
-        # n = FacetNormal(mesh)
-        # mat =  as_matrix([[b_k[1]*b_k[1],-b_k[1]*b_k[0]],[-b_k[1]*b_k[0],b_k[0]*b_k[0]]])
-        # aa = params[2]*inner(grad(b_t), grad(c_t))*dx(W.mesh()) + inner((grad(b_t)*u_k),c_t)*dx(W.mesh()) +(1./2)*div(u_k)*inner(c_t,b_t)*dx(W.mesh()) - (1./2)*inner(u_k,n)*inner(c_t,b_t)*ds(W.mesh())+kappa/Mu_m*inner(mat*b_t,c_t)*dx(W.mesh())
-        # ShiftedMass = assemble(aa)
-        # bcu.apply(ShiftedMass)
-        # ShiftedMass = CP.Assemble(ShiftedMass)
+
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
 
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Directss',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'DirectS',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
         Soltime = time.time() - stime
 
         MO.StrTimePrint("MHD solve, time: ", Soltime)
@@ -273,14 +272,38 @@ for xx in xrange(1,m):
         NSits += mits
         SolutionTime += Soltime
         # u = IO.arrayToVec(  u)
-        u1, p1, b1, r1, eps = Iter.PicardToleranceDecouple(u,x,FSpaces,dim,"2",iter)
+
+        u1 = Function(VelocityF)
+        p1 = Function(PressureF)
+        b1 = Function(MagneticF)
+        r1 = Function(LagrangeF)
+
+        u1.vector()[:] = u.getSubVector(u_is).array
+        p1.vector()[:] = u.getSubVector(p_is).array
+        b1.vector()[:] = u.getSubVector(b_is).array
+        r1.vector()[:] = u.getSubVector(r_is).array
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
+        diff = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
+        u1.vector()[:] += u_k.vector().array()
+        p1.vector()[:] += p_k.vector().array()
+        b1.vector()[:] += b_k.vector().array()
+        r1.vector()[:] += r_k.vector().array()
+
         u_k.assign(u1)
         p_k.assign(p1)
         b_k.assign(b1)
         r_k.assign(r1)
+
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
         x = IO.arrayToVec(uOld)
+        w = Function(W)
+        w.vector()[:] = diff
+
+
+        print np.linalg.norm(diff)/x.norm(), residual, sqrt(assemble(inner(w, w)*dx))
+        eps = min(np.linalg.norm(diff)/x.norm(), residual, sqrt(assemble(inner(w, w)*dx)))
+
+        print '            ssss           ', eps
     # iter = 1
 
     SolTime[xx-1] = SolutionTime/iter
@@ -395,6 +418,9 @@ file << b_k
 
 file = File("r_k.pvd")
 file << r_k
-
+print "GMRES tolerance: ", OuterTol
+print "NL tolerance: ", tol
+print "Hiptmair tolerance: ", HiptmairTol
+MO.StoreMatrix(DimSave, "dim")
 
 interactive()

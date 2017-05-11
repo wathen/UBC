@@ -449,7 +449,7 @@ def M2D(case, Show="no",type="no", Mass = 0):
     CurlMass = 1
     CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
     gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi')), degree=4)
-    # CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)), degree=4)
+    CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)), degree=4)
     # print latex(u)
     # print latex(v)
     # print latex(w)

@@ -217,9 +217,9 @@ def HiptmairBCsetup(C, P, mesh, Func):
 
 def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     OptDB = PETSc.Options()
-    OptDB['pc_hypre_type'] = 'boomeramg'
-    OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
-    OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
+    # OptDB['pc_hypre_type'] = 'boomeramg'
+    # OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
+    # OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
     # OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
 
     kspVector = PETSc.KSP()
@@ -241,7 +241,7 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     pcCGScalar = kspCGScalar.getPC()
     kspCGScalar.setType('preonly')
     pcCGScalar.setType('hypre')
-    kspCGScalar.setTolerances(tol)
+    # kspCGScalar.setTolerances(tol)
     kspCGScalar.setFromOptions()
 
 
