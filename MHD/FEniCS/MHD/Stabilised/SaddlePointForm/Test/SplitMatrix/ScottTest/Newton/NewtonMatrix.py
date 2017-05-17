@@ -143,6 +143,9 @@ for xx in xrange(1,m):
     b0 = Expression(("1.0", "0.0"), degree=4)
     r0 = Expression(("1.0"), degree=4)
 
+    u_k = interpolate(u0, VelocityF)
+    b_k = interpolate(b0, MagneticF)
+
     F_NS = Expression(("1.0", "0.0"), degree=4)
     F_M = Expression(("1.0", "0.0"), degree=4)
 
