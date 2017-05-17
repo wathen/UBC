@@ -60,13 +60,15 @@ class ShiftedCurlCurl(BaseMyPC):
         kspT = PETSc.KSP()
         kspT.create(comm=PETSc.COMM_WORLD)
         pcT = kspT.getPC()
-        kspT.setType('cg')
+        kspT.setType('preonly')
         pcT.setType('hypre')
         kspT.setOperators(self.T, self.T)
         options = PETSc.Options()
+        # options['pc_hypre_boomeramg_cycle_type']  = "W"
+        #     #
         options["pc_hypre_type"] = "boomeramg"
-        options["pc_hypre_boomeramg_nodal_coarsen"] = 2
-        options["pc_hypre_boomeramg_vec_interp_variant"] = 3
+        options["pc_hypre_boomeramg_nodal_coarsen"] = 6
+        options["pc_hypre_boomeramg_vec_interp_variant"] = 2
         kspT.setFromOptions()
         self.kspT = kspT
 

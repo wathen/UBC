@@ -80,10 +80,13 @@ def PETScToScipy(A):
     columns = A.getSize()[0]
     sparseSubMat = sp.csr_matrix(data[::-1],shape=(Iend-Istart,columns))
     return sparseSubMat
+def savePETScMat(A, name1, name2):
+    A = PETScToScipy(A)
+    scipy.io.savemat(name1, mdict={name2: A})
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 1
+    level[xx-1] = xx + 2
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -96,68 +99,91 @@ for xx in xrange(1,m):
     mesh = UnitSquareMesh(nn, nn)
 
     parameters['form_compiler']['quadrature_degree'] = -1
-    order = 2
+    order = 1
     parameters['reorder_dofs_serial'] = False
 
-    Magnetic = FiniteElement("N1curl", mesh.ufl_cell(), order-1)
-    Lagrange = FiniteElement("CG", mesh.ufl_cell(), order-1)
-    MagneticF = FunctionSpace(mesh, "N1curl", order-1)
-    LagrangeF = FunctionSpace(mesh, "CG", order-1)
+    Magnetic = FiniteElement("N1curl", mesh.ufl_cell(), order)
+    Lagrange = FiniteElement("CG", mesh.ufl_cell(), order)
+    MagneticF = FunctionSpace(mesh, "N1curl", order)
+    LagrangeF = FunctionSpace(mesh, "CG", order)
 
     Magneticdim[xx-1] = MagneticF.dim()
-
     print "Magnetic:  ",Magneticdim[xx-1]
 
     def boundary(x, on_boundary):
         return on_boundary
-    b0 = Expression(("1.0", "0.0"), degree=4)
+
     (b) = TrialFunction(MagneticF)
     (c) = TestFunction(MagneticF)
-
-
+    (r) = TrialFunction(LagrangeF)
+    (s) = TestFunction(LagrangeF)
 
     b0, r0, CurlCurl, gradPres, CurlMass = ExactSol.M2D(1, Mass=1)
 
-    a = inner(curl(b),curl(c))*dx + inner(b, c)*dx
-    t = inner(grad(b),grad(c))*dx + inner(b, c)*dx
-    a1 = inner(curl(b),curl(c))*dx
-    m = inner(b, c)*dx
-    L = inner(CurlMass, c)*dx
     bc = DirichletBC(MagneticF, b0, boundary)
 
-    M = assemble(m)
-    bc.apply(M)
+    a = inner(curl(b),curl(c))*dx + inner(b, c)*dx
+    t1 = inner(grad(b),grad(c))*dx + inner(b, c)*dx
+    a1 = inner(curl(b),curl(c))*dx
+    z = inner(b, c)*dx + inner(div(b),div(c))*dx
+    m = inner(b, c)*dx
+    t2 = inner(curl(b),curl(c))*dx + inner(b, c)*dx + inner(div(b),div(c))*dx
+    L = inner(CurlMass, c)*dx
+
+    X = assemble(inner(r, s)*dx)
+    X = CP.Assemble(X)
+
+    Z, M1 = assemble_system(z, L, bc)
+    Z = CP.Assemble(Z)
+
+    M, M1 = assemble_system(m, L, bc)
     M = CP.Assemble(M)
-    AA = assemble(a1)
-    bc.apply(AA)
-    AA = CP.Assemble(AA)
-    T = assemble(t)
-    bc.apply(T)
+
+    T1, a11 = assemble_system(t1, L, bc)
+    T1 = CP.Assemble(T1)
+
+    T, ff = assemble_system(t2, L, bc)
     T = CP.Assemble(T)
 
     A, b = assemble_system(a, L, bc)
     A, b = CP.Assemble(A,b)
+
     u = b.duplicate()
+
     params = [1., 1., 1.]
+
     MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
     BCtime = time.time()
     BC = MHDsetup.BoundaryIndices(mesh)
     MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
     Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+
     G =  HiptmairMatrices[0]
-    Gt = PETSc.Mat()#.createAIJ(LagrangeF.dim(),MagneticF.dim())
+    Gt = PETSc.Mat()
     G.transpose(out=Gt)
+
+    # X = PETScToScipy(X)
+    # invX = sp.linalg.inv(X)
+    # invX = PETSc.Mat().createAIJ(size=invX.shape, csr=(invX.indptr, invX.indices, invX.data))
+
+    # TT = A + G*Gt
+
     nullVecs = []
     for i in range(0, LagrangeF.dim()):
-        nullVecs.append(G.getColumnVector(i))
-    TT = A + G*Gt
+        nullVecs.append(Gt.getColumnVector(i))
     null_space_final = PETSc.NullSpace()
     null_space_final.create(vectors=nullVecs)
-    T.setNearNullSpace(null_space_final)
-#    print (TT).view()
-#    ss
-    Z = M + G*Gt
+    T1.setNearNullSpace(null_space_final)
+
+    #print (TT-T).view()
+    # savePETScMat(A, "Matrix/S.mat", "S")
+    # savePETScMat(Z, "Matrix/Z.mat", "Z")
+    # savePETScMat(M, "Matrix/M.mat", "M")
+    # savePETScMat(T, "Matrix/T.mat", "T")
+    # savePETScMat(T1, "Matrix/T1.mat", "T1")
+    # ss
+    # Z = M + G*Gt
     # T = PETScToScipy(T)
     # Z = PETScToScipy(Z)
     # A = PETScToScipy(A)
@@ -179,22 +205,36 @@ for xx in xrange(1,m):
     ksp.create(comm=PETSc.COMM_WORLD)
     pc = ksp.getPC()
     ksp.setType('cg')
-    pc.setType('python')
+    pc.setType('ml')
+
+    smooth = 3
     options = PETSc.Options()
-#    options["pc_hypre_type"] = "boomeramg"
-#    options["pc_hypre_boomeramg_nodal_coarsen"] = 2
-#    options["pc_hypre_boomeramg_vec_interp_variant"] = 3
-    pc.setPythonContext(test.ShiftedCurlCurl(Z, M, T))
+    options["cycle applications"] = 1
+    options["aggregation: type"] = "Uncoupled"
+    # options["PDE equations"] = dim
+    options["smoother: type"] = "MLS"
+    options["smoother: sweeps"] = smooth
+    options["smoother: MLS polynomial order"] = smooth
+    options["eigen-analysis: type"] =  "power-method"
+    options["eigen-analysis: max iters"] = 100
+    options["chebyshev: alpha"] = 30.0001
+    ksp.max_it = 200
+    # options["pc_hypre_type"] = "boomeramg"
+    # options['pc_hypre_boomeramg_cycle_type']  = "W"
+    # options["pc_hypre_boomeramg_nodal_coarsen"] = 2
+    # options["pc_hypre_boomeramg_vec_interp_variant"] = 3
+    # pc.setPythonContext(test.ShiftedCurlCurl(Z] =  M, T))
     scale = b.norm()
     ksp.setOperators(A, A)
+
     reshist = {}
     def monitor(ksp, its, fgnorm):
         reshist[its] = fgnorm
         print its,"    OUTER:", fgnorm
+
     ksp.setMonitor(monitor)
     ksp.solve(b,u)
-    # Mits +=dodim
-    print (b-A*u).norm()
 
+    print (b-A*u).norm()
 
     print "                iter =", ksp.its

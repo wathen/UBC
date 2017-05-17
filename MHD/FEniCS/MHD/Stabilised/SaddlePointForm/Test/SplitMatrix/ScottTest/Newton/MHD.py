@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 3
+m = 6
 
 set_log_active(False)
 errL2u = np.zeros((m-1,1))
@@ -77,7 +77,7 @@ MU[0] = 1e0
 
 for xx in xrange(1,m):
     print xx
-    level[xx-1] = xx + 3
+    level[xx-1] = xx + 4
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -146,10 +146,9 @@ for xx in xrange(1,m):
     else:
         F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
 
-    u_k = Function(VelocityF)
-    p_k = Function(PressureF)
-    b_k = Function(MagneticF)
-    r_k = Function(LagrangeF)
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
+    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+
 
     (u, p, b, r) = TrialFunctions(W)
     (v, q, c, s) = TestFunctions(W)
@@ -168,22 +167,36 @@ for xx in xrange(1,m):
     Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
 
     Ftilde =  inner((grad(u_k)*u),v)*dx + (1./2)*div(u)*inner(u_k,v)*dx - (1./2)*inner(u,n)*inner(u_k,v)*ds
-    Ctilde = params[0]*(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx
-    Mtilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
+    Mtilde = -params[0]*(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx
+    Ctilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
 
+    a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT + Ftilde + Mtilde + Ctilde
 
+    if kappa == 0.0:
+        m11 = params[1]*inner(curl(b_k),curl(c))*dx
+    else:
+        m11 = params[1]*params[0]*inner(curl(b_k),curl(c))*dx
+    m21 = inner(c,grad(r_k))*dx
+    m12 = inner(b_k,grad(s))*dx
 
-    a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT + Ftilde + Ctilde + Mtilde
+    a11 = params[2]*inner(grad(v), grad(u_k))*dx + inner((grad(u_k)*u_k),v)*dx + (1./2)*div(u_k)*inner(u_k,v)*dx - (1./2)*inner(u_k,n)*inner(u_k,v)*ds
+    a12 = -div(v)*p_k*dx
+    a21 = -div(u_k)*q*dx
+
+    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
+    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
 
     Lns  = inner(v, F_NS)*dx
     Lmaxwell  = inner(c, F_M)*dx
 
-    L = Lns + Lmaxwell
+    L = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
 
+    Hiptmairtol = 1e-4
+    HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     IS = MO.IndexSet(W, 'Blocks')
 
     ones = Function(PressureF)
@@ -202,13 +215,12 @@ for xx in xrange(1,m):
     r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(),W.dim()))
-    bcu = DirichletBC(W.sub(0), u0, boundary)
-    bcp = DirichletBC(W.sub(1),Expression(("0.0"), degree=4), boundary)
-    bcb = DirichletBC(W.sub(2), b0, boundary)
-    bcr = DirichletBC(W.sub(3), r0, boundary)
+    bcu = DirichletBC(W.sub(0), Expression(("0.0", "0.0"), degree=4), boundary)
+    bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
+    bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
-    OuterTol = 1e-4
-    InnerTol = 1e-4
+    OuterTol = 1e-5
+    InnerTol = 1e-5
     NSits = 0
     Mits = 0
     TotalStart = time.time()
@@ -216,7 +228,7 @@ for xx in xrange(1,m):
     errors = np.array([])
     bcu1 = DirichletBC(VelocityF,Expression(("0.0","0.0"), degree=4), boundary)
     U = x
-    while eps > tol  and iter < maxiter:
+    while eps > tol and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter),7,"=","\n\n","\n\n")
 
@@ -231,9 +243,9 @@ for xx in xrange(1,m):
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         norm = (b-A*U).norm()
-
+        residual = b.norm()
         stime = time.time()
-        u, mits,nsits = S.solve(A,b,u,params,W,'Direct',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
+        u, mits,nsits = S.solve(A,b,u,params,W,'Directi',IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -241,14 +253,6 @@ for xx in xrange(1,m):
         Mits += mits
         NSits += mits
         SolutionTime += Soltime
-        # u = IO.arrayToVec(u)
-        f = Function(W)
-        f.vector()[:] = u.array
-        f = f.vector()
-        for bc in bcs:
-            bc.apply(f)
-
-        u = IO.arrayToVec(f.array())
 
         u1 = Function(VelocityF)
         p1 = Function(PressureF)
@@ -259,24 +263,28 @@ for xx in xrange(1,m):
         p1.vector()[:] = u.getSubVector(p_is).array
         b1.vector()[:] = u.getSubVector(b_is).array
         r1.vector()[:] = u.getSubVector(r_is).array
-
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
+        diff = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
+        u1.vector()[:] += u_k.vector().array()
+        p1.vector()[:] += p_k.vector().array()
+        b1.vector()[:] += b_k.vector().array()
+        r1.vector()[:] += r_k.vector().array()
+
         u_k.assign(u1)
         p_k.assign(p1)
         b_k.assign(b1)
         r_k.assign(r1)
 
         uOld = np.concatenate((u_k.vector().array(),p_k.vector().array(),b_k.vector().array(),r_k.vector().array()), axis=0)
-        X = x
         x = IO.arrayToVec(uOld)
+        w = Function(W)
+        w.vector()[:] = diff
 
-        err = np.divide((x-X).array, x.array,out=np.zeros_like(X.array), where=x.array!=0)
 
-        eps = np.linalg.norm(err)
-        errors = np.append(errors,eps)
+        print np.linalg.norm(diff)/x.norm(), residual, sqrt(assemble(inner(w, w)*dx))
+        eps = min(np.linalg.norm(diff)/x.norm(), residual, sqrt(assemble(inner(w, w)*dx)))
 
-        eps = eps/errors[0]
-        print '            ssss           ', eps, '   ', (x-X).norm(), "    ", np.linalg.norm(norm)
+        print '            ssss           ', eps
 
 
     SolTime[xx-1] = SolutionTime/iter
@@ -347,6 +355,68 @@ LagrangeTable = MO.PandasFormat(LagrangeTable,'H1-order',"%1.2f")
 print LagrangeTable.to_latex()
 
 
+print "\n\n   Iteration table"
+if IterType == "Full":
+    IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av Outer its","Av Inner its",]
+else:
+    IterTitles = ["l","DoF","AV solve Time","Total picard time","picard iterations","Av NS iters","Av M iters"]
+IterValues = np.concatenate((level,Wdim,SolTime,TotalTime,iterations,Mave,NSave),axis=1)
+IterTable= pd.DataFrame(IterValues, columns = IterTitles)
+if IterType == "Full":
+    IterTable = MO.PandasFormat(IterTable,'Av Outer its',"%2.1f")
+    IterTable = MO.PandasFormat(IterTable,'Av Inner its',"%2.1f")
+else:
+    IterTable = MO.PandasFormat(IterTable,'Av NS iters',"%2.1f")
+    IterTable = MO.PandasFormat(IterTable,'Av M iters',"%2.1f")
+print IterTable.to_latex()
+print "GMRES tolerance: ", InnerTol
+print "NL tolerance: ", tol
+print "Hiptmair tolerance: ", Hiptmairtol
+MO.StoreMatrix(DimSave, "dim")
 
+#file = File("u_k.pvd")
+#file << u_k
+#
+#file = File("p_k.pvd")
+#file << p_k
+#
+#file = File("b_k.pvd")
+#file << b_k
+#
+#file = File("r_k.pvd")
+#file << r_k
+#
+#file = File("u0.pvd")
+#file << interpolate(u0, VelocityF)
+#
+#file = File("p0.pvd")
+#file << interpolate(p0, PressureF)
+#
+#file = File("b0.pvd")
+#file << interpolate(b0, MagneticF)
+#
+#file = File("r0.pvd")
+#file << interpolate(r0, LagrangeF)
+#
+#file = File("uError.pvd")
+#error = Function(VelocityF)
+#error.vector()[:] =  u_k.vector().array()-interpolate(u0, VelocityF).vector().array()
+#file << error
+#
+#file = File("pError.pvd")
+#error = Function(PressureF)
+#error.vector()[:] =  p_k.vector().array()-interpolate(p0, PressureF).vector().array()
+#file << error
+#
+#file = File("bError.pvd")
+#error = Function(MagneticF)
+#error.vector()[:] =  b_k.vector().array()-interpolate(b0, MagneticF).vector().array()
+#file << error
+#
+#file = File("rError.pvd")
+#error = Function(LagrangeF)
+#error.vector()[:] =  r_k.vector().array()-interpolate(r0, LagrangeF).vector().array()
+#file << error
+#
 interactive()
 
