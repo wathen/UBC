@@ -174,37 +174,37 @@ for xx in xrange(1,m):
     s = TestFunction(LagrangeF)
 
     M = assemble(inner(curl(b),curl(c))*dx)
-    M = CP.Assemble(M)
+    M = as_backend_type(M).mat()
     savePETScMat(M, "Matrix/M_"+str(int(level[xx-1][0]))+".mat", "M")
 
     D = assemble(inner(c,grad(r))*dx)
-    D = CP.Assemble(D)
+    D = as_backend_type(D).mat()
     savePETScMat(D, "Matrix/D_"+str(int(level[xx-1][0]))+".mat", "D")
 
     F = assemble(inner(grad(v), grad(u))*dx + inner((grad(u)*u_k),v)*dx + (1./2)*div(u_k)*inner(u,v)*dx - (1./2)*inner(u_k,n)*inner(u,v)*ds)
-    F = CP.Assemble(F)
+    F = as_backend_type(F).mat()
     savePETScMat(F, "Matrix/F_"+str(int(level[xx-1][0]))+".mat", "F")
 
     B = assemble(-div(v)*p*dx)
-    B = CP.Assemble(B)
+    B = as_backend_type(B).mat()
     savePETScMat(B, "Matrix/B_"+str(int(level[xx-1][0]))+".mat", "B")
 
 
     C = assmble((u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx)
-    C = CP.Assemble(C)
+    C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
 
 
     Ftilde =  assemble(inner((grad(u_k)*u),v)*dx + (1./2)*div(u)*inner(u_k,v)*dx - (1./2)*inner(u,n)*inner(u_k,v)*ds)
-    Ftilde = CP.Assemble(Ftilde)
+    Ftilde = as_backend_type(Ftilde).mat()
     savePETScMat(Ftilde, "Matrix/Ftilde_"+str(int(level[xx-1][0]))+".mat", "Ftilde")
 
     Mtilde = assmble(-(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx)
-    Mtilde = CP.Assemble(Mtilde)
+    Mtilde = as_backend_type(Mtilde).mat()
     savePETScMat(Mtilde, "Matrix/Mtilde_"+str(int(level[xx-1][0]))+".mat", "Mtilde")
 
     Ctilde = assemble((v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx)
-    Ctilde = CP.Assemble(Ctilde)
+    Ctilde = as_backend_type(Ctilde).mat()
     savePETScMat(Ctilde, "Matrix/Ctilde_"+str(int(level[xx-1][0]))+".mat", "Ctilde")
 
 
