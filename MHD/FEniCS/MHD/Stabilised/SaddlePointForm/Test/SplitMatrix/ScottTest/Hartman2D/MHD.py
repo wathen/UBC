@@ -1,7 +1,4 @@
 #!/usr/bin/python
-
-# interpolate scalar gradient onto nedelec space
-
 import petsc4py
 import sys
 
@@ -169,10 +166,10 @@ for xx in xrange(1,m):
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
 
-    Lns  = inner(v, F_NS)*dx 
+    Lns  = inner(v, F_NS)*dx
     Lmaxwell  = inner(c, F_M)*dx
-    
-    L = Lns + Lmaxwell 
+
+    L = Lns + Lmaxwell
     x = Iter.u_prev(u_k,p_k,b_k,r_k)
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
