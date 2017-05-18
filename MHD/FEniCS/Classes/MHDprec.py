@@ -804,7 +804,7 @@ class ApproxInv(BaseMyPC):
         # outR = (L(D*invMx));
         xr1 = invL.duplicate()
         outR = invL.duplicate()
-        self.D.mult(invMX, xr1)
+        self.G.multTranspose(bb, xr1)
         self.kspScalar(xr1, outR)
 
         # outB = (Mx(C*barS) + invMx + Mx(D'*invL));
@@ -812,8 +812,8 @@ class ApproxInv(BaseMyPC):
         xb2 = invMX.duplicate()
         xb3 = invMX.duplicate()
         xb4 = invMX.duplicate()
-        self.D.multTranspose(invL, xb1)
-        self.kspMX.solve(xb1, xb2)
+        self.G.mult(invL, xb3)
+        # self.kspMX.solve(xb1, xb2)
         self.C.mult(barS, xb3)
         self.kspMX.solve(xb3, xb4)
         outB = xb4 + invMX + xb2
@@ -943,7 +943,7 @@ class ApproxInvA(BaseMyPC):
         # outR = (L(D*invMx));
         xr1 = invL.duplicate()
         outR = invL.duplicate()
-        self.D.mult(invMX, xr1)
+        self.G.multTranspose(bb, xr1)
         self.kspScalar(xr1, outR)
 
         # outB = (Mx(C*barS) + invMx + Mx(D'*invL));
@@ -951,8 +951,7 @@ class ApproxInvA(BaseMyPC):
         xb2 = invMX.duplicate()
         xb3 = invMX.duplicate()
         xb4 = invMX.duplicate()
-        self.D.multTranspose(invL, xb1)
-        xb2, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, xb1, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
+        self.G.mult(invL, xb2)
         self.C.mult(barS, xb3)
         xb4, its, self.HiptmairTime = HiptmairSetup.HiptmairApply(self.AA, xb3, self.kspScalar, self.kspVector, self.G, self.P, self.tol)
         outB = xb4 + invMX + xb2

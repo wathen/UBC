@@ -76,13 +76,10 @@ split = 'Linear'
 MU[0] = 1e0
 def PETScToScipy(A):
     data = A.getValuesCSR()
-    (Istart,Iend) = A.getOwnershipRange()
-    columns = A.getSize()[0]
-    sparseSubMat = sp.csr_matrix(data[::-1],shape=(Iend-Istart,columns))
+    sparseSubMat = sp.csr_matrix(data[::-1],shape=A.size)
     return sparseSubMat
 def savePETScMat(A, name1, name2):
     A_ = PETScToScipy(A)
-    print A_
     scipy.io.savemat(name1, mdict={name2: A_})
 
 for xx in xrange(1,m):
@@ -139,16 +136,36 @@ for xx in xrange(1,m):
 
     params = [kappa,Mu_m,MU]
     n = FacetNormal(mesh)
-    u0 = Expression(("1.0", "0.0"), degree=4)
-    p0 = Expression(("1.0"), degree=4)
-    b0 = Expression(("1.0", "0.0"), degree=4)
-    r0 = Expression(("1.0"), degree=4)
+    # u0 = Expression(("1.0", "0.0"), degree=4)
+    # p0 = Expression(("1.0"), degree=4)
+    # b0 = Expression(("1.0", "0.0"), degree=4)
+    # r0 = Expression(("1.0"), degree=4)
 
-    u_k = interpolate(u0, VelocityF)
-    b_k = interpolate(b0, MagneticF)
+    # u_k = interpolate(u0, VelocityF)
+    # b_k = interpolate(b0, MagneticF)
 
-    F_NS = Expression(("1.0", "0.0"), degree=4)
-    F_M = Expression(("1.0", "0.0"), degree=4)
+    # F_NS = Expression(("1.0", "0.0"), degree=4)
+    # F_M = Expression(("1.0", "0.0"), degree=4)
+    u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD2D(4, 1)
+
+    MO.PrintStr("Seting up initial guess matricies",2,"=","\n\n","\n")
+    BCtime = time.time()
+    BC = MHDsetup.BoundaryIndices(mesh)
+    MO.StrTimePrint("BC index function, time: ", time.time()-BCtime)
+    Hiptmairtol = 1e-6
+    HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
+
+    MO.PrintStr("Setting up MHD initial guess",5,"+","\n\n","\n\n")
+
+    F_NS = -MU*Laplacian + Advection + gradPres - kappa*NS_Couple
+    if kappa == 0.0:
+        F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
+    else:
+        F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
+
+    u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
+    b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
+
 
     bcu = DirichletBC(VelocityF, Expression(("0.0", "0.0"), degree=4), boundary)
     bcp = DirichletBC(PressureF, Expression(("0.0"), degree=4), boundary)
@@ -192,7 +209,7 @@ for xx in xrange(1,m):
     B = assemble(-div(v)*p*dx)
     B = as_backend_type(B).mat()
     savePETScMat(B, "Matrix/B_"+str(int(level[xx-1][0]))+".mat", "B")
-    
+
     C = assemble((u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx)
     C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
@@ -201,7 +218,7 @@ for xx in xrange(1,m):
     Ftilde = as_backend_type(Ftilde).mat()
     savePETScMat(Ftilde, "Matrix/Ftilde_"+str(int(level[xx-1][0]))+".mat", "Ftilde")
 
-    Mtilde = assmble(-(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx)
+    Mtilde = assemble(-(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx)
     Mtilde = as_backend_type(Mtilde).mat()
     savePETScMat(Mtilde, "Matrix/Mtilde_"+str(int(level[xx-1][0]))+".mat", "Mtilde")
 
