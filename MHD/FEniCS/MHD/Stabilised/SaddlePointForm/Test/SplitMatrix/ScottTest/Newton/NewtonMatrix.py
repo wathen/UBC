@@ -81,8 +81,9 @@ def PETScToScipy(A):
     sparseSubMat = sp.csr_matrix(data[::-1],shape=(Iend-Istart,columns))
     return sparseSubMat
 def savePETScMat(A, name1, name2):
-    A = PETScToScipy(A)
-    scipy.io.savemat(name1, mdict={name2: A})
+    A_ = PETScToScipy(A)
+    print A_
+    scipy.io.savemat(name1, mdict={name2: A_})
 
 for xx in xrange(1,m):
     print xx
@@ -191,12 +192,10 @@ for xx in xrange(1,m):
     B = assemble(-div(v)*p*dx)
     B = as_backend_type(B).mat()
     savePETScMat(B, "Matrix/B_"+str(int(level[xx-1][0]))+".mat", "B")
-
-
-    C = assmble((u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx)
+    
+    C = assemble((u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx)
     C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
-
 
     Ftilde =  assemble(inner((grad(u_k)*u),v)*dx + (1./2)*div(u)*inner(u_k,v)*dx - (1./2)*inner(u,n)*inner(u_k,v)*ds)
     Ftilde = as_backend_type(Ftilde).mat()
