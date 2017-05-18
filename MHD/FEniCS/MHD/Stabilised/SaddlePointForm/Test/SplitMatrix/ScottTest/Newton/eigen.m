@@ -1,6 +1,6 @@
 clear 
 clc
-level = 2;
+level = 3;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -92,5 +92,16 @@ norm((M+Mtilde)*Null)
 nullC = null(full(Ctilde));
 
 norm(C*nullC)
-
-
+alpha = 1;
+K = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
+    B, zeros(m_u,m_u+n_b+m_b);
+     -C, zeros(n_b,m_u) M-alpha*Mtilde D';
+     zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]);
+alpha = 0;
+K1 = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
+    B, zeros(m_u,m_u+n_b+m_b);
+     -C-alpha*Ctilde, zeros(n_b,m_u) M-alpha*Mtilde D';
+     zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]); 
+ 
+ e = eig(K, K1);
+ plot(sort(real(e)), '*')
