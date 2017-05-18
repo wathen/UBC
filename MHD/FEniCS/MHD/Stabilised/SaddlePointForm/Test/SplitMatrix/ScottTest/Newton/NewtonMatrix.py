@@ -76,9 +76,7 @@ split = 'Linear'
 MU[0] = 1e0
 def PETScToScipy(A):
     data = A.getValuesCSR()
-    (Istart,Iend) = A.getOwnershipRange()
-    columns = A.getSize()[0]
-    sparseSubMat = sp.csr_matrix(data[::-1],shape=(Iend-Istart,columns))
+    sparseSubMat = sp.csr_matrix(data[::-1],shape=A.size)
     return sparseSubMat
 def savePETScMat(A, name1, name2):
     A_ = PETScToScipy(A)
@@ -192,7 +190,7 @@ for xx in xrange(1,m):
     B = assemble(-div(v)*p*dx)
     B = as_backend_type(B).mat()
     savePETScMat(B, "Matrix/B_"+str(int(level[xx-1][0]))+".mat", "B")
-    
+
     C = assemble((u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx)
     C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
