@@ -32,39 +32,39 @@ import ExactSol
 m = 5
 
 set_log_active(False)
-errL2u = np.zeros((m-1, 1))
-errH1u = np.zeros((m-1, 1))
-errL2p = np.zeros((m-1, 1))
-errL2b = np.zeros((m-1, 1))
-errCurlb = np.zeros((m-1, 1))
-errL2r = np.zeros((m-1, 1))
-errH1r = np.zeros((m-1, 1))
+errL2u      = np.zeros((m-1, 1))
+errH1u      = np.zeros((m-1, 1))
+errL2p      = np.zeros((m-1, 1))
+errL2b      = np.zeros((m-1, 1))
+errCurlb    = np.zeros((m-1, 1))
+errL2r      = np.zeros((m-1, 1))
+errH1r      = np.zeros((m-1, 1))
 
 
-l2uorder = np.zeros((m-1, 1))
-H1uorder = np.zeros((m-1, 1))
-l2porder = np.zeros((m-1, 1))
-l2border = np.zeros((m-1, 1))
-Curlborder = np.zeros((m-1, 1))
-l2rorder = np.zeros((m-1, 1))
-H1rorder = np.zeros((m-1, 1))
+l2uorder    = np.zeros((m-1, 1))
+H1uorder    = np.zeros((m-1, 1))
+l2porder    = np.zeros((m-1, 1))
+l2border    = np.zeros((m-1, 1))
+Curlborder  = np.zeros((m-1, 1))
+l2rorder    = np.zeros((m-1, 1))
+H1rorder    = np.zeros((m-1, 1))
 
-NN = np.zeros((m-1, 1))
-DoF = np.zeros((m-1, 1))
+NN          = np.zeros((m-1, 1))
+DoF         = np.zeros((m-1, 1))
 Velocitydim = np.zeros((m-1, 1))
 Magneticdim = np.zeros((m-1, 1))
 Pressuredim = np.zeros((m-1, 1))
 Lagrangedim = np.zeros((m-1, 1))
-Wdim = np.zeros((m-1, 1))
-iterations = np.zeros((m-1, 1))
-SolTime = np.zeros((m-1, 1))
-udiv = np.zeros((m-1, 1))
-MU = np.zeros((m-1, 1))
-level = np.zeros((m-1, 1))
-NSave = np.zeros((m-1, 1))
-Mave = np.zeros((m-1, 1))
-TotalTime = np.zeros((m-1, 1))
-DimSave = np.zeros((m-1, 4))
+Wdim        = np.zeros((m-1, 1))
+iterations  = np.zeros((m-1, 1))
+SolTime     = np.zeros((m-1, 1))
+udiv        = np.zeros((m-1, 1))
+MU          = np.zeros((m-1, 1))
+level       = np.zeros((m-1, 1))
+NSave       = np.zeros((m-1, 1))
+Mave        = np.zeros((m-1, 1))
+TotalTime   = np.zeros((m-1, 1))
+DimSave     = np.zeros((m-1, 4))
 
 dim = 2
 ShowResultPlots = 'yes'
@@ -123,8 +123,9 @@ for xx in xrange(1, m):
 
     dim = [W.sub(0).dim(), W.sub(1).dim(), W.sub(2).dim(), W.sub(3).dim()]
 
+
     def boundary(x, on_boundary):
-        return on_boundary
+    return on_boundary
 
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
 
@@ -165,9 +166,9 @@ for xx in xrange(1, m):
 
     F_NS = -MU*Laplacian + Advection + gradPres - kappa*NS_Couple
     if kappa == 0.0:
-        F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
+    F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
     else:
-        F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
+    F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
 
     u_k, p_k = HartmanChannel.Stokes(
         Velocity, Pressure, F_NS, u0, 1, params, mesh)

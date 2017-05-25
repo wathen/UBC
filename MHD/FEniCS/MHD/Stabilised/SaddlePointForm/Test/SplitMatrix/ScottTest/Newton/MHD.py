@@ -35,45 +35,45 @@ import ExactSol
 m = 6
 
 set_log_active(False)
-errL2u = np.zeros((m-1,1))
-errH1u = np.zeros((m-1,1))
-errL2p = np.zeros((m-1,1))
-errL2b = np.zeros((m-1,1))
-errCurlb = np.zeros((m-1,1))
-errL2r = np.zeros((m-1,1))
-errH1r = np.zeros((m-1,1))
+errL2u          = np.zeros((m-1,1))
+errH1u          = np.zeros((m-1,1))
+errL2p          = np.zeros((m-1,1))
+errL2b          = np.zeros((m-1,1))
+errCurlb        = np.zeros((m-1,1))
+errL2r          = np.zeros((m-1,1))
+errH1r          = np.zeros((m-1,1))
 
 
 
-l2uorder =  np.zeros((m-1,1))
-H1uorder =np.zeros((m-1,1))
-l2porder =  np.zeros((m-1,1))
-l2border =  np.zeros((m-1,1))
-Curlborder = np.zeros((m-1,1))
-l2rorder =  np.zeros((m-1,1))
-H1rorder = np.zeros((m-1,1))
+l2uorder        = np.zeros((m-1,1))
+H1uorder        = np.zeros((m-1,1))
+l2porder        = np.zeros((m-1,1))
+l2border        = np.zeros((m-1,1))
+Curlborder      = np.zeros((m-1,1))
+l2rorder        = np.zeros((m-1,1))
+H1rorder        = np.zeros((m-1,1))
 
-NN = np.zeros((m-1,1))
-DoF = np.zeros((m-1,1))
-Velocitydim = np.zeros((m-1,1))
-Magneticdim = np.zeros((m-1,1))
-Pressuredim = np.zeros((m-1,1))
-Lagrangedim = np.zeros((m-1,1))
-Wdim = np.zeros((m-1,1))
-iterations = np.zeros((m-1,1))
-SolTime = np.zeros((m-1,1))
-udiv = np.zeros((m-1,1))
-MU = np.zeros((m-1,1))
-level = np.zeros((m-1,1))
-NSave = np.zeros((m-1,1))
-Mave = np.zeros((m-1,1))
-TotalTime = np.zeros((m-1,1))
-DimSave = np.zeros((m-1,4))
+NN              = np.zeros((m-1,1))
+DoF             = np.zeros((m-1,1))
+Velocitydim     = np.zeros((m-1,1))
+Magneticdim     = np.zeros((m-1,1))
+Pressuredim     = np.zeros((m-1,1))
+Lagrangedim     = np.zeros((m-1,1))
+Wdim            = np.zeros((m-1,1))
+iterations      = np.zeros((m-1,1))
+SolTime         = np.zeros((m-1,1))
+udiv            = np.zeros((m-1,1))
+MU              = np.zeros((m-1,1))
+level           = np.zeros((m-1,1))
+NSave           = np.zeros((m-1,1))
+Mave            = np.zeros((m-1,1))
+TotalTime       = np.zeros((m-1,1))
+DimSave         = np.zeros((m-1,4))
 
-dim = 2
+dim             = 2
 ShowResultPlots = 'yes'
-split = 'Linear'
-MU[0] = 1e0
+split           = 'Linear'
+MU[0]           = 1e0
 
 for xx in xrange(1,m):
     print xx
