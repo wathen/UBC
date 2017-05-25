@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# interpolate scalar gradient onto nedelec space
-
 import petsc4py
 import sys
 petsc4py.init(sys.argv)
@@ -18,7 +16,9 @@ import BiLinear as forms
 import IterOperations as Iter
 import MatrixOperations as MO
 import CheckPetsc4py as CP
+
 import Solver as S
+
 import MHDmatrixPrecondSetup as PrecondSetup
 import NSprecondSetup
 import MHDprec as MHDpreconditioner
@@ -70,7 +70,6 @@ dim = 2
 ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0] = 1e0
-
 
 def PETScToScipy(A):
     data = A.getValuesCSR()
@@ -125,7 +124,7 @@ for xx in xrange(1, m):
 
 
     def boundary(x, on_boundary):
-    return on_boundary
+        return on_boundary
 
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
 
@@ -164,11 +163,11 @@ for xx in xrange(1, m):
 
     MO.PrintStr("Setting up MHD initial guess", 5, "+", "\n\n", "\n\n")
 
-    F_NS = -MU*Laplacian + Advection + gradPres - kappa*NS_Couple
+    F_NS = -MU * Laplacian + Advection + gradPres - kappa * NS_Couple
     if kappa == 0.0:
-    F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
+        F_M = Mu_m*CurlCurl + gradR - kappa*M_Couple
     else:
-    F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
+        F_M = Mu_m*kappa*CurlCurl + gradR - kappa*M_Couple
 
     u_k, p_k = HartmanChannel.Stokes(
         Velocity, Pressure, F_NS, u0, 1, params, mesh)

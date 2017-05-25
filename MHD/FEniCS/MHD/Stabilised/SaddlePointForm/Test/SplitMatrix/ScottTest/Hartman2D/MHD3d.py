@@ -262,7 +262,7 @@ for xx in xrange(1,m):
         r1.vector()[:] = u.getSubVector(r_is).array
         p1.vector()[:] += - assemble(p1*dx)/assemble(ones*dx)
         diff = np.concatenate((u1.vector().array(),p1.vector().array(),b1.vector().array(),r1.vector().array()), axis=0)
-        
+
         u1.vector()[:] += u_k.vector().array()
         p1.vector()[:] += p_k.vector().array()
         b1.vector()[:] += b_k.vector().array()

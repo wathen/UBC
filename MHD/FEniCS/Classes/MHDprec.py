@@ -812,7 +812,7 @@ class ApproxInv(BaseMyPC):
         xb2 = invMX.duplicate()
         xb3 = invMX.duplicate()
         xb4 = invMX.duplicate()
-        self.G.mult(invL, xb3)
+        self.G.mult(invL, xb2)
         # self.kspMX.solve(xb1, xb2)
         self.C.mult(barS, xb3)
         self.kspMX.solve(xb3, xb4)

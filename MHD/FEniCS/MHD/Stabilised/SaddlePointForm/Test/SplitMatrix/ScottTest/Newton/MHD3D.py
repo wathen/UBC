@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 6
+m = 4
 
 set_log_active(False)
 errL2u = np.zeros((m-1, 1))
@@ -76,7 +76,7 @@ MU[0] = 1e0
 
 for xx in xrange(1, m):
     print xx
-    level[xx-1] = xx + 4
+    level[xx-1] = xx + 0
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -86,7 +86,7 @@ for xx in xrange(1, m):
     y0 = 2.
     z0 = 1.
     # mesh, boundaries, domains = HartmanChannel.Domain(nn)
-    mesh = UnitSquareMesh(nn, nn)
+    mesh = UnitCubeMesh(nn, nn, nn)
 
     parameters['form_compiler']['quadrature_degree'] = -1
     order = 2
@@ -129,8 +129,8 @@ for xx in xrange(1, m):
 
     params = [kappa, Mu_m, MU]
     n = FacetNormal(mesh)
-    u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD2D(
-        4, 1)
+    u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple = ExactSol.MHD3D(
+        1, 2)
 
     MO.PrintStr("Seting up initial guess matricies", 2, "=", "\n\n", "\n")
     BCtime = time.time()
@@ -167,13 +167,13 @@ for xx in xrange(1, m):
     a12 = -div(v)*p*dx
     a21 = -div(u)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b)*dx
-    Couple = -params[0]*(u[0]*b_k[1]-u[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v, b_k), curl(b))*dx
+    Couple = -params[0]*inner(cross(u, b_k), curl(c))*dx
 
     Ftilde = inner((grad(u_k)*u), v)*dx + (1./2)*div(u) * \
         inner(u_k, v)*dx - (1./2)*inner(u, n)*inner(u_k, v)*ds
-    Mtilde = -params[0]*(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx
-    Ctilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
+    Mtilde = -params[0]*inner(cross(u_k, b), curl(c))*dx
+    Ctilde = params[0]*inner(cross(v, b), curl(b_k))*dx
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
         Couple + CoupleT + Ftilde + Mtilde + Ctilde
@@ -190,8 +190,8 @@ for xx in xrange(1, m):
     a12 = -div(v)*p_k*dx
     a21 = -div(u_k)*q*dx
 
-    CoupleT = params[0]*(v[0]*b_k[1]-v[1]*b_k[0])*curl(b_k)*dx
-    Couple = -params[0]*(u_k[0]*b_k[1]-u_k[1]*b_k[0])*curl(c)*dx
+    CoupleT = params[0]*inner(cross(v, b_k), curl(b_k))*dx
+    Couple = -params[0]*inner(cross(u_k, b_k), curl(c))*dx
 
     Lns = inner(v, F_NS)*dx
     Lmaxwell = inner(c, F_M)*dx
@@ -225,8 +225,10 @@ for xx in xrange(1, m):
     r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(), W.dim()))
-    bcu = DirichletBC(W.sub(0), Expression(("0.0", "0.0"), degree=4), boundary)
-    bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
+    bcu = DirichletBC(W.sub(0), Expression(
+        ("0.0", "0.0", "0.0"), degree=4), boundary)
+    bcb = DirichletBC(W.sub(2), Expression(
+        ("0.0", "0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
     OuterTol = 1e-5
@@ -237,17 +239,17 @@ for xx in xrange(1, m):
     SolutionTime = 0
     errors = np.array([])
     bcu1 = DirichletBC(VelocityF, Expression(
-        ("0.0", "0.0"), degree=4), boundary)
+        ("0.0", "0.0", "0.0"), degree=4), boundary)
     U = x
     while eps > tol and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter), 7, "=", "\n\n", "\n\n")
-
         atime = time.time()
         A, b = assemble_system(a, L, bcs)
         A, b = CP.Assemble(A, b)
         Assemtime = time.time() - atime
         MO.StrTimePrint("MHD assemble, time: ", Assemtime)
+
         u = x.duplicate()
 
         print "                               Max rhs = ", np.max(b.array)
@@ -314,7 +316,6 @@ for xx in xrange(1, m):
 
     ExactSolution = [u0, p0, b0, r0]
     errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx - 1], errH1r[xx-1] = Iter.Errors(XX, mesh, FSpaces, ExactSolution, order, dim, "CG")
-
     print float(Wdim[xx-1][0])/Wdim[xx-2][0]
 
     if xx > 1:
