@@ -148,10 +148,11 @@ for xx in xrange(1,m):
 
     u_k, p_k = HartmanChannel.Stokes(Velocity, Pressure, F_NS, u0, 1, params, mesh)
     b_k, r_k = HartmanChannel.Maxwell(Magnetic, Lagrange, F_M, b0, r0, params, mesh, HiptmairMatrices, Hiptmairtol)
-
-
-    (u, p, b, r) = TrialFunctions(W)
-    (v, q, c, s) = TestFunctions(W)
+    dh = TrialFunction(W)
+    U = Function(W)
+    print dh
+    (u, p, b, r) = dh.split()
+    (v, q, c, s) = U.split()
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b),curl(c))*dx
     else:
@@ -171,7 +172,7 @@ for xx in xrange(1,m):
     Ctilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT + Ftilde + Mtilde + Ctilde
-
+    aa = (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b_k),curl(c))*dx
     else:
@@ -194,8 +195,9 @@ for xx in xrange(1,m):
 
     KSPlinearfluids, MatrixLinearFluids = PrecondSetup.FluidLinearSetup(PressureF, MU, mesh)
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
-    F = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
+    F = Lns + Lmaxwell - aa
+    J = derivative(F, U, dh)
 
     Hiptmairtol = 1e-4
     HiptmairMatrices = PrecondSetup.MagneticSetup(mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
