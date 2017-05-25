@@ -259,7 +259,7 @@ for xx in xrange(1, m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits, nsits = S.solve(A, b, u, params, W, 'Direct', IterType, OuterTol,
+        u, mits, nsits = S.solve(A, b, u, params, W, 'Directii', IterType, OuterTol,
                                  InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
 
         U = u
