@@ -252,7 +252,7 @@ for xx in xrange(1, m):
 
         print "                               Max rhs = ", np.max(b.array)
 
-        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, me sh)
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
