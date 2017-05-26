@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 4
+m = 6
 
 set_log_active(False)
 errL2u = np.zeros((m-1, 1))
