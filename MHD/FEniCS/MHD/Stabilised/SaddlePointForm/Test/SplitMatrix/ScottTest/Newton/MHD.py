@@ -121,7 +121,7 @@ for xx in xrange(1, m):
 
     kappa = 1.0
     Mu_m = 10.0
-    MU = 1.0
+    MU = 1.0/10
 
     N = FacetNormal(mesh)
 
