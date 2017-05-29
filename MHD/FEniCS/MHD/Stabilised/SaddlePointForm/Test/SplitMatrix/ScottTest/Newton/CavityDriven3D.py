@@ -118,9 +118,9 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1.0
+    kappa = 1.0*100
     Mu_m = 10.0
-    MU = 1.0/10
+    MU = 1.0
 
     N = FacetNormal(mesh)
 
