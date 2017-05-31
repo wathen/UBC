@@ -252,15 +252,14 @@ for xx in xrange(1, m):
 
         print "                               Max rhs = ", np.max(b.array)
 
-        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, me sh)
+        kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
         ShiftedMass = A.getSubMatrix(u_is, u_is)
         kspF = NSprecondSetup.LSCKSPnonlinear(ShiftedMass)
         Options = 'p4'
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits, nsits = S.solve(A, b, u, params, W, 'Directii', IterType, OuterTol,
-                                 InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
+        u, mits, nsits = S.solve(A, b, u, params, W, 'Directss', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
 
         U = u
         Soltime = time.time() - stime
