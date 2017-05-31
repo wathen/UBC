@@ -20,7 +20,7 @@ from scipy.linalg import svd
 from scipy.sparse.linalg.dsolve import spsolve
 
 
-def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatrices,Hiptmairtol,KSPlinearfluids, Fp,kspF):
+def solve(A, b, u, params, Fspace, SolveType, IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF):
 
     if SolveType == "Direct":
         ksp = PETSc.KSP()
@@ -29,18 +29,19 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         ksp.setType('preonly')
         pc.setType('lu')
         OptDB = PETSc.Options()
-        OptDB['pc_factor_mat_solver_package']  = "pastix"
-        OptDB['pc_factor_mat_ordering_type']  = "rcm"
+        OptDB['pc_factor_mat_solver_package'] = "pastix"
+        OptDB['pc_factor_mat_ordering_type'] = "rcm"
         ksp.setFromOptions()
         scale = b.norm()
         b = b/scale
-        ksp.setOperators(A,A)
+        ksp.setOperators(A, A)
         del A
-        ksp.solve(b,u)
+        ksp.solve(b, u)
         # Mits +=dodim
         u = u*scale
-        MO.PrintStr("Number iterations = "+str(ksp.its),60,"+","\n\n","\n\n")
-        return u,ksp.its,0
+        MO.PrintStr("Number iterations = "+str(ksp.its),
+                    60, "+", "\n\n", "\n\n")
+        return u, ksp.its, 0
     elif SolveType == "Direct-class":
         ksp = PETSc.KSP()
         ksp.create(comm=PETSc.COMM_WORLD)
@@ -50,13 +51,14 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         ksp.setFromOptions()
         scale = b.norm()
         b = b/scale
-        ksp.setOperators(A,A)
+        ksp.setOperators(A, A)
         del A
-        ksp.solve(b,u)
+        ksp.solve(b, u)
         # Mits +=dodim
         u = u*scale
-        MO.PrintStr("Number iterations = "+str(ksp.its),60,"+","\n\n","\n\n")
-        return u,ksp.its,0
+        MO.PrintStr("Number iterations = "+str(ksp.its),
+                    60, "+", "\n\n", "\n\n")
+        return u, ksp.its, 0
 
     else:
 
@@ -74,15 +76,16 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             reshist = {}
             def monitor(ksp, its, fgnorm):
                 reshist[its] = fgnorm
-                print its,"    OUTER:", fgnorm
+                print its, "    OUTER:", fgnorm
             # ksp.setMonitor(monitor)
             ksp.max_it = 100
             ksp.setTolerances(OuterTol)
 
             W = Fspace
-            FFSS = [W.sub(0),W.sub(1),W.sub(2),W.sub(3)]
+            FFSS = [W.sub(0), W.sub(1), W.sub(2), W.sub(3)]
 
-            pc.setPythonContext(MHDprec.ApproxInvA(FFSS,kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp, HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+            pc.setPythonContext(MHDprec.ApproxInvA(FFSS, kspF, KSPlinearfluids[0], KSPlinearfluids[1], Fp, HiptmairMatrices[
+                                3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6], Hiptmairtol))
 
             # OptDB = PETSc.Options()
             # OptDB['pc_factor_mat_solver_package']  = "umfpack"
@@ -90,16 +93,16 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
             ksp.setFromOptions()
             scale = b.norm()
             b = b/scale
-            ksp.setOperators(A,A)
+            ksp.setOperators(A, A)
             del A
-            ksp.solve(b,u)
+            ksp.solve(b, u)
             # Mits +=dodim
             u = u*scale
-            MO.PrintStr("Number iterations = "+str(ksp.its),60,"+","\n\n","\n\n")
-            return u,ksp.its,0
+            MO.PrintStr("Number iterations = "+str(ksp.its),
+                        60, "+", "\n\n", "\n\n")
+            return u, ksp.its, 0
 
-
-        IS = MO.IndexSet(Fspace,'2by2')
+        IS = MO.IndexSet(Fspace, '2by2')
         M_is = IS[1]
         NS_is = IS[0]
         kspNS = PETSc.KSP().create()
@@ -115,15 +118,17 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
 
             pcNS = kspNS.getPC()
             pcNS.setType(PETSc.PC.Type.PYTHON)
-            pcNS.setPythonContext(NSpreconditioner.NSPCD(MixedFunctionSpace([Fspace.sub(0),Fspace.sub(1)]), kspF, KSPlinearfluids[0], KSPlinearfluids[1],Fp))
+            pcNS.setPythonContext(NSpreconditioner.NSPCD(MixedFunctionSpace(
+                [Fspace.sub(0), Fspace.sub(1)]), kspF, KSPlinearfluids[0], KSPlinearfluids[1], Fp))
         elif IterType == "CD":
             kspNS.setType('minres')
             pcNS = kspNS.getPC()
             pcNS.setType(PETSc.PC.Type.PYTHON)
             Q = KSPlinearfluids[1].getOperators()[0]
             Q = 1./params[2]*Q
-            KSPlinearfluids[1].setOperators(Q,Q)
-            pcNS.setPythonContext(StokesPrecond.MHDApprox(MixedFunctionSpace([Fspace.sub(0),Fspace.sub(1)]),kspF,KSPlinearfluids[1] ))
+            KSPlinearfluids[1].setOperators(Q, Q)
+            pcNS.setPythonContext(StokesPrecond.MHDApprox(MixedFunctionSpace(
+                [Fspace.sub(0), Fspace.sub(1)]), kspF, KSPlinearfluids[1]))
         reshist = {}
         def monitor(ksp, its, fgnorm):
             reshist[its] = fgnorm
@@ -147,7 +152,8 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         kspM.setTolerances(InnerTol)
         pcM = kspM.getPC()
         pcM.setType(PETSc.PC.Type.PYTHON)
-        pcM.setPythonContext(MP.Hiptmair(MixedFunctionSpace([Fspace.sub(2),Fspace.sub(3)]), HiptmairMatrices[3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6],Hiptmairtol))
+        pcM.setPythonContext(MP.Hiptmair(MixedFunctionSpace([Fspace.sub(2), Fspace.sub(3)]), HiptmairMatrices[3], HiptmairMatrices[
+                             4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6], Hiptmairtol))
 
         uM = u.getSubVector(M_is)
         bM = b.getSubVector(M_is)
@@ -160,11 +166,8 @@ def solve(A,b,u,params, Fspace,SolveType,IterType,OuterTol,InnerTol,HiptmairMatr
         kspM.destroy()
         u = IO.arrayToVec(np.concatenate([uNS.array, uM.array]))
 
-        MO.PrintStr("Number of M iterations = "+str(Mits),60,"+","\n\n","\n\n")
-        MO.PrintStr("Number of NS/S iterations = "+str(NSits),60,"+","\n\n","\n\n")
-        return u,NSits,Mits
-
-
-
-
-
+        MO.PrintStr("Number of M iterations = " +
+                    str(Mits), 60, "+", "\n\n", "\n\n")
+        MO.PrintStr("Number of NS/S iterations = " +
+                    str(NSits), 60, "+", "\n\n", "\n\n")
+        return u, NSits, Mits

@@ -35,13 +35,13 @@ import ExactSol
 m = 6
 
 set_log_active(False)
-errL2u = np.zeros((m-1, 1))
-errH1u = np.zeros((m-1, 1))
-errL2p = np.zeros((m-1, 1))
-errL2b = np.zeros((m-1, 1))
+errL2u   = np.zeros((m-1, 1))
+errH1u   = np.zeros((m-1, 1))
+errL2p   = np.zeros((m-1, 1))
+errL2b   = np.zeros((m-1, 1))
 errCurlb = np.zeros((m-1, 1))
-errL2r = np.zeros((m-1, 1))
-errH1r = np.zeros((m-1, 1))
+errL2r   = np.zeros((m-1, 1))
+errH1r   = np.zeros((m-1, 1))
 
 
 l2uorder = np.zeros((m-1, 1))

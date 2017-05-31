@@ -35,39 +35,39 @@ import ExactSol
 m = 6
 
 set_log_active(False)
-errL2u = np.zeros((m-1, 1))
-errH1u = np.zeros((m-1, 1))
-errL2p = np.zeros((m-1, 1))
-errL2b = np.zeros((m-1, 1))
+errL2u   = np.zeros((m-1, 1))
+errH1u   = np.zeros((m-1, 1))
+errL2p   = np.zeros((m-1, 1))
+errL2b   = np.zeros((m-1, 1))
 errCurlb = np.zeros((m-1, 1))
-errL2r = np.zeros((m-1, 1))
-errH1r = np.zeros((m-1, 1))
+errL2r   = np.zeros((m-1, 1))
+errH1r   = np.zeros((m-1, 1))
 
 
-l2uorder = np.zeros((m-1, 1))
-H1uorder = np.zeros((m-1, 1))
-l2porder = np.zeros((m-1, 1))
-l2border = np.zeros((m-1, 1))
+l2uorder   = np.zeros((m-1, 1))
+H1uorder   = np.zeros((m-1, 1))
+l2porder   = np.zeros((m-1, 1))
+l2border   = np.zeros((m-1, 1))
 Curlborder = np.zeros((m-1, 1))
-l2rorder = np.zeros((m-1, 1))
-H1rorder = np.zeros((m-1, 1))
+l2rorder   = np.zeros((m-1, 1))
+H1rorder   = np.zeros((m-1, 1))
 
-NN = np.zeros((m-1, 1))
-DoF = np.zeros((m-1, 1))
+NN          = np.zeros((m-1, 1))
+DoF         = np.zeros((m-1, 1))
 Velocitydim = np.zeros((m-1, 1))
 Magneticdim = np.zeros((m-1, 1))
 Pressuredim = np.zeros((m-1, 1))
 Lagrangedim = np.zeros((m-1, 1))
-Wdim = np.zeros((m-1, 1))
-iterations = np.zeros((m-1, 1))
-SolTime = np.zeros((m-1, 1))
-udiv = np.zeros((m-1, 1))
-MU = np.zeros((m-1, 1))
-level = np.zeros((m-1, 1))
-NSave = np.zeros((m-1, 1))
-Mave = np.zeros((m-1, 1))
-TotalTime = np.zeros((m-1, 1))
-DimSave = np.zeros((m-1, 4))
+Wdim        = np.zeros((m-1, 1))
+iterations  = np.zeros((m-1, 1))
+SolTime     = np.zeros((m-1, 1))
+udiv        = np.zeros((m-1, 1))
+MU          = np.zeros((m-1, 1))
+level       = np.zeros((m-1, 1))
+NSave       = np.zeros((m-1, 1))
+Mave        = np.zeros((m-1, 1))
+TotalTime   = np.zeros((m-1, 1))
+DimSave     = np.zeros((m-1, 4))
 
 dim = 2
 ShowResultPlots = 'yes'
@@ -107,7 +107,7 @@ for xx in xrange(1, m):
     Pressuredim[xx-1] = W.sub(1).dim()
     Magneticdim[xx-1] = W.sub(2).dim()
     Lagrangedim[xx-1] = W.sub(3).dim()
-    Wdim[xx-1] = W.dim()
+    Wdim[xx-1]        = W.dim()
 
     print "\n\nW:  ", Wdim[xx-1], "Velocity:  ", Velocitydim[xx-1], "Pressure:  ", Pressuredim[xx-1], "Magnetic:  ", Magneticdim[xx-1], "Lagrange:  ", Lagrangedim[xx-1], "\n\n"
 
@@ -116,7 +116,7 @@ for xx in xrange(1, m):
     def boundary(x, on_boundary):
         return on_boundary
 
-    FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
+    FSpaces          = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
     kappa = 1.0
@@ -167,7 +167,7 @@ for xx in xrange(1, m):
     a12 = -div(v)*p*dx
     a21 = -div(u)*q*dx
 
-    CoupleT = params[0]*inner(cross(v, b_k), curl(b))*dx
+    CoupleT  = params[0]*inner(cross(v, b_k), curl(b))*dx
     Couple = -params[0]*inner(cross(u, b_k), curl(c))*dx
 
     Ftilde = inner((grad(u_k)*u), v)*dx + (1./2)*div(u) * \

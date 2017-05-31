@@ -1,6 +1,9 @@
 clear 
 clc
-level = 3;
+close all
+
+
+level = 2;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -104,4 +107,14 @@ K1 = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
      zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]); 
  
  e = eig(K, K1);
- plot(sort(real(e)), '*')
+%  plot(sort(real(e)), '*')
+alpha = 1;
+
+Maxwell = [M-alpha*Mtilde D'; D zeros(m_b,m_b)];
+spy(abs(inv(Maxwell))>1e-6)
+NullM = M-alpha*Mtilde;
+norm(full(Mtilde*NullM))
+size(null(full(alpha*Mtilde)))
+size(null(full(M)))
+
+ 
