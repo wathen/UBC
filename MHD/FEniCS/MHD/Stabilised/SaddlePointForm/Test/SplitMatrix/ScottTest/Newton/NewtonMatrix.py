@@ -207,7 +207,9 @@ for xx in xrange(1, m):
 
     r = TrialFunction(LagrangeF)
     s = TestFunction(LagrangeF)
-
+    U = Function(W)
+    U.vector()[:] = 1.
+    u_k, p_k, b_k, r_k = split(U)
     M = assemble(inner(curl(b), curl(c))*dx)
     M = as_backend_type(M).mat()
     savePETScMat(M, "Matrix/M_"+str(int(level[xx-1][0]))+".mat", "M")
