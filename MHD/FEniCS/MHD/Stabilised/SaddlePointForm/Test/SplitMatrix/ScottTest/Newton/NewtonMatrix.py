@@ -212,6 +212,14 @@ for xx in xrange(1, m):
     M = as_backend_type(M).mat()
     savePETScMat(M, "Matrix/M_"+str(int(level[xx-1][0]))+".mat", "M")
 
+    L = assemble(inner(grad(r), grad(s))*dx)
+    L = as_backend_type(L).mat()
+    savePETScMat(L, "Matrix/L_"+str(int(level[xx-1][0]))+".mat", "L")
+
+    X = assemble(inner(b, c)*dx)
+    X = as_backend_type(X).mat()
+    savePETScMat(X, "Matrix/X_"+str(int(level[xx-1][0]))+".mat", "X")
+
     D = assemble(inner(c, grad(r))*dx)
     D = as_backend_type(D).mat()
     savePETScMat(D, "Matrix/D_"+str(int(level[xx-1][0]))+".mat", "D")
@@ -229,8 +237,8 @@ for xx in xrange(1, m):
     C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
 
-    Ftilde = assemble(inner((grad(u_k)*u), v)*dx + (1./2)*div(u)
-                      * inner(u_k, v)*dx - (1./2)*inner(u, n)*inner(u_k, v)*ds)
+    Ftilde = assemble(inner((grad(u_k)*u), v)*dx + (1./2)*div(u) * \
+        inner(u_k, v)*dx - (1./2)*inner(u, n)*inner(u_k, v)*ds)
     Ftilde = as_backend_type(Ftilde).mat()
     savePETScMat(Ftilde, "Matrix/Ftilde_" +
                  str(int(level[xx-1][0]))+".mat", "Ftilde")

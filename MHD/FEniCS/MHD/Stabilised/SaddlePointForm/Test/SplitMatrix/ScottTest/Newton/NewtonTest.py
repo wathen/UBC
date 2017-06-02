@@ -190,6 +190,7 @@ for xx in xrange(1, m):
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
         Couple + CoupleT + Ftilde + Mtilde + Ctilde
     aa = m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT
+    aaa = Ftilde + Mtilde + Ctilde
 
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b_k), curl(c))*dx
@@ -246,7 +247,6 @@ for xx in xrange(1, m):
 
     U = Function(W)      # the most recently computed solution
     F = action(aa, U)
-    print assemble(dolfin.Jacobian(F))
 
     J = derivative(F, U, du)
     print J
@@ -267,7 +267,7 @@ for xx in xrange(1, m):
         iter += 1
         MO.PrintStr("Iter "+str(iter), 7, "=", "\n\n", "\n\n")
 
-        A, b = assemble_system(aa, L)
+        A, b = assemble_system(aaa, L)
         A, b = CP.Assemble(A, b)
 
         savePETScMat(J, "J", "J")

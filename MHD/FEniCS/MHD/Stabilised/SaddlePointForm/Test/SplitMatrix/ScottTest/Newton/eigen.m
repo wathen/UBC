@@ -3,7 +3,7 @@ clc
 close all
 
 
-level = 2;
+level = 3;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -22,6 +22,10 @@ D = load(strcat('Matrix/D_',num2str(level)));
 D = D.('D');
 C = load(strcat('Matrix/C_',num2str(level)));
 C = C.('C');
+L = load(strcat('Matrix/L_',num2str(level)));
+L = L.('L');
+X = load(strcat('Matrix/X_',num2str(level)));
+X = X.('X');
 Ftilde = load(strcat('Matrix/Ftilde_',num2str(level)));
 Ftilde = Ftilde.('Ftilde');
 Mtilde = load(strcat('Matrix/Mtilde_',num2str(level)));
@@ -41,10 +45,7 @@ Ctilde = Ctilde.('Ctilde');
 % C = -C.(strcat('C',num2str(level)));
 % M = load(strcat('Matrix/M',num2str(level)));
 % M = M.(strcat('M',num2str(level)));
-% L = load(strcat('Matrix/L',num2str(level)));
-% L = L.(strcat('L',num2str(level)));
-% X = load(strcat('Matrix/X',num2str(level)));
-% X = X.(strcat('X',num2str(level)));
+
 % Xs = load(strcat('Matrix/Xs',num2str(level)));
 % Xs = Xs.(strcat('Xs',num2str(level)));
 % Qs = load(strcat('Matrix/Qs',num2str(level)));
@@ -72,6 +73,10 @@ B(rB+1,:) = [];
 B(:,uB+1) = [];
 M(bB+1,:) = [];
 M(:,bB+1) = [];
+X(bB+1,:) = [];
+X(:,bB+1) = [];
+L(rB+1,:) = [];
+L(:,rB+1) = [];
 D(rB+1,:) = [];
 D(:,bB+1) = [];
 C(bB+1,:) = [];
@@ -88,33 +93,61 @@ m_u = m_u - length(rB);
 m_b = m_b - length(rB);
 
 
-Null = null(full(M));
-size(Null)
-norm((M+Mtilde)*Null)
-
-nullC = null(full(Ctilde));
-
-norm(C*nullC)
 alpha = 1;
-K = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
-    B, zeros(m_u,m_u+n_b+m_b);
-     -C, zeros(n_b,m_u) M-alpha*Mtilde D';
-     zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]);
-alpha = 0;
-K1 = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
-    B, zeros(m_u,m_u+n_b+m_b);
-     -C-alpha*Ctilde, zeros(n_b,m_u) M-alpha*Mtilde D';
-     zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]); 
- 
- e = eig(K, K1);
-%  plot(sort(real(e)), '*')
+Km = [M+alpha*Mtilde D';
+    D zeros(m_b, m_b)];
+Kns = [F+alpha*Ftilde, B';
+     B, zeros(m_u, m_u)];
+Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
+     zeros(m_u, n_b+m_b)];
+Kc = [-C, zeros(n_b, m_u);
+     zeros(m_b, n_u+m_u)];
+K = [Kns, Kct; Kc, Km];
+S1 = Kc*(Kns\Kct);
+S = Km-S1;
+Mf = S(1:n_b, 1:n_b) + D'*(L\D);
+G = Mf\D';
+H = (speye(n_b) - D'*(L\G'));
+invS = [Mf\H G/L;
+        L\G' zeros(m_b)];
+
+spy(abs(invS-inv(S))>1e-6)
+norm(full(invS-inv(S)))
+% Null = null(full(M));
+% size(Null)
+% norm((M+Mtilde)*Null)
+% 
+% nullC = null(full(Ctilde));
+% 
+% norm(C*nullC)
+% alpha = 1;
+% K = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
+%     B, zeros(m_u,m_u+n_b+m_b);
+%      -C, zeros(n_b,m_u) M-alpha*Mtilde D';
+%      zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]);
+% alpha = 0;
+% K1 = full([F+alpha*Ftilde, B', C'+alpha*Ctilde', zeros(n_u,m_b);
+%     B, zeros(m_u,m_u+n_b+m_b);
+%      -C-alpha*Ctilde, zeros(n_b,m_u) M-alpha*Mtilde D';
+%      zeros(m_b,n_u+m_b) D zeros(m_b,m_b)]); 
+%  
+%  e = eig(K, K1);
+% %  plot(sort(real(e)), '*')
 alpha = 1;
-
-Maxwell = [M-alpha*Mtilde D'; D zeros(m_b,m_b)];
-spy(abs(inv(Maxwell))>1e-6)
-NullM = M-alpha*Mtilde;
-norm(full(Mtilde*NullM))
-size(null(full(alpha*Mtilde)))
-size(null(full(M)))
-
- 
+% 
+% Maxwell = [M-alpha*Mtilde D'; D zeros(m_b,m_b)];
+% spy(abs(inv(Maxwell))>1e-6)
+% NullM = M-alpha*Mtilde;
+% norm(full(Mtilde*NullM))
+% size(null(full(alpha*Mtilde)))
+% size(null(full(M)))
+% size(null(full(M+alpha*Mtilde)))
+% 
+% fprintf('norm(full(F))       = %4.4f\n', norm(full(F)))
+% fprintf('norm(full(M))       = %4.4f\n', norm(full(M)))
+% fprintf('norm(full(C))       = %4.4f\n\n', norm(full(C)))
+% 
+% 
+% fprintf('norm(full(Ftilde))  = %4.4f\n', norm(full(Ftilde)))
+% fprintf('norm(full(Mtilde))  = %4.4f\n', norm(full(Mtilde)))
+% fprintf('norm(full(Ctilde))  = %4.4f\n', norm(full(Ctilde)))
