@@ -32,44 +32,45 @@ import ExactSol
 m = 5
 
 set_log_active(False)
-errL2u      = np.zeros((m-1, 1))
-errH1u      = np.zeros((m-1, 1))
-errL2p      = np.zeros((m-1, 1))
-errL2b      = np.zeros((m-1, 1))
-errCurlb    = np.zeros((m-1, 1))
-errL2r      = np.zeros((m-1, 1))
-errH1r      = np.zeros((m-1, 1))
+errL2u = np.zeros((m-1, 1))
+errH1u = np.zeros((m-1, 1))
+errL2p = np.zeros((m-1, 1))
+errL2b = np.zeros((m-1, 1))
+errCurlb = np.zeros((m-1, 1))
+errL2r = np.zeros((m-1, 1))
+errH1r = np.zeros((m-1, 1))
 
 
-l2uorder    = np.zeros((m-1, 1))
-H1uorder    = np.zeros((m-1, 1))
-l2porder    = np.zeros((m-1, 1))
-l2border    = np.zeros((m-1, 1))
-Curlborder  = np.zeros((m-1, 1))
-l2rorder    = np.zeros((m-1, 1))
-H1rorder    = np.zeros((m-1, 1))
+l2uorder = np.zeros((m-1, 1))
+H1uorder = np.zeros((m-1, 1))
+l2porder = np.zeros((m-1, 1))
+l2border = np.zeros((m-1, 1))
+Curlborder = np.zeros((m-1, 1))
+l2rorder = np.zeros((m-1, 1))
+H1rorder = np.zeros((m-1, 1))
 
-NN          = np.zeros((m-1, 1))
-DoF         = np.zeros((m-1, 1))
+NN = np.zeros((m-1, 1))
+DoF = np.zeros((m-1, 1))
 Velocitydim = np.zeros((m-1, 1))
 Magneticdim = np.zeros((m-1, 1))
 Pressuredim = np.zeros((m-1, 1))
 Lagrangedim = np.zeros((m-1, 1))
-Wdim        = np.zeros((m-1, 1))
-iterations  = np.zeros((m-1, 1))
-SolTime     = np.zeros((m-1, 1))
-udiv        = np.zeros((m-1, 1))
-MU          = np.zeros((m-1, 1))
-level       = np.zeros((m-1, 1))
-NSave       = np.zeros((m-1, 1))
-Mave        = np.zeros((m-1, 1))
-TotalTime   = np.zeros((m-1, 1))
-DimSave     = np.zeros((m-1, 4))
+Wdim = np.zeros((m-1, 1))
+iterations = np.zeros((m-1, 1))
+SolTime = np.zeros((m-1, 1))
+udiv = np.zeros((m-1, 1))
+MU = np.zeros((m-1, 1))
+level = np.zeros((m-1, 1))
+NSave = np.zeros((m-1, 1))
+Mave = np.zeros((m-1, 1))
+TotalTime = np.zeros((m-1, 1))
+DimSave = np.zeros((m-1, 4))
 
 dim = 2
 ShowResultPlots = 'yes'
-split = 'Linear'
+# split = 'Linear'
 MU[0] = 1e0
+
 
 def PETScToScipy(A):
     data = A.getValuesCSR()
@@ -121,7 +122,6 @@ for xx in xrange(1, m):
     "Lagrange:  ", Lagrangedim[xx-1], "\n\n"
 
     dim = [W.sub(0).dim(), W.sub(1).dim(), W.sub(2).dim(), W.sub(3).dim()]
-
 
     def boundary(x, on_boundary):
         return on_boundary
@@ -181,10 +181,12 @@ for xx in xrange(1, m):
     bcb = DirichletBC(MagneticF, Expression(
         ("0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(LagrangeF, Expression(("0.0"), degree=4), boundary)
+
     bcu = np.array(bcu.get_boundary_values().keys())
     bcp = np.array(bcp.get_boundary_values().keys())
     bcb = np.array(bcb.get_boundary_values().keys())
     bcr = np.array(bcr.get_boundary_values().keys())
+
     scipy.io.savemat(
         "Matrix/bcu_"+str(int(level[xx-1][0]))+".mat", mdict={"bcu": bcu})
     scipy.io.savemat(
@@ -207,9 +209,11 @@ for xx in xrange(1, m):
 
     r = TrialFunction(LagrangeF)
     s = TestFunction(LagrangeF)
+
     U = Function(W)
     U.vector()[:] = 1.
     u_k, p_k, b_k, r_k = split(U)
+
     M = assemble(inner(curl(b), curl(c))*dx)
     M = as_backend_type(M).mat()
     savePETScMat(M, "Matrix/M_"+str(int(level[xx-1][0]))+".mat", "M")
@@ -239,8 +243,8 @@ for xx in xrange(1, m):
     C = as_backend_type(C).mat()
     savePETScMat(C, "Matrix/C_"+str(int(level[xx-1][0]))+".mat", "C")
 
-    Ftilde = assemble(inner((grad(u_k)*u), v)*dx + (1./2)*div(u) * \
-        inner(u_k, v)*dx - (1./2)*inner(u, n)*inner(u_k, v)*ds)
+    Ftilde = assemble(inner((grad(u_k)*u), v)*dx + (1./2)*div(u) *
+                      inner(u_k, v)*dx - (1./2)*inner(u, n)*inner(u_k, v)*ds)
     Ftilde = as_backend_type(Ftilde).mat()
     savePETScMat(Ftilde, "Matrix/Ftilde_" +
                  str(int(level[xx-1][0]))+".mat", "Ftilde")
@@ -254,3 +258,10 @@ for xx in xrange(1, m):
     Ctilde = as_backend_type(Ctilde).mat()
     savePETScMat(Ctilde, "Matrix/Ctilde_" +
                  str(int(level[xx-1][0]))+".mat", "Ctilde")
+
+
+
+
+
+
+

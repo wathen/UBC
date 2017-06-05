@@ -3,7 +3,7 @@ clc
 close all
 
 
-level = 3;
+level = 2;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -64,9 +64,11 @@ bB = load(strcat('Matrix/bcb_',num2str(level),'.mat'));
 bB = bB.('bcb');
 rB = load(strcat('Matrix/bcr_',num2str(level),'.mat'));
 rB = rB.('bcr');
+
 B = B';
 D = D';
 Ctilde = Ctilde';
+
 F(uB+1,:) = [];
 F(:,uB+1) = [];
 B(rB+1,:) = [];
@@ -94,7 +96,7 @@ m_b = m_b - length(rB);
 
 
 alpha = 1;
-Km = [M+alpha*Mtilde D';
+Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
      B, zeros(m_u, m_u)];
@@ -103,8 +105,9 @@ Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
 Kc = [-C, zeros(n_b, m_u);
      zeros(m_b, n_u+m_u)];
 K = [Kns, Kct; Kc, Km];
+
 S1 = Kc*(Kns\Kct);
-S = Km-S1;
+S = Km - S1;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
 H = (speye(n_b) - D'*(L\G'));
@@ -112,7 +115,10 @@ invS = [Mf\H G/L;
         L\G' zeros(m_b)];
 
 spy(abs(invS-inv(S))>1e-6)
+SS = inv(S);
 norm(full(invS-inv(S)))
+
+
 % Null = null(full(M));
 % size(Null)
 % norm((M+Mtilde)*Null)
@@ -133,7 +139,6 @@ norm(full(invS-inv(S)))
 %  
 %  e = eig(K, K1);
 % %  plot(sort(real(e)), '*')
-alpha = 1;
 % 
 % Maxwell = [M-alpha*Mtilde D'; D zeros(m_b,m_b)];
 % spy(abs(inv(Maxwell))>1e-6)
@@ -143,11 +148,43 @@ alpha = 1;
 % size(null(full(M)))
 % size(null(full(M+alpha*Mtilde)))
 % 
-% fprintf('norm(full(F))       = %4.4f\n', norm(full(F)))
-% fprintf('norm(full(M))       = %4.4f\n', norm(full(M)))
-% fprintf('norm(full(C))       = %4.4f\n\n', norm(full(C)))
+
+
+
+
+% fprintf('norm(full(F))         = %4.4f\n', norm(full(F)))
+% fprintf('norm(full(M))         = %4.4f\n', norm(full(M)))
+% fprintf('norm(full(C))         = %4.4f\n\n', norm(full(C)))
 % 
+% fprintf('norm(full(Ftilde))    = %4.4f\n', norm(full(Ftilde)))
+% fprintf('norm(full(Mtilde))    = %4.4f\n', norm(full(Mtilde)))
+% fprintf('norm(full(Ctilde))    = %4.4f\n\n', norm(full(Ctilde)))
 % 
-% fprintf('norm(full(Ftilde))  = %4.4f\n', norm(full(Ftilde)))
-% fprintf('norm(full(Mtilde))  = %4.4f\n', norm(full(Mtilde)))
-% fprintf('norm(full(Ctilde))  = %4.4f\n', norm(full(Ctilde)))
+% fprintf('norm(full(F+Ftilde))  = %4.4f\n', norm(full(F+Ftilde)))
+% fprintf('norm(full(M+Mtilde))  = %4.4f\n', norm(full(M+Mtilde)))
+% fprintf('norm(full(C+Ctilde))  = %4.4f\n\n', norm(full(C+Ctilde)))
+% 
+% Km = [M+alpha*Mtilde D';
+%     D zeros(m_b, m_b)];
+% Kns = [F+alpha*Ftilde, B';
+%      B, zeros(m_u, m_u)];
+% Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
+%      zeros(m_u, n_b+m_b)];
+% Kc = [-C, zeros(n_b, m_u);
+%      zeros(m_b, n_u+m_u)];
+% K = [Kns, Kct; Kc, Km];
+% fprintf('norm(full(K_a1))      = %4.4f\n', norm(full(K)))
+% fprintf('cond(full(K_a1))      = %4.4f\n', cond(full(K)))
+% 
+% alpha = 0;
+% Km = [M+alpha*Mtilde D';
+%     D zeros(m_b, m_b)];
+% Kns = [F+alpha*Ftilde, B';
+%      B, zeros(m_u, m_u)];
+% Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
+%      zeros(m_u, n_b+m_b)];
+% Kc = [-C, zeros(n_b, m_u);
+%      zeros(m_b, n_u+m_u)];
+% K = [Kns, Kct; Kc, Km];
+% fprintf('norm(full(K_a0))      = %4.4f\n', norm(full(K)))
+% fprintf('cond(full(K_a0))      = %4.4f\n', cond(full(K)))
