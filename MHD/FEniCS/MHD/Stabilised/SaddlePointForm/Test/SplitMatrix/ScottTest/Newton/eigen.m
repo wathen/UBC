@@ -95,7 +95,8 @@ m_u = m_u - length(rB);
 m_b = m_b - length(rB);
 
 
-alpha = 1;
+alpha = 0.5;
+A = M-alpha*Mtilde;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -106,18 +107,28 @@ Kc = [-C, zeros(n_b, m_u);
      zeros(m_b, n_u+m_u)];
 K = [Kns, Kct; Kc, Km];
 
-S1 = Kc*(Kns\Kct);
+S1 = Kc*inv(Kns)*Kct;
 S = Km - S1;
+% G = null(full(S(1:n_b, 1:n_b)));
+% L = D*G;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
 H = (speye(n_b) - D'*(L\G'));
 invS = [Mf\H G/L;
         L\G' zeros(m_b)];
 
-spy(abs(invS-inv(S))>1e-6)
+spy(abs(invS-inv(S))>1e-10)
 SS = inv(S);
 norm(full(invS-inv(S)))
+invK = inv(K);
 
+ss = invK(n_u+m_u+1:end, n_u+m_u+1:end);
+
+Z = null(full(D));
+V = Z*((Z'*A*Z)\Z');
+Kinv = [V, (speye(n_b)-V*A)*D'*inv(D*D');
+        inv(D*D')*D*(speye(n_b)-V*A), -inv(D*D')*D*(A-A*V*A)*D'*inv(D*D')];
+spy(abs(Kinv-inv(S))>1e-10)
 
 % Null = null(full(M));
 % size(Null)
