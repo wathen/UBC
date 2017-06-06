@@ -122,12 +122,12 @@ norm(full(invS-inv(S)))
 invK = inv(K);
 
 ss = invK(n_u+m_u+1:end, n_u+m_u+1:end);
-A = M-0*alpha*Mtilde;
+A = M-alpha*Mtilde;
 
 Z = null(full(D));
-V = Z*((Z'*A*Z)\Z');
-Kinv = [V, (speye(n_b)-V*A)*D'*inv(D*D');
-        inv(D*D')*D*(speye(n_b)-V*A), -inv(D*D')*D*(A-A*V*A)*D'*inv(D*D')];
+V = Z*inv(Z'*A*Z)*Z';
+Kinv = [V, (speye(n_b) - V*A)*D'*inv(D*D');
+        inv(D*D')*D*(speye(n_b) - V*A), -inv(D*D')*D*(A - A*V*A)*D'*inv(D*D')];
 figure
 spy(abs(Kinv-SS)>1e-10)
 figure
