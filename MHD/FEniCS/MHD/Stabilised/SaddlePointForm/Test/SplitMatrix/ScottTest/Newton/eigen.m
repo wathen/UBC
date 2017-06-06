@@ -95,8 +95,7 @@ m_u = m_u - length(rB);
 m_b = m_b - length(rB);
 
 
-alpha = 0.5;
-A = M-alpha*Mtilde;
+alpha = 1;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -123,12 +122,34 @@ norm(full(invS-inv(S)))
 invK = inv(K);
 
 ss = invK(n_u+m_u+1:end, n_u+m_u+1:end);
+A = M-0*alpha*Mtilde;
 
 Z = null(full(D));
 V = Z*((Z'*A*Z)\Z');
 Kinv = [V, (speye(n_b)-V*A)*D'*inv(D*D');
         inv(D*D')*D*(speye(n_b)-V*A), -inv(D*D')*D*(A-A*V*A)*D'*inv(D*D')];
-spy(abs(Kinv-inv(S))>1e-10)
+figure
+spy(abs(Kinv-SS)>1e-10)
+figure
+alpha = 1;
+A = M-alpha*Mtilde;
+Km1 = [M-alpha*Mtilde D';
+    D zeros(m_b, m_b)];
+
+P = [M-alpha*Mtilde + D'*(L\D) ,0*D';
+    0*D L];
+
+alpha = 0;
+A = M-alpha*Mtilde;
+Km0 = [M-alpha*Mtilde D';
+    D zeros(m_b, m_b)];
+
+e = eig(full(Km1), full(P));
+
+plot(sort(real(e)), '*')
+% hold on 
+% plot(sort(imag(e)))
+
 
 % Null = null(full(M));
 % size(Null)
