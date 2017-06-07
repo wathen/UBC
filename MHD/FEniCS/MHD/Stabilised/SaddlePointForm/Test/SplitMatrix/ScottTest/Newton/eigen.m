@@ -65,6 +65,7 @@ bB = bB.('bcb');
 rB = load(strcat('Matrix/bcr_',num2str(level),'.mat'));
 rB = rB.('bcr');
 
+
 B = B';
 D = D';
 Ctilde = Ctilde';
@@ -93,7 +94,10 @@ n_u = n_u - length(uB);
 n_b = n_b - length(bB);
 m_u = m_u - length(rB);
 m_b = m_b - length(rB);
-
+dimensions(1) = n_u;
+dimensions(3) = n_b;
+dimensions(2) = m_u;
+dimensions(4) = m_b;
 
 alpha = 1;
 Km = [M-alpha*Mtilde D';
@@ -110,43 +114,90 @@ S1 = Kc*inv(Kns)*Kct;
 S = Km - S1;
 % G = null(full(S(1:n_b, 1:n_b)));
 % L = D*G;
+A = M-alpha*Mtilde;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
-H = (speye(n_b) - D'*(L\G'));
+Gt = D/Mf;
+% norm(full(G*(C'+alpha*Ctilde')))
+norm(full((C'+alpha*Ctilde')*G))
+ss
+
+alpha = 0;
+Km = [M-alpha*Mtilde D';
+    D zeros(m_b, m_b)];
+Kns = [F+alpha*Ftilde, B';
+     B, zeros(m_u, m_u)];
+Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
+     zeros(m_u, n_b+m_b)];
+Kc = [-C, zeros(n_b, m_u);
+     zeros(m_b, n_u+m_u)];
+K = [Kns, Kct; Kc, Km];
+
+S1 = Kc*inv(Kns)*Kct;
+S = Km - S1;
+Mf = S(1:n_b, 1:n_b) + D'*(L\D);
+
+G1 = Mf\D'; 
+Gt1 = D/Mf;
+
+
+ssss
+H = (speye(n_b) - D'*(L\Gt));
 invS = [Mf\H G/L;
-        L\G' zeros(m_b)];
+        L\Gt zeros(m_b)];
 
 spy(abs(invS-inv(S))>1e-10)
+size(null(full(Mtilde')))
+fprintf('%4.0f\n',(length(rB)/4)^2)
+close all
+stop
+
 SS = inv(S);
 norm(full(invS-inv(S)))
 invK = inv(K);
 
 ss = invK(n_u+m_u+1:end, n_u+m_u+1:end);
+alpha = 1;
 A = M-alpha*Mtilde;
+Km = [M-alpha*Mtilde D';
+    D zeros(m_b, m_b)];
 
+spy(abs(inv(Km))>1e-6)
+Ahat = inv(A + D'*(L\D));
+
+Kinv = [Ahat - Ahat*D'*inv(L)*D*Ahat Ahat*D'*inv(L);
+        inv(L)*D*Ahat 0*L];
+close all
+
+% spy(abs(A*(Ahat*D'))>1e-10)
+
+stop
+A = S(1:n_b, 1:n_b);
 Z = null(full(D));
 V = Z*inv(Z'*A*Z)*Z';
 Kinv = [V, (speye(n_b) - V*A)*D'*inv(D*D');
-        inv(D*D')*D*(speye(n_b) - V*A), -inv(D*D')*D*(A - A*V*A)*D'*inv(D*D')];
+        inv(D*D')*D*(speye(n_b) - A*V), -inv(D*D')*D*(A - A*V*A)*D'*inv(D*D')];
 figure
 spy(abs(Kinv-SS)>1e-10)
-figure
-alpha = 1;
-A = M-alpha*Mtilde;
-Km1 = [M-alpha*Mtilde D';
-    D zeros(m_b, m_b)];
 
-P = [M-alpha*Mtilde + D'*(L\D) ,0*D';
-    0*D L];
 
-alpha = 0;
-A = M-alpha*Mtilde;
-Km0 = [M-alpha*Mtilde D';
-    D zeros(m_b, m_b)];
-
-e = eig(full(Km1), full(P));
-
-plot(sort(real(e)), '*')
+% figure
+% alpha = 1;
+% A = M-alpha*Mtilde;
+% Km1 = [M-alpha*Mtilde D';
+%     D zeros(m_b, m_b)];
+% 
+% P = [M-alpha*Mtilde + D'*(L\D) ,0*D';
+%     0*D L];
+% 
+% alpha = 0;
+% A = M-alpha*Mtilde;
+% Km0 = [M-alpha*Mtilde D';
+%     D zeros(m_b, m_b)];
+% 
+% e = eig(full(Km1), full(P));
+% 
+% plot(sort(real(e)), '*')
 % hold on 
 % plot(sort(imag(e)))
 
