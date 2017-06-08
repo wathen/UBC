@@ -99,7 +99,7 @@ dimensions(3) = n_b;
 dimensions(2) = m_u;
 dimensions(4) = m_b;
 
-alpha = 1;
+alpha = 0;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -118,11 +118,43 @@ A = M-alpha*Mtilde;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
 Gt = D/Mf;
+<<<<<<< HEAD
 
+||||||| merged common ancestors
+% norm(full(G*(C'+alpha*Ctilde')))
+norm(full((C'+alpha*Ctilde')*G))
+ss
+
+alpha = 0;
+Km = [M-alpha*Mtilde D';
+    D zeros(m_b, m_b)];
+Kns = [F+alpha*Ftilde, B';
+     B, zeros(m_u, m_u)];
+Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
+     zeros(m_u, n_b+m_b)];
+Kc = [-C, zeros(n_b, m_u);
+     zeros(m_b, n_u+m_u)];
+K = [Kns, Kct; Kc, Km];
+
+S1 = Kc*inv(Kns)*Kct;
+S = Km - S1;
+Mf = S(1:n_b, 1:n_b) + D'*(L\D);
+
+G1 = Mf\D'; 
+Gt1 = D/Mf;
+
+
+ssss
+=======
+% norm(full(G*(C'+alpha*Ctilde')))
+norm(full((C'+alpha*Ctilde')*G))
+
+>>>>>>> 6f34876f475beab8196b3127a5fbbac0f86bfa24
 H = (speye(n_b) - D'*(L\Gt));
 invSS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
+<<<<<<< HEAD
 Mxx = M+D'*inv(L)*D;
 S = B*(F\B');
 invF = inv(F);
@@ -154,6 +186,11 @@ ssss
 
     
 spy(abs(invS-inv(S))>1e-10)
+||||||| merged common ancestors
+spy(abs(invS-inv(S))>1e-10)
+=======
+spy(abs(invS-inv(S))>1e-12)
+>>>>>>> 6f34876f475beab8196b3127a5fbbac0f86bfa24
 size(null(full(Mtilde')))
 fprintf('%4.0f\n',(length(rB)/4)^2)
 close all
