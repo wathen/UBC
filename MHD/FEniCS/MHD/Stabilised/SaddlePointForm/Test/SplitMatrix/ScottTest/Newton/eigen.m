@@ -99,7 +99,7 @@ dimensions(3) = n_b;
 dimensions(2) = m_u;
 dimensions(4) = m_b;
 
-alpha = 1;
+alpha = 0;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -120,33 +120,12 @@ G = Mf\D';
 Gt = D/Mf;
 % norm(full(G*(C'+alpha*Ctilde')))
 norm(full((C'+alpha*Ctilde')*G))
-ss
 
-alpha = 0;
-Km = [M-alpha*Mtilde D';
-    D zeros(m_b, m_b)];
-Kns = [F+alpha*Ftilde, B';
-     B, zeros(m_u, m_u)];
-Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
-     zeros(m_u, n_b+m_b)];
-Kc = [-C, zeros(n_b, m_u);
-     zeros(m_b, n_u+m_u)];
-K = [Kns, Kct; Kc, Km];
-
-S1 = Kc*inv(Kns)*Kct;
-S = Km - S1;
-Mf = S(1:n_b, 1:n_b) + D'*(L\D);
-
-G1 = Mf\D'; 
-Gt1 = D/Mf;
-
-
-ssss
 H = (speye(n_b) - D'*(L\Gt));
 invS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
-spy(abs(invS-inv(S))>1e-10)
+spy(abs(invS-inv(S))>1e-12)
 size(null(full(Mtilde')))
 fprintf('%4.0f\n',(length(rB)/4)^2)
 close all
