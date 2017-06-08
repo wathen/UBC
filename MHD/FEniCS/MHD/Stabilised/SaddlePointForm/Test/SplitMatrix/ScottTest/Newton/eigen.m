@@ -3,7 +3,7 @@ clc
 close all
 
 
-level = 2;
+level = 3;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -118,34 +118,41 @@ A = M-alpha*Mtilde;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
 Gt = D/Mf;
-% norm(full(G*(C'+alpha*Ctilde')))
-norm(full((C'+alpha*Ctilde')*G))
-ss
 
-alpha = 0;
-Km = [M-alpha*Mtilde D';
-    D zeros(m_b, m_b)];
-Kns = [F+alpha*Ftilde, B';
-     B, zeros(m_u, m_u)];
-Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
-     zeros(m_u, n_b+m_b)];
-Kc = [-C, zeros(n_b, m_u);
-     zeros(m_b, n_u+m_u)];
-K = [Kns, Kct; Kc, Km];
-
-S1 = Kc*inv(Kns)*Kct;
-S = Km - S1;
-Mf = S(1:n_b, 1:n_b) + D'*(L\D);
-
-G1 = Mf\D'; 
-Gt1 = D/Mf;
-
-
-ssss
 H = (speye(n_b) - D'*(L\Gt));
-invS = [Mf\H G/L;
+invSS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
+Mxx = M+D'*inv(L)*D;
+S = B*(F\B');
+invF = inv(F);
+invS = inv(S);
+invMx = inv(Mxx);
+invL = inv(L);
+N = invF-invF*B'*invS*B*invF;
+
+K1 = N;
+K2 = invF*B'*invS;
+K3 = invS*B*invF;
+K4 = -invS;
+Chat = C'+alpha*Ctilde';
+invCT = -[K1*Chat*inv(Mf)*H K1*Chat*G*invL;
+         K3*Chat*inv(Mf)*H K3*Chat*G*invL];
+invC  = [inv(Mf)*C*K1 inv(Mf)*C*K2;
+         zeros(m_b, n_u+m_u)];
+Z = Chat*inv(Mf)*C;
+invNS = [K1-K1*Z*K1 K2-K1*Z*K2;
+         K3-K3*Z*K1 K4-K3*Z*K2];
+invK = [invNS invCT;
+        invC invSS];
+spy(abs(inv(K))>1e-6)
+
+Mf0 = M + C*K1*C' + D'*(L\D);
+e = eig(full(Mf), full(Mf0));
+plot(imag(e), 'o')
+ssss
+
+    
 spy(abs(invS-inv(S))>1e-10)
 size(null(full(Mtilde')))
 fprintf('%4.0f\n',(length(rB)/4)^2)
@@ -170,7 +177,7 @@ Kinv = [Ahat - Ahat*D'*inv(L)*D*Ahat Ahat*D'*inv(L);
 close all
 
 % spy(abs(A*(Ahat*D'))>1e-10)
-
+;
 stop
 A = S(1:n_b, 1:n_b);
 Z = null(full(D));
