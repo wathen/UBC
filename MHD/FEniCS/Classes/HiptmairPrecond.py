@@ -84,7 +84,8 @@ class GSvector(BaseMyPC):
         xhat.destroy()
         yhat.destroy()
         xx = x.duplicate()
-        xx.pointwiseMult(self.diag, x)
+        self.diag.solve(x, xx)
+        # xx.pointwiseMult(self.diag, x)
 
         if len(self.P) == 2:
             ysave.array = (xx.array+yp1.array+yp2.array+yg.array)

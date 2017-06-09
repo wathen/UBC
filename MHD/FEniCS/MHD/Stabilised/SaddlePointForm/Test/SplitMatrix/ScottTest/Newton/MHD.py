@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 6
+m = 5
 
 set_log_active(False)
 errL2u   = np.zeros((m-1, 1))
@@ -119,9 +119,9 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1.0
+    kappa = 10.0
     Mu_m = 10.0
-    MU = 1.0/10
+    MU = 1.0
 
     N = FacetNormal(mesh)
 

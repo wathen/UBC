@@ -260,6 +260,16 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
 
 def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
+
+    kspA = PETSc.KSP().create()
+    kspA.setType('preonly')
+    pcA = kspA.getPC()
+    pcA.setType(PETSc.PC.Type.SOR)
+    # OptDB = PETSc.Options()
+    # OptDB['pc_sor_symmetric']
+    kspA.setFromOptions()
+    kspA.setOperators(A,A)
+
     ksp = PETSc.KSP().create()
     ksp.setTolerances(tol)
     #ksp.max_it = 5
@@ -268,9 +278,10 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     pc = ksp.getPC()
     pc.setType(PETSc.PC.Type.PYTHON)
     diag = A.getDiagonal()
+
     diag.reciprocal()
 
-    pc.setPythonContext(HiptmairPrecond.GSvector(G, P, kspVector, kspScalar, diag))
+    pc.setPythonContext(HiptmairPrecond.GSvector(G, P, kspVector, kspScalar, kspA))
     scale = b.norm()
     b = b/scale
     tic()
