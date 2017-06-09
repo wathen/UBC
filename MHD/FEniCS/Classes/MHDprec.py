@@ -943,7 +943,7 @@ class ApproxInvA(BaseMyPC):
         # outR = (L(D*invMx));
         xr1 = invL.duplicate()
         outR = invL.duplicate()
-        self.G.multTranspose(bb, xr1)
+        self.D.mult(invMX, xr1)
         self.kspScalar(xr1, outR)
 
         # outB = (Mx(C*barS) + invMx + Mx(D'*invL));

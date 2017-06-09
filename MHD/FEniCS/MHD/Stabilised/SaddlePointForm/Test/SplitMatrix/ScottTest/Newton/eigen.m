@@ -118,9 +118,7 @@ A = M-alpha*Mtilde;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 G = Mf\D';
 Gt = D/Mf;
-<<<<<<< HEAD
 
-||||||| merged common ancestors
 % norm(full(G*(C'+alpha*Ctilde')))
 norm(full((C'+alpha*Ctilde')*G))
 ss
@@ -145,16 +143,13 @@ Gt1 = D/Mf;
 
 
 ssss
-=======
 % norm(full(G*(C'+alpha*Ctilde')))
 norm(full((C'+alpha*Ctilde')*G))
 
->>>>>>> 6f34876f475beab8196b3127a5fbbac0f86bfa24
 H = (speye(n_b) - D'*(L\Gt));
 invSS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
-<<<<<<< HEAD
 Mxx = M+D'*inv(L)*D;
 S = B*(F\B');
 invF = inv(F);
@@ -186,11 +181,6 @@ ssss
 
     
 spy(abs(invS-inv(S))>1e-10)
-||||||| merged common ancestors
-spy(abs(invS-inv(S))>1e-10)
-=======
-spy(abs(invS-inv(S))>1e-12)
->>>>>>> 6f34876f475beab8196b3127a5fbbac0f86bfa24
 size(null(full(Mtilde')))
 fprintf('%4.0f\n',(length(rB)/4)^2)
 close all
@@ -213,8 +203,7 @@ Kinv = [Ahat - Ahat*D'*inv(L)*D*Ahat Ahat*D'*inv(L);
         inv(L)*D*Ahat 0*L];
 close all
 
-% spy(abs(A*(Ahat*D'))>1e-10)
-;
+% spy(abs(A*(Ahat*D'))>1e-10);
 stop
 A = S(1:n_b, 1:n_b);
 Z = null(full(D));

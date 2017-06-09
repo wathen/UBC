@@ -204,7 +204,7 @@ for xx in xrange(1, m):
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
     F = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
-    Hiptmairtol = 1e-4
+    Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(
         mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     IS = MO.IndexSet(W, 'Blocks')
@@ -214,7 +214,7 @@ for xx in xrange(1, m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 20       # max no of iterations allowed
+    maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -402,6 +402,7 @@ print IterTable.to_latex()
 print "GMRES tolerance: ", InnerTol
 print "NL tolerance: ", tol
 print "Hiptmair tolerance: ", Hiptmairtol
+print params
 MO.StoreMatrix(DimSave, "dim")
 
 #file = File("u_k.pvd")
