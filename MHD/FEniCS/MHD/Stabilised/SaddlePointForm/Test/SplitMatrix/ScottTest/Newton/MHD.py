@@ -76,7 +76,7 @@ MU[0] = 1e0
 
 for xx in xrange(1, m):
     print xx
-    level[xx-1] = xx + 4
+    level[xx-1] = xx + 2
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -119,9 +119,9 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 10.0
-    Mu_m = 10.0
-    MU = 1.0
+    kappa = 1.0
+    Mu_m = 1.0
+    MU = 1.0/10
 
     N = FacetNormal(mesh)
 
@@ -175,8 +175,10 @@ for xx in xrange(1, m):
     Mtilde = -params[0]*(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx
     Ctilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
 
+    alpha = 0.0
+
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
-        Couple + CoupleT + Ftilde + Mtilde + Ctilde
+        Couple + CoupleT + alpha*(Ftilde + Mtilde + Ctilde)
 
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b_k), curl(c))*dx
@@ -229,8 +231,8 @@ for xx in xrange(1, m):
     bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
-    OuterTol = 1e-5
-    InnerTol = 1e-5
+    OuterTol = 1e-3
+    InnerTol = 1e-3
     NSits = 0
     Mits = 0
     TotalStart = time.time()
@@ -259,7 +261,7 @@ for xx in xrange(1, m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits, nsits = S.solve(A, b, u, params, W, 'Directss', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
+        u, mits, nsits = S.solve(A, b, u, params, W, 'Directs', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
 
         U = u
         Soltime = time.time() - stime

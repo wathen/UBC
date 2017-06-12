@@ -99,7 +99,7 @@ dimensions(3) = n_b;
 dimensions(2) = m_u;
 dimensions(4) = m_b;
 
-alpha = 0;
+alpha = 1;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -109,13 +109,31 @@ Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
 Kc = [-C, zeros(n_b, m_u);
      zeros(m_b, n_u+m_u)];
 K = [Kns, Kct; Kc, Km];
-
 S1 = Kc*inv(Kns)*Kct;
 S = Km - S1;
-% G = null(full(S(1:n_b, 1:n_b)));
-% L = D*G;
-A = M-alpha*Mtilde;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
+
+e = eig(full(M-alpha*Mtilde+X), full(Mf));
+
+plot(real(e), 'o')
+hold on
+plot(imag(e), 'x')
+cond(full(M+X)\Mf)
+sss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 G = Mf\D';
 Gt = D/Mf;
 
