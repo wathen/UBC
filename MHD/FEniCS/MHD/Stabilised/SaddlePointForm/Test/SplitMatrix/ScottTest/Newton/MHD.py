@@ -74,9 +74,16 @@ ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0] = 1e0
 
+parameters["form_compiler"]["cpp_optimize"] = True
+ffc_options = {"optimize": True, \
+               "eliminate_zeros": True, \
+               "precompute_basis_const": True, \
+               "precompute_ip_const": True}
+# parameters['form_compiler']['cpp_optimize_flags'] = '-foo'
+
 for xx in xrange(1, m):
     print xx
-    level[xx-1] = xx + 2
+    level[xx-1] = xx + 4
     nn = 2**(level[xx-1])
 
     # Create mesh and define function space
@@ -119,9 +126,12 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1.0
-    Mu_m = 1.0
-    MU = 1.0/10
+    kappa = 1e1
+    Mu_m = 1e2
+    MU = 1e-1
+    HartmannNumber = sqrt(kappa/(MU*Mu_m))
+
+    MO.PrintStr("Hartmann number: "+str(HartmannNumber), 2, "=", "\n\n", "\n")
 
     N = FacetNormal(mesh)
 
@@ -231,8 +241,8 @@ for xx in xrange(1, m):
     bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
-    OuterTol = 1e-3
-    InnerTol = 1e-3
+    OuterTol = 1e-5
+    InnerTol = 1e-5
     NSits = 0
     Mits = 0
     TotalStart = time.time()
@@ -246,7 +256,7 @@ for xx in xrange(1, m):
         MO.PrintStr("Iter "+str(iter), 7, "=", "\n\n", "\n\n")
 
         atime = time.time()
-        A, b = assemble_system(a, L, bcs)
+        A, b = assemble_system(a, L, bcs)#, form_compiler_parameters=ffc_options)
         A, b = CP.Assemble(A, b)
         Assemtime = time.time() - atime
         MO.StrTimePrint("MHD assemble, time: ", Assemtime)
@@ -261,7 +271,7 @@ for xx in xrange(1, m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits, nsits = S.solve(A, b, u, params, W, 'Directs', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
+        u, mits, nsits = S.solve(A, b, u, params, W, 'Directss', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -404,6 +414,7 @@ print IterTable.to_latex()
 print "GMRES tolerance: ", InnerTol
 print "NL tolerance: ", tol
 print "Hiptmair tolerance: ", Hiptmairtol
+print "Hartmann Number: ", HartmannNumber
 print params
 MO.StoreMatrix(DimSave, "dim")
 

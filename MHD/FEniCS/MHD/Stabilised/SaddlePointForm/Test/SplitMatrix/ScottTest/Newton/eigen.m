@@ -3,7 +3,7 @@ clc
 close all
 
 
-level = 3;
+level = 2;
 dimensions = load(strcat('Matrix/dim_',num2str(level),'.mat'));
 dimensions = dimensions.('bcr');
 
@@ -113,14 +113,24 @@ S1 = Kc*inv(Kns)*Kct;
 S = Km - S1;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 
-e = eig(full(M-alpha*Mtilde+X), full(Mf));
+S = B*((F+alpha*Ftilde)\B');
+invF = inv(F+alpha*Ftilde);
+invS = inv(S);
 
-plot(real(e), 'o')
-hold on
-plot(imag(e), 'x')
-cond(full(M+X)\Mf)
+N = invF-invF*B'*invS*B*invF;
+K1 = N;
+K2 = invF*B'*invS;
+K3 = invS*B*invF;
+K4 = -invS;
+invNS = [K1 K2;
+         K3 K4];
+Chat = C'+alpha*Ctilde';
+Mf = M + alpha*Mtilde + C*K1*Chat + D'*(L\D);
+Mx = M + alpha*Mtilde + D'*(L\D);
+
+norm(full(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx))))
+spy(abs(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
 sss
-
 
 
 

@@ -44,18 +44,18 @@ def PCDKSPlinear(A, Q):
     return kspA, kspQ
 
 def PCDKSPnonlinear(F):
-    # OptDB = PETSc.Options()
-    # OptDB['pc_hypre_type'] = 'boomeramg'
-    # OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
-    # OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
-    # # OptDB['pc_hypre_boomeramg_relax_type_all'] = "sequential-Gauss-Seidel"
-    # OptDB['pc_hypre_boomeramg_smooth_type'] = 'ParaSails'
+    OptDB = PETSc.Options()
+    OptDB['pc_hypre_type'] = 'boomeramg'
+    OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
+    OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
+    # OptDB['pc_hypre_boomeramg_relax_type_all'] = "sequential-Gauss-Seidel"
+    # OptDB['pc_hypre_type'] = 'pilut'
     kspF = PETSc.KSP()
     kspF.create(comm=PETSc.COMM_WORLD)
     pcF = kspF.getPC()
     kspF.setType('preonly')
     kspF.max_it = 1
-    pcF.setType('ml')
+    pcF.setType('hypre')
     kspF.setFromOptions()
 
     kspF.setOperators(F,F)
