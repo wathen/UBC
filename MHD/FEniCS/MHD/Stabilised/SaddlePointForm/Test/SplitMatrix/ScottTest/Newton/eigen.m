@@ -113,19 +113,28 @@ S1 = Kc*inv(Kns)*Kct;
 S = Km - S1;
 Mf = S(1:n_b, 1:n_b) + D'*(L\D);
 
-S = B*((F+alpha*Ftilde)\B');
+Sf = B*((F+alpha*Ftilde)\B');
 invF = inv(F+alpha*Ftilde);
-invS = inv(S);
+invS = inv(Sf);
 
 N = invF-invF*B'*invS*B*invF;
 K1 = N;
 K2 = invF*B'*invS;
 K3 = invS*B*invF;
 K4 = -invS;
+<<<<<<< HEAD
 invNS = [K1 K2;
          K3 K4];
 alpha = 1;
+||||||| merged common ancestors
+invNS = [K1 K2;
+         K3 K4];
+=======
+% invNS = [K1 K2;
+%          K3 K4];
+>>>>>>> 6ea419a3d2770f940415350ee8629400f81e1025
 Chat = C'+alpha*Ctilde';
+<<<<<<< HEAD
 Mw = M - alpha*Mtilde + D'*(L\D);
 Mf = Mw + C*K1*Chat;
 
@@ -133,10 +142,59 @@ norm(full(inv(Mf) - (inv(Mw) - inv(Mw)*C*inv(inv(K1) + Chat*inv(Mw)*C)*Chat*inv(
 spy(abs(inv(Mf) - (inv(Mw) - inv(Mw)*C*inv(inv(K1) + Chat*inv(Mw)*C)*Chat*inv(Mw)))>1e-6)
 sss
 
+||||||| merged common ancestors
+Mf = M + alpha*Mtilde + C*K1*Chat + D'*(L\D);
+Mx = M + alpha*Mtilde + D'*(L\D);
 
+norm(full(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx))))
+spy(abs(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
+sss
 
+=======
+Mf = M - alpha*Mtilde + C*K1*Chat + D'*(L\D);
+Mx = M - alpha*Mtilde + D'*(L\D);
+% norm(full(C*K1*Chat))
+>>>>>>> 6ea419a3d2770f940415350ee8629400f81e1025
 
+% e = eig(full(Mx), full(Mf));
+% plot(sort(real(e)), '*')
+% sss
+% norm(full(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx))))
+% spy(abs(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
+% sss
+G = Mf\D';
+Gt = D/Mf;
+H = (speye(n_b) - D'*(L\Gt));
+invSS = [Mf\H G/L;
+        L\Gt zeros(m_b)];
 
+G = Mx\D';
+Gt = D/Mx;
+invS = [Mx G/L;
+        L\Gt zeros(m_b)];
+spy(abs(invS-invSS)>1e-6)
+figure
+e = eig(full(invS*S));
+
+plot(real(e), '*')
+cond(full(invS*S))
+
+invL = inv(L);
+invCT = -[K1*Chat*inv(Mx) K1*Chat*G*invL;
+         K3*Chat*inv(Mx) K3*Chat*G*invL];
+invC  = [inv(Mx)*C*K1 inv(Mx)*C*K2;
+         zeros(m_b, n_u+m_u)];
+Z = Chat*inv(Mx)*C;
+invNS = [K1 K2;
+         K3 K4];
+invK = [invNS invCT;
+        invC invS];
+e = eig(full(invK*K));
+figure
+spy(abs(invK*K)>1e-6);
+figure
+plot(real(e), '*')
+sss
 
 
 
@@ -147,43 +205,15 @@ sss
 
 G = Mf\D';
 Gt = D/Mf;
-
-% norm(full(G*(C'+alpha*Ctilde')))
-norm(full((C'+alpha*Ctilde')*G))
-ss
-
-alpha = 0;
-Km = [M-alpha*Mtilde D';
-    D zeros(m_b, m_b)];
-Kns = [F+alpha*Ftilde, B';
-     B, zeros(m_u, m_u)];
-Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
-     zeros(m_u, n_b+m_b)];
-Kc = [-C, zeros(n_b, m_u);
-     zeros(m_b, n_u+m_u)];
-K = [Kns, Kct; Kc, Km];
-
-S1 = Kc*inv(Kns)*Kct;
-S = Km - S1;
-Mf = S(1:n_b, 1:n_b) + D'*(L\D);
-
-G1 = Mf\D'; 
-Gt1 = D/Mf;
-
-
-ssss
-% norm(full(G*(C'+alpha*Ctilde')))
-norm(full((C'+alpha*Ctilde')*G))
-
 H = (speye(n_b) - D'*(L\Gt));
 invSS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
-Mxx = M+D'*inv(L)*D;
-S = B*(F\B');
-invF = inv(F);
+% Mxx = M+D'*inv(L)*D;
+S = B*((F+alpha*Ftilde)\B');
+invF = inv(F+alpha*Ftilde);
 invS = inv(S);
-invMx = inv(Mxx);
+% invMx = inv(Mxx);
 invL = inv(L);
 N = invF-invF*B'*invS*B*invF;
 
@@ -201,24 +231,24 @@ invNS = [K1-K1*Z*K1 K2-K1*Z*K2;
          K3-K3*Z*K1 K4-K3*Z*K2];
 invK = [invNS invCT;
         invC invSS];
-spy(abs(inv(K))>1e-6)
-
-Mf0 = M + C*K1*C' + D'*(L\D);
-e = eig(full(Mf), full(Mf0));
-plot(imag(e), 'o')
-ssss
+spy(abs(inv(K)-invK)>1e-6)
+sss
+% Mf0 = M + C*K1*C' + D'*(L\D);
+% e = eig(full(Mf), full(Mf0));
+% plot(imag(e), 'o')
+% ssss
 
     
 spy(abs(invS-inv(S))>1e-10)
 size(null(full(Mtilde')))
 fprintf('%4.0f\n',(length(rB)/4)^2)
-close all
-stop
+% close all
+% stop
 
 SS = inv(S);
 norm(full(invS-inv(S)))
 invK = inv(K);
-
+sss
 ss = invK(n_u+m_u+1:end, n_u+m_u+1:end);
 alpha = 1;
 A = M-alpha*Mtilde;
@@ -230,7 +260,7 @@ Ahat = inv(A + D'*(L\D));
 
 Kinv = [Ahat - Ahat*D'*inv(L)*D*Ahat Ahat*D'*inv(L);
         inv(L)*D*Ahat 0*L];
-close all
+% close all
 
 % spy(abs(A*(Ahat*D'))>1e-10);
 stop
