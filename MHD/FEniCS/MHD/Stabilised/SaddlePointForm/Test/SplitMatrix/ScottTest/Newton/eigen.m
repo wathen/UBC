@@ -122,39 +122,15 @@ K1 = N;
 K2 = invF*B'*invS;
 K3 = invS*B*invF;
 K4 = -invS;
-<<<<<<< HEAD
 invNS = [K1 K2;
          K3 K4];
 alpha = 1;
-||||||| merged common ancestors
 invNS = [K1 K2;
          K3 K4];
-=======
-% invNS = [K1 K2;
-%          K3 K4];
->>>>>>> 6ea419a3d2770f940415350ee8629400f81e1025
 Chat = C'+alpha*Ctilde';
-<<<<<<< HEAD
-Mw = M - alpha*Mtilde + D'*(L\D);
-Mf = Mw + C*K1*Chat;
 
-norm(full(inv(Mf) - (inv(Mw) - inv(Mw)*C*inv(inv(K1) + Chat*inv(Mw)*C)*Chat*inv(Mw))))
-spy(abs(inv(Mf) - (inv(Mw) - inv(Mw)*C*inv(inv(K1) + Chat*inv(Mw)*C)*Chat*inv(Mw)))>1e-6)
-sss
-
-||||||| merged common ancestors
 Mf = M + alpha*Mtilde + C*K1*Chat + D'*(L\D);
 Mx = M + alpha*Mtilde + D'*(L\D);
-
-norm(full(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx))))
-spy(abs(inv(Mf) + (inv(Mx)-inv(Mx)*C*inv(inv(K1)-Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
-sss
-
-=======
-Mf = M - alpha*Mtilde + C*K1*Chat + D'*(L\D);
-Mx = M - alpha*Mtilde + D'*(L\D);
-% norm(full(C*K1*Chat))
->>>>>>> 6ea419a3d2770f940415350ee8629400f81e1025
 
 % e = eig(full(Mx), full(Mf));
 % plot(sort(real(e)), '*')
