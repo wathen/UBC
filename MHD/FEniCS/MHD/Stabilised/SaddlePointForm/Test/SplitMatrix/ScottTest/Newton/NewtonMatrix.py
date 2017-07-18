@@ -218,6 +218,14 @@ for xx in xrange(1, m):
     M = as_backend_type(M).mat()
     savePETScMat(M, "Matrix/M_"+str(int(level[xx-1][0]))+".mat", "M")
 
+    W = assemble(inner(v, u)*dx)
+    W = as_backend_type(W).mat()
+    savePETScMat(W, "Matrix/W_"+str(int(level[xx-1][0]))+".mat", "W")
+
+    # vecL = assemble(inner(grad(u), grad(r))*dx)
+    # vecL = as_backend_type(vecL).mat()
+    # savePETScMat(vecL, "Matrix/vecL_"+str(int(level[xx-1][0]))+".mat", "vecL")
+
     L = assemble(inner(grad(r), grad(s))*dx)
     L = as_backend_type(L).mat()
     savePETScMat(L, "Matrix/L_"+str(int(level[xx-1][0]))+".mat", "L")
@@ -225,6 +233,11 @@ for xx in xrange(1, m):
     X = assemble(inner(b, c)*dx)
     X = as_backend_type(X).mat()
     savePETScMat(X, "Matrix/X_"+str(int(level[xx-1][0]))+".mat", "X")
+
+    Qp = assemble(inner(p, q)*dx)
+    Qp = as_backend_type(Qp).mat()
+    savePETScMat(Qp, "Matrix/Qp_"+str(int(level[xx-1][0]))+".mat", "Qp")
+
 
     D = assemble(inner(c, grad(r))*dx)
     D = as_backend_type(D).mat()
@@ -234,6 +247,10 @@ for xx in xrange(1, m):
                  (1./2)*div(u_k)*inner(u, v)*dx - (1./2)*inner(u_k, n)*inner(u, v)*ds)
     F = as_backend_type(F).mat()
     savePETScMat(F, "Matrix/F_"+str(int(level[xx-1][0]))+".mat", "F")
+
+    A = assemble(inner(grad(v), grad(u))*dx)
+    A = as_backend_type(A).mat()
+    savePETScMat(A, "Matrix/A_"+str(int(level[xx-1][0]))+".mat", "A")
 
     B = assemble(-div(v)*p*dx)
     B = as_backend_type(B).mat()

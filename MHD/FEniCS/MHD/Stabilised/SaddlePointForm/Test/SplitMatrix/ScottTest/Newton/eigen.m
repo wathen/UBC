@@ -14,6 +14,10 @@ m_b = dimensions(4);
 % 
 F = load(strcat('Matrix/F_',num2str(level)));
 F = F.('F');
+A = load(strcat('Matrix/A_',num2str(level)));
+A = A.('A');
+W = load(strcat('Matrix/W_',num2str(level)));
+W = W.('W');
 B = load(strcat('Matrix/B_',num2str(level)));
 B = B.('B');
 M = load(strcat('Matrix/M_',num2str(level)));
@@ -54,8 +58,8 @@ Ctilde = Ctilde.('Ctilde');
 % Q = Q.(strcat('Q',num2str(level)));
 % Fp = load(strcat('Matrix/Fp',num2str(level)));
 % Fp = Fp.(strcat('Fp',num2str(level)));
-% Mp = load(strcat('Matrix/Mp',num2str(level)));
-% Mp = Mp.(strcat('Mp',num2str(level)));
+Qp = load(strcat('Matrix/Qp_',num2str(level)));
+Qp = Qp.('Qp');
 
 
 uB = load(strcat('Matrix/bcu_',num2str(level),'.mat'));
@@ -72,6 +76,10 @@ Ctilde = Ctilde';
 
 F(uB+1,:) = [];
 F(:,uB+1) = [];
+A(uB+1,:) = [];
+A(:,uB+1) = [];
+W(uB+1,:) = [];
+W(:,uB+1) = [];
 B(rB+1,:) = [];
 B(:,uB+1) = [];
 M(bB+1,:) = [];
@@ -80,6 +88,8 @@ X(bB+1,:) = [];
 X(:,bB+1) = [];
 L(rB+1,:) = [];
 L(:,rB+1) = [];
+Qp(rB+1,:) = [];
+Qp(:,rB+1) = [];
 D(rB+1,:) = [];
 D(:,bB+1) = [];
 C(bB+1,:) = [];
@@ -98,6 +108,9 @@ dimensions(1) = n_u;
 dimensions(3) = n_b;
 dimensions(2) = m_u;
 dimensions(4) = m_b;
+
+
+
 
 alpha = 1;
 Km = [M-alpha*Mtilde D';
@@ -124,16 +137,15 @@ K3 = invS*B*invF;
 K4 = -invS;
 invNS = [K1 K2;
          K3 K4];
-alpha = 1;
-invNS = [K1 K2;
-         K3 K4];
+P = 
 Chat = C'+alpha*Ctilde';
 
-Mf = M + alpha*Mtilde + C*K1*Chat + D'*(L\D);
-Mx = M + alpha*Mtilde + D'*(L\D);
+Mf = M - alpha*Mtilde + C*K1*Chat + D'*(L\D);
+Mx = M - alpha*Mtilde + D'*(L\D);
 
-% e = eig(full(Mx), full(Mf));
-% plot(sort(real(e)), '*')
+e = eig(full(Mx), full(Mf));
+plot(sort(real(e)), '*')
+figure
 % sss
 % norm(full(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx))))
 % spy(abs(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
@@ -141,6 +153,9 @@ Mx = M + alpha*Mtilde + D'*(L\D);
 G = Mf\D';
 Gt = D/Mf;
 H = (speye(n_b) - D'*(L\Gt));
+Mhat = M - alpha*Mtilde;
+spy(abs(Gt*Mhat)>1e-6)
+sss
 invSS = [Mf\H G/L;
         L\Gt zeros(m_b)];
 
