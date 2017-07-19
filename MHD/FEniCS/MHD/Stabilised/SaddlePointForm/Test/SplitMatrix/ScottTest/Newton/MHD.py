@@ -126,9 +126,9 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1e1
-    Mu_m = 1e2
-    MU = 1e-1
+    kappa = 1e0
+    Mu_m = 1e0
+    MU = 1e0
     HartmannNumber = sqrt(kappa/(MU*Mu_m))
 
     MO.PrintStr("Hartmann number: "+str(HartmannNumber), 2, "=", "\n\n", "\n")
@@ -185,7 +185,7 @@ for xx in xrange(1, m):
     Mtilde = -params[0]*(u_k[0]*b[1]-u_k[1]*b[0])*curl(c)*dx
     Ctilde = params[0]*(v[0]*b[1]-v[1]*b[0])*curl(b_k)*dx
 
-    alpha = 0.0
+    alpha = 1.0
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
         Couple + CoupleT + alpha*(Ftilde + Mtilde + Ctilde)
@@ -216,7 +216,7 @@ for xx in xrange(1, m):
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
     F = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
-    Hiptmairtol = 1e-6
+    Hiptmairtol = 1e-4
     HiptmairMatrices = PrecondSetup.MagneticSetup(
         mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     IS = MO.IndexSet(W, 'Blocks')
