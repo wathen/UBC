@@ -118,7 +118,7 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1.0*100
+    kappa = 1.0
     Mu_m = 10.0
     MU = 1.0
 
@@ -243,8 +243,8 @@ for xx in xrange(1, m):
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
 
-    OuterTol = 1e-5
-    InnerTol = 1e-5
+    OuterTol = 1e-3
+    InnerTol = 1e-3
     NSits = 0
     Mits = 0
     TotalStart = time.time()
