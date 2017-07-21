@@ -241,8 +241,8 @@ for xx in xrange(1, m):
     bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
-    OuterTol = 1e-5
-    InnerTol = 1e-5
+    OuterTol = 1e-3
+    InnerTol = 1e-3
     NSits = 0
     Mits = 0
     TotalStart = time.time()
