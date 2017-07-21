@@ -122,12 +122,8 @@ Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
 Kc = [-C, zeros(n_b, m_u);
      zeros(m_b, n_u+m_u)];
 K = [Kns, Kct; Kc, Km];
-S1 = Kc*inv(Kns)*Kct;
-S = Km - S1;
-Mf = S(1:n_b, 1:n_b) + D'*(L\D);
-
-Sf = B*((F+alpha*Ftilde)\B');
-invF = inv(F+alpha*Ftilde);
+invF = inv(F);
+Sf = B*invF*B';
 invS = inv(Sf);
 
 N = invF-invF*B'*invS*B*invF;
@@ -137,7 +133,23 @@ K3 = invS*B*invF;
 K4 = -invS;
 invNS = [K1 K2;
          K3 K4];
-P = 
+invL = inv(L);
+invMx = inv(M  + D'*(L\D));
+G = invMx*D';
+Chat = C';%+alpha*Ctilde';
+P = [K1, K2, -N*Chat*invMx zeros(n_u, m_b);
+    K3, K4, -K3*Chat*invMx zeros(m_u, m_b);
+    invMx*C*K1 invMx*C*K2 invMx G*invL
+    zeros(m_b, n_u+m_u) invL*G' 0*L];
+PK = P*K;
+
+
+norm(full(eye(n_u)+K1*(Ftilde + (C'+Ctilde')*invMx*C) - PK(1:n_u, 1:n_u)))
+spy(abs(P*K)>1e-6)
+e = eig(full(P*K));
+figure
+plot(real(e), '*')
+ssss
 Chat = C'+alpha*Ctilde';
 
 Mf = M - alpha*Mtilde + C*K1*Chat + D'*(L\D);
