@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 5
+m = 6
 
 set_log_active(False)
 errL2u   = np.zeros((m-1, 1))
@@ -44,35 +44,42 @@ errL2r   = np.zeros((m-1, 1))
 errH1r   = np.zeros((m-1, 1))
 
 
-l2uorder   = np.zeros((m-1, 1))
-H1uorder   = np.zeros((m-1, 1))
-l2porder   = np.zeros((m-1, 1))
-l2border   = np.zeros((m-1, 1))
+l2uorder = np.zeros((m-1, 1))
+H1uorder = np.zeros((m-1, 1))
+l2porder = np.zeros((m-1, 1))
+l2border = np.zeros((m-1, 1))
 Curlborder = np.zeros((m-1, 1))
-l2rorder   = np.zeros((m-1, 1))
-H1rorder   = np.zeros((m-1, 1))
+l2rorder = np.zeros((m-1, 1))
+H1rorder = np.zeros((m-1, 1))
 
-NN          = np.zeros((m-1, 1))
-DoF         = np.zeros((m-1, 1))
+NN = np.zeros((m-1, 1))
+DoF = np.zeros((m-1, 1))
 Velocitydim = np.zeros((m-1, 1))
 Magneticdim = np.zeros((m-1, 1))
 Pressuredim = np.zeros((m-1, 1))
 Lagrangedim = np.zeros((m-1, 1))
-Wdim        = np.zeros((m-1, 1))
-iterations  = np.zeros((m-1, 1))
-SolTime     = np.zeros((m-1, 1))
-udiv        = np.zeros((m-1, 1))
-MU          = np.zeros((m-1, 1))
-level       = np.zeros((m-1, 1))
-NSave       = np.zeros((m-1, 1))
-Mave        = np.zeros((m-1, 1))
-TotalTime   = np.zeros((m-1, 1))
-DimSave     = np.zeros((m-1, 4))
+Wdim = np.zeros((m-1, 1))
+iterations = np.zeros((m-1, 1))
+SolTime = np.zeros((m-1, 1))
+udiv = np.zeros((m-1, 1))
+MU = np.zeros((m-1, 1))
+level = np.zeros((m-1, 1))
+NSave = np.zeros((m-1, 1))
+Mave = np.zeros((m-1, 1))
+TotalTime = np.zeros((m-1, 1))
+DimSave = np.zeros((m-1, 4))
 
 dim = 2
 ShowResultPlots = 'yes'
 split = 'Linear'
 MU[0] = 1e0
+
+parameters["form_compiler"]["cpp_optimize"] = True
+ffc_options = {"optimize": True, \
+               "eliminate_zeros": True, \
+               "precompute_basis_const": True, \
+               "precompute_ip_const": True}
+# parameters['form_compiler']['cpp_optimize_flags'] = '-foo'
 
 for xx in xrange(1, m):
     print xx
@@ -107,7 +114,7 @@ for xx in xrange(1, m):
     Pressuredim[xx-1] = W.sub(1).dim()
     Magneticdim[xx-1] = W.sub(2).dim()
     Lagrangedim[xx-1] = W.sub(3).dim()
-    Wdim[xx-1]        = W.dim()
+    Wdim[xx-1] = W.dim()
 
     print "\n\nW:  ", Wdim[xx-1], "Velocity:  ", Velocitydim[xx-1], "Pressure:  ", Pressuredim[xx-1], "Magnetic:  ", Magneticdim[xx-1], "Lagrange:  ", Lagrangedim[xx-1], "\n\n"
 
@@ -116,12 +123,15 @@ for xx in xrange(1, m):
     def boundary(x, on_boundary):
         return on_boundary
 
-    FSpaces          = [VelocityF, PressureF, MagneticF, LagrangeF]
+    FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1.0
-    Mu_m = 1.0
-    MU = 1.0
+    kappa = 1e0
+    Mu_m = 1e0
+    MU = 1e0
+    HartmannNumber = sqrt(kappa/(MU*Mu_m))
+
+    MO.PrintStr("Hartmann number: "+str(HartmannNumber), 2, "=", "\n\n", "\n")
 
     N = FacetNormal(mesh)
 
@@ -175,8 +185,10 @@ for xx in xrange(1, m):
     Mtilde = -params[0]*inner(cross(u_k, b), curl(c))*dx
     Ctilde = params[0]*inner(cross(v, b), curl(b_k))*dx
 
+    alpha = 1.0
+
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
-        Couple + CoupleT + Ftilde + Mtilde + Ctilde
+        Couple + CoupleT + alpha*(Ftilde + Mtilde + Ctilde)
 
     if kappa == 0.0:
         m11 = params[1]*inner(curl(b_k), curl(c))*dx
@@ -225,10 +237,8 @@ for xx in xrange(1, m):
     r_is = PETSc.IS().createGeneral(W.sub(3).dofmap().dofs())
     NS_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim()))
     M_is = PETSc.IS().createGeneral(range(VelocityF.dim()+PressureF.dim(), W.dim()))
-    bcu = DirichletBC(W.sub(0), Expression(
-        ("0.0", "0.0", "0.0"), degree=4), boundary)
-    bcb = DirichletBC(W.sub(2), Expression(
-        ("0.0", "0.0", "0.0"), degree=4), boundary)
+    bcu = DirichletBC(W.sub(0), Expression(("0.0", "0.0", "0.0"), degree=4), boundary)
+    bcb = DirichletBC(W.sub(2), Expression(("0.0", "0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
     OuterTol = 1e-3
@@ -244,12 +254,12 @@ for xx in xrange(1, m):
     while eps > tol and iter < maxiter:
         iter += 1
         MO.PrintStr("Iter "+str(iter), 7, "=", "\n\n", "\n\n")
+
         atime = time.time()
-        A, b = assemble_system(a, L, bcs)
+        A, b = assemble_system(a, L, bcs)#, form_compiler_parameters=ffc_options)
         A, b = CP.Assemble(A, b)
         Assemtime = time.time() - atime
         MO.StrTimePrint("MHD assemble, time: ", Assemtime)
-
         u = x.duplicate()
 
         print "                               Max rhs = ", np.max(b.array)
@@ -261,8 +271,7 @@ for xx in xrange(1, m):
         norm = (b-A*U).norm()
         residual = b.norm()
         stime = time.time()
-        u, mits, nsits = S.solve(A, b, u, params, W, 'Directii', IterType, OuterTol,
-                                 InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
+        u, mits, nsits = S.solve(A, b, u, params, W, 'Directss', IterType, OuterTol, InnerTol, HiptmairMatrices, Hiptmairtol, KSPlinearfluids, Fp, kspF)
 
         U = u
         Soltime = time.time() - stime
@@ -316,6 +325,7 @@ for xx in xrange(1, m):
 
     ExactSolution = [u0, p0, b0, r0]
     errL2u[xx-1], errH1u[xx-1], errL2p[xx-1], errL2b[xx-1], errCurlb[xx-1], errL2r[xx - 1], errH1r[xx-1] = Iter.Errors(XX, mesh, FSpaces, ExactSolution, order, dim, "CG")
+
     print float(Wdim[xx-1][0])/Wdim[xx-2][0]
 
     if xx > 1:
@@ -404,6 +414,8 @@ print IterTable.to_latex()
 print "GMRES tolerance: ", InnerTol
 print "NL tolerance: ", tol
 print "Hiptmair tolerance: ", Hiptmairtol
+print "Hartmann Number: ", HartmannNumber
+print params
 MO.StoreMatrix(DimSave, "dim")
 
 #file = File("u_k.pvd")
