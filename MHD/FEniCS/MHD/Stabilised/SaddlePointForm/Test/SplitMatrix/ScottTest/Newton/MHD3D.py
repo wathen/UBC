@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 6
+m = 5
 
 set_log_active(False)
 errL2u   = np.zeros((m-1, 1))
@@ -120,7 +120,7 @@ for xx in xrange(1, m):
     DimSave[xx-1, :] = np.array(dim)
 
     kappa = 1.0
-    Mu_m = 10.0
+    Mu_m = 1.0
     MU = 1.0
 
     N = FacetNormal(mesh)
@@ -214,7 +214,7 @@ for xx in xrange(1, m):
     eps = 1.0           # error measure ||u-u_k||
     tol = 1.0E-4         # tolerance
     iter = 0            # iteration counter
-    maxiter = 20       # max no of iterations allowed
+    maxiter = 10       # max no of iterations allowed
     SolutionTime = 0
     outer = 0
     # parameters['linear_algebra_backend'] = 'uBLAS'
@@ -231,8 +231,8 @@ for xx in xrange(1, m):
         ("0.0", "0.0", "0.0"), degree=4), boundary)
     bcr = DirichletBC(W.sub(3), Expression(("0.0"), degree=4), boundary)
     bcs = [bcu, bcb, bcr]
-    OuterTol = 1e-5
-    InnerTol = 1e-5
+    OuterTol = 1e-3
+    InnerTol = 1e-3
     NSits = 0
     Mits = 0
     TotalStart = time.time()
