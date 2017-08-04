@@ -30,6 +30,7 @@ import MHDmulti
 import MHDmatrixSetup as MHDsetup
 import HartmanChannel
 import ExactSol
+import pandas as pd
 # import matplotlib.pyplot as plt
 #@profile
 m = 6

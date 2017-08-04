@@ -185,7 +185,7 @@ for xx in xrange(1, m):
     Mtilde = -params[0]*inner(cross(u_k, b), curl(c))*dx
     Ctilde = params[0]*inner(cross(v, b), curl(b_k))*dx
 
-    alpha = 1.0
+    alpha = 1.0*0
 
     a = m11 + m12 + m21 + a11 + a21 + a12 + \
         Couple + CoupleT + alpha*(Ftilde + Mtilde + Ctilde)
