@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# interpolate scalar gradient onto nedelec space
-
 import petsc4py
 import sys
 
