@@ -32,7 +32,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 6
+m = 5
 
 set_log_active(False)
 errL2u   = np.zeros((m-1, 1))
@@ -216,7 +216,7 @@ for xx in xrange(1, m):
     kspFp, Fp = PrecondSetup.FluidNonLinearSetup(PressureF, MU, u_k, mesh)
     F = Lns + Lmaxwell - (m11 + m12 + m21 + a11 + a21 + a12 + Couple + CoupleT)
 
-    Hiptmairtol = 1e-4
+    Hiptmairtol = 1e-2
     HiptmairMatrices = PrecondSetup.MagneticSetup(
         mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
     IS = MO.IndexSet(W, 'Blocks')
