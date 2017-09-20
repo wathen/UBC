@@ -136,16 +136,17 @@ invNS = [K1 K2;
 invL = inv(L);
 invMx = inv(M  + D'*(L\D));
 G = invMx*D';
-Chat = C';%+alpha*Ctilde';
+Chat = C'+alpha*Ctilde';
 P = [K1, K2, -N*Chat*invMx zeros(n_u, m_b);
     K3, K4, -K3*Chat*invMx zeros(m_u, m_b);
     invMx*C*K1 invMx*C*K2 invMx G*invL
     zeros(m_b, n_u+m_u) invL*G' 0*L];
 PK = P*K;
 
-
 norm(full(eye(n_u)+K1*(Ftilde + (C'+Ctilde')*invMx*C) - PK(1:n_u, 1:n_u)))
 spy(abs(P*K)>1e-6)
+
+% ssss
 e = eig(full(P*K));
 figure
 plot(real(e), '*')
@@ -157,7 +158,8 @@ Mx = M - alpha*Mtilde + D'*(L\D);
 
 e = eig(full(Mx), full(Mf));
 plot(sort(real(e)), '*')
-figure
+% figure
+ssss
 % sss
 % norm(full(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx))))
 % spy(abs(inv(Mf) + (inv(Mx) - inv(Mx)*C*inv((K1)+Chat*inv(Mx)*C)*Chat*inv(Mx)))>1e-6)
