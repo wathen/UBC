@@ -126,7 +126,7 @@ for xx in xrange(1, m):
     FSpaces = [VelocityF, PressureF, MagneticF, LagrangeF]
     DimSave[xx-1, :] = np.array(dim)
 
-    kappa = 1e0
+    kappa = 1e2
     Mu_m = 1e0
     MU = 1e0
     HartmannNumber = sqrt(kappa/(MU*Mu_m))
