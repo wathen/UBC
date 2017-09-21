@@ -122,7 +122,7 @@ Kct = [C'+alpha*Ctilde', zeros(n_u,m_b);
 Kc = [-C, zeros(n_b, m_u);
      zeros(m_b, n_u+m_u)];
 K = [Kns, Kct; Kc, Km];
-invF = inv(F);
+invF = inv(F+alpha*Ftilde);
 Sf = B*invF*B';
 invS = inv(Sf);
 
@@ -143,7 +143,14 @@ P = [K1, K2, -N*Chat*invMx zeros(n_u, m_b);
     zeros(m_b, n_u+m_u) invL*G' 0*L];
 PK = P*K;
 
+size(null(full(invMx*(-Mtilde+C*K1*Chat))))
+size(null(full(M)))
+
 norm(full(eye(n_u)+K1*(Ftilde + (C'+Ctilde')*invMx*C) - PK(1:n_u, 1:n_u)))
+
+spy(abs(Chat*(eye(n_b)-invMx*(M-alpha*Mtilde))-C'*invMx*Mtilde-Ctilde'*(eye(n_b)-invMx*(M-alpha*Mtilde)))>1e-6)
+% spy(abs(Chat*(eye(n_b)-invMx*(M-alpha*Mtilde)))>1e-6)
+
 spy(abs(P*K)>1e-6)
 
 % ssss
