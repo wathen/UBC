@@ -194,21 +194,21 @@ def HiptmairBCsetup(C, P, mesh, Func):
     MO.StrTimePrint("Work out boundary matrices, time: ",toc())
 
     tic()
-    C = Diagmagnetic*C*Diaglagrange
+    C = C
     G = PETSc.Mat().createAIJ(size=C.shape,csr=(C.indptr, C.indices, C.data))
     MO.StrTimePrint("BC applied to gradient, time: ",toc())
 
     if dim == 2:
         tic()
-        Px = Diagmagnetic*P[0]*Diaglagrange
-        Py = Diagmagnetic*P[1]*Diaglagrange
+        Px = P[0]
+        Py = P[1]
         MO.StrTimePrint("BC applied to Prolongation, time: ",toc())
         P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data))]
     else:
         tic()
-        Px = Diagmagnetic*P[0]*Diaglagrange
-        Py = Diagmagnetic*P[1]*Diaglagrange
-        Pz = Diagmagnetic*P[2]*Diaglagrange
+        Px = P[0]
+        Py = P[1]
+        Pz = P[2]
         MO.StrTimePrint("BC applied to Prolongation, time: ",toc())
         P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data)),PETSc.Mat().createAIJ(size=Pz.shape,csr=(Pz.indptr, Pz.indices, Pz.data))]
 
@@ -217,9 +217,9 @@ def HiptmairBCsetup(C, P, mesh, Func):
 
 def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     OptDB = PETSc.Options()
-    # OptDB['pc_hypre_type'] = 'boomeramg'
-    # OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
-    # OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
+    OptDB['pc_hypre_type'] = 'boomeramg'
+    OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
+    OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
     # OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
 
     kspVector = PETSc.KSP()
@@ -227,6 +227,7 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     pcVector = kspVector.getPC()
     kspVector.setType('preonly')
     pcVector.setType('hypre')
+    # kspVector.max_it = 1
     kspVector.setFromOptions()
 
     kspScalar = PETSc.KSP()
@@ -234,14 +235,15 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     pcScalar = kspScalar.getPC()
     kspScalar.setType('preonly')
     pcScalar.setType('hypre')
+    # kspVector.max_it = 1
     kspScalar.setFromOptions()
 
     kspCGScalar = PETSc.KSP()
     kspCGScalar.create(comm=PETSc.COMM_WORLD)
     pcCGScalar = kspCGScalar.getPC()
-    kspCGScalar.setType('preonly')
+    kspCGScalar.setType('cg')
     pcCGScalar.setType('hypre')
-    # kspCGScalar.setTolerances(tol)
+    kspCGScalar.setTolerances(tol)
     kspCGScalar.setFromOptions()
 
 
@@ -262,24 +264,23 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
 
     kspA = PETSc.KSP().create()
-    kspA.setType('preonly')
+    kspA.setType('cg')
     pcA = kspA.getPC()
-    pcA.setType(PETSc.PC.Type.SOR)
-    # OptDB = PETSc.Options()
-    # OptDB['pc_sor_symmetric']
+    pcA.setType('icc')
+    OptDB = PETSc.Options()
+    # OptDB['factor_levels'] = 2
+    # OptDB['factor_mat_ordering_type'] = 'rcm'
+    kspA.max_it = 1
     kspA.setFromOptions()
     kspA.setOperators(A,A)
 
     ksp = PETSc.KSP().create()
     ksp.setTolerances(tol)
-    #ksp.max_it = 5
+    # ksp.max_it = 4
     ksp.setType('cg')
     ksp.setOperators(A,A)
     pc = ksp.getPC()
     pc.setType(PETSc.PC.Type.PYTHON)
-    diag = A.getDiagonal()
-
-    diag.reciprocal()
 
     pc.setPythonContext(HiptmairPrecond.GSvector(G, P, kspVector, kspScalar, kspA))
     scale = b.norm()
@@ -287,6 +288,6 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     tic()
     ksp.solve(b, x)
     time = toc()
-    # print "Hiptmair, its  ", ksp.its," time ", toc()
+    print "Hiptmair, its  ", ksp.its," time ", toc()
     x = x*scale
     return x, ksp.its, time

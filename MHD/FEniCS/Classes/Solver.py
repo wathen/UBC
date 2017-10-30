@@ -86,7 +86,7 @@ def solve(A, b, u, params, Fspace, SolveType, IterType, OuterTol, InnerTol, Hipt
 
             #pc.setPythonContext(MHDprec.BlkInvA(FFSS, kspF, KSPlinearfluids[0], KSPlinearfluids[1], Fp, HiptmairMatrices[
             #                    3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6], Hiptmairtol))
-            pc.setPythonContext(MHDprec.ApproxInvA(FFSS, kspF, KSPlinearfluids[0], KSPlinearfluids[1], Fp, HiptmairMatrices[
+            pc.setPythonContext(MHDprec.ApproxInv(FFSS, kspF, KSPlinearfluids[0], KSPlinearfluids[1], Fp, HiptmairMatrices[
                                 3], HiptmairMatrices[4], HiptmairMatrices[2], HiptmairMatrices[0], HiptmairMatrices[1], HiptmairMatrices[6], Hiptmairtol))
 
             # OptDB = PETSc.Options()

@@ -109,10 +109,9 @@ dimensions(3) = n_b;
 dimensions(2) = m_u;
 dimensions(4) = m_b;
 
-
-
-
-alpha = 1;
+C = inv(M  + D'*(L\D))*D';
+norm(full(X-D'*pinv(full(C))))
+alpha = 1.0;
 Km = [M-alpha*Mtilde D';
     D zeros(m_b, m_b)];
 Kns = [F+alpha*Ftilde, B';
@@ -141,7 +140,39 @@ P = [K1, K2, -N*Chat*invMx zeros(n_u, m_b);
     K3, K4, -K3*Chat*invMx zeros(m_u, m_b);
     invMx*C*K1 invMx*C*K2 invMx G*invL
     zeros(m_b, n_u+m_u) invL*G' 0*L];
-PK = P*K;
+PK = [eye(n_u)+K1*Chat*invMx*C zeros(n_u, m_u) K1*Chat*(eye(n_b)-invMx*M) -K1*Chat*invMx*D';
+       K3*Chat*invMx*C eye(m_u) K3*Chat*(eye(n_b)-invMx*M) -K3*Chat*invMx*D';
+       zeros(n_b, n_u+m_u) invMx*(M+C*K1*Chat+D'*invL*D) invMx*D';
+       zeros(m_b, n_b+n_u+m_u) eye(m_b)];
+
+
+[V, E] = eig(full(PK));
+[E,i] = sort(diag(E));
+V = V(:,i);
+tol = 1e-4;
+size(null(full(alpha*Mtilde+C*K1*Chat)),2)+size(null(full(C)),2)+m_u+m_b
+
+fprintf('   n_u = %4.0d, m_u = %4.0d, n_b = %4.0d, m_b = %4.0d \n\n', n_u, m_u, n_b, m_b);
+Eig1 =find(E>1-tol & E<1+tol);
+fprintf('   Number of eigenvalues of 1 %4.0d with tolerance  %1.1e \n\n', length(Eig1),tol);
+
+Eig2 = find(E>-1-tol & E<-1+tol);
+fprintf('   Number of eigenvalues of -1 %4.0d with tolerance  %1.1e \n\n\n', length(Eig2),tol);
+nu2 = V(1:n_u,Eig1);
+mu2 = V(n_u+1:n_u+m_u,Eig1);
+nb2 = V(n_u+m_u+1:n_u+m_u+n_b,Eig1);
+mb2 = V(n_u+m_u+n_b+1:end,Eig1);
+
+norm((alpha*Mtilde+C*N*Chat)*nb2)
+
+e = eig(full(eye(n_b)+invMx*(alpha*Mtilde+C*N*Chat)));
+
+plot(real(e),'*')
+figure;
+plot(imag(e),'*')
+
+ssss
+% 
 
 size(null(full(invMx*(-Mtilde+C*K1*Chat))))
 size(null(full(M)))
@@ -152,7 +183,9 @@ spy(abs(Chat*(eye(n_b)-invMx*(M-alpha*Mtilde))-C'*invMx*Mtilde-Ctilde'*(eye(n_b)
 % spy(abs(Chat*(eye(n_b)-invMx*(M-alpha*Mtilde)))>1e-6)
 
 spy(abs(P*K)>1e-6)
-
+M = M - alpha*Mtilde;
+figure
+spy(abs(PK-P*K)>1e-6)
 % ssss
 e = eig(full(P*K));
 figure

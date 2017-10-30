@@ -72,8 +72,8 @@ def MagneticSetup(mesh, Magnetic, Lagrange, u0, p0, CGtol,params):
 
     # parameters['linear_algebra_backend'] = 'uBLAS'
     if Magnetic.__str__().find("N1curl2") == -1:
-        C, P = HiptmairSetup.HiptmairMatrixSetupBoundary(Magnetic.mesh(), Magnetic.dim(), Lagrange.dim(),Magnetic.mesh().geometry().dim())
-        G, P = HiptmairSetup.HiptmairBCsetupBoundary(C,P,Magnetic.mesh())
+        G, P = HiptmairSetup.HiptmairMatrixSetupBoundary(Magnetic.mesh(), Magnetic.dim(), Lagrange.dim(),Magnetic.mesh().geometry().dim())
+        G, P = HiptmairSetup.HiptmairBCsetupBoundary(G, P, Magnetic.mesh())
     else:
         G = None
         P = None
@@ -91,7 +91,7 @@ def MagneticSetup(mesh, Magnetic, Lagrange, u0, p0, CGtol,params):
 
     tic()
     ScalarLaplacian, b1 = assemble_system(inner(grad(p),grad(q))*dx,inner(p0,q)*dx,bcp)
-    VectorLaplacian, b2 = assemble_system(inner(grad(p),grad(q))*dx+inner(p,q)*dx,inner(p0,q)*dx,bcp)
+    VectorLaplacian, b2 = assemble_system((inner(grad(p),grad(q))*dx+inner(p,q)*dx),inner(p0,q)*dx,bcp)
     del b1, b2
     print ("{:40}").format("Hiptmair Laplacians BC assembled, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 

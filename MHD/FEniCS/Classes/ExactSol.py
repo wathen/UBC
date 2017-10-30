@@ -572,7 +572,7 @@ def M3D(case,Show="no",type="no",Mass=0):
     p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
     CurlCurl = Expression((ccode(L1),ccode(L2),ccode(L3)), degree=4)
     gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi'),ccode(P3).replace('M_PI','pi')), degree=4)
-    CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2),ccode(Mass*w+L3)), degree=4)
+    M = Expression((ccode(Mass*u),ccode(Mass*v),ccode(Mass*w)), degree=4)
 
 
     if Show == 'no':
@@ -588,7 +588,7 @@ def M3D(case,Show="no",type="no",Mass=0):
         if Mass == 0:
             return u0, p0, CurlCurl, gradPres
         else:
-            return u0, p0, CurlCurl, gradPres, CurlMass
+            return u0, p0, CurlCurl, gradPres, M
 
 
 

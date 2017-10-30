@@ -47,7 +47,6 @@ class GSvector(BaseMyPC):
     # def setUp(self, pc):
     #     print "setup"
     def apply(self, pc, x, y):
-        ysave = x.duplicate()
 
         xhat = self.P[0].getVecRight()
         self.P[0].multTranspose(x, xhat)
@@ -88,7 +87,7 @@ class GSvector(BaseMyPC):
         # xx.pointwiseMult(self.diag, x)
 
         if len(self.P) == 2:
-            ysave.array = (xx.array+yp1.array+yp2.array+yg.array)
+            y.array = (xx.array+yp1.array+yp2.array+yg.array)
         else:
-            ysave.array = (xx.array+yp1.array+yp2.array+yp3.array+yg.array)
-        y.array = ysave.array
+
+            y.array = (xx.array+yp1.array+yp2.array+yp3.array+yg.array)
