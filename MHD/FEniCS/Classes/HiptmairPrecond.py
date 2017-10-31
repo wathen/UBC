@@ -3,6 +3,7 @@ import sys
 petsc4py.init(sys.argv)
 from petsc4py import PETSc
 import numpy as np
+from scipy.sparse import csr_matrix, tril, triu, linalg
 
 
 class BaseMyPC(object):
@@ -48,6 +49,7 @@ class GSvector(BaseMyPC):
     #     print "setup"
     def apply(self, pc, x, y):
 
+
         xhat = self.P[0].getVecRight()
         self.P[0].multTranspose(x, xhat)
         yp1 = self.P[0].getVecLeft()
@@ -85,9 +87,48 @@ class GSvector(BaseMyPC):
         xx = x.duplicate()
         self.diag.solve(x, xx)
         # xx.pointwiseMult(self.diag, x)
-
+        # print xx.norm()
+        # print yp1.norm()
+        # print yp2.norm()
+        # print yp3.norm()
+        # print yg.norm()
+        # sss
         if len(self.P) == 2:
             y.array = (xx.array+yp1.array+yp2.array+yg.array)
         else:
-
             y.array = (xx.array+yp1.array+yp2.array+yp3.array+yg.array)
+
+
+class SGS(BaseMyPC):
+
+    def __init__(self, A):
+        self.A = A
+
+    def create(self, pc):
+        ai, aj, av = self.A.getValuesCSR()
+        # print ai, aj, av
+        self.Asp = csr_matrix((av, aj, ai))
+        self.L = tril(self.Asp)
+        self.U = triu(self.Asp)
+
+    def apply(self, pc, x, y):
+        x = x.array
+        # L = x.duplicate()
+        # L = L.array
+        # Lt = x.duplicate()
+        # Lt = Lt.array
+        # ALt = x.duplicate()
+        # ALt = ALt.array
+        # LALt = x.duplicate()
+        # LALt = LALt.array
+
+        L = linalg.spsolve(self.L, x)
+        Lt = linalg.spsolve(self.U, x)
+        LALt = linalg.spsolve(self.L, self.Asp*Lt)
+
+
+        # self.kspL.solve(x, L)
+        # self.kspT.solve(x, Lt)
+        # self.A.mult(Lt, ALt)
+        # self.kspL.solve(ALt, LALt)
+        y.array = L + Lt + LALt
