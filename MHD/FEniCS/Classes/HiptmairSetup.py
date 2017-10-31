@@ -272,8 +272,8 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     pcA = kspA.getPC()
     pcA.setType('icc')
     # pcA.setPythonContext(HiptmairPrecond.SGS(A))
-    OptDB = PETSc.Options()
-    OptDB['factor_mat_ordering_type'] = 'qmd'
+    # OptDB = PETSc.Options()
+    # OptDB['factor_mat_ordering_type'] = 'qmd'
     kspA.max_it = 3
     kspA.setFromOptions()
     kspA.setOperators(A,A)
