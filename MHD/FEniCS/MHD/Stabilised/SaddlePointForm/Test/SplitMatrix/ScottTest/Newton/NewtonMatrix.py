@@ -160,7 +160,7 @@ for xx in xrange(1, m):
     Hiptmairtol = 1e-6
     HiptmairMatrices = PrecondSetup.MagneticSetup(
         mesh, Magnetic, Lagrange, b0, r0, Hiptmairtol, params)
-
+    [G, P, kspVector, kspScalar, kspCGScalar, diag, CurlCurlShift] =  HiptmairMatrices
     MO.PrintStr("Setting up MHD initial guess", 5, "+", "\n\n", "\n\n")
 
     F_NS = -MU * Laplacian + Advection + gradPres - kappa * NS_Couple
@@ -252,6 +252,10 @@ for xx in xrange(1, m):
     A = as_backend_type(A).mat()
     savePETScMat(A, "Matrix/A_"+str(int(level[xx-1][0]))+".mat", "A")
 
+    XX = assemble(inner((v), (u))*dx)
+    XX = as_backend_type(XX).mat()
+    savePETScMat(XX, "Matrix/XX_"+str(int(level[xx-1][0]))+".mat", "XX")
+
     B = assemble(-div(v)*p*dx)
     B = as_backend_type(B).mat()
     savePETScMat(B, "Matrix/B_"+str(int(level[xx-1][0]))+".mat", "B")
@@ -278,7 +282,9 @@ for xx in xrange(1, m):
 
 
 
+    savePETScMat(G, "Matrix/G_"+str(int(level[xx-1][0]))+".mat", "G")
 
 
 
-
+G = load(strcat('Matrix/G_',num2str(level)));
+G = G.('G');

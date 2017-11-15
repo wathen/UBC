@@ -268,13 +268,16 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
 
     kspA = PETSc.KSP().create()
-    kspA.setType('cg')
+    kspA.setType('richardson')
     pcA = kspA.getPC()
-    pcA.setType('icc')
+    pcA.setType('sor')
     # pcA.setPythonContext(HiptmairPrecond.SGS(A))
-    # OptDB = PETSc.Options()
-    # OptDB['factor_mat_ordering_type'] = 'qmd'
-    kspA.max_it = 3
+    OptDB = PETSc.Options()
+    OptDB['sor_omega'] = 1
+    OptDB['sor_symmetric'] = ' '
+    OptDB['sor_its'] = 3
+
+    kspA.max_it = 1
     kspA.setFromOptions()
     kspA.setOperators(A,A)
 
