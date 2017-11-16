@@ -231,17 +231,17 @@ def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
     kspVector = PETSc.KSP()
     kspVector.create(comm=PETSc.COMM_WORLD)
     pcVector = kspVector.getPC()
-    kspVector.setType('preonly')
+    kspVector.setType('richardson')
     pcVector.setType('hypre')
-    # kspVector.max_it = 1
+    kspVector.max_it = 1
     kspVector.setFromOptions()
 
     kspScalar = PETSc.KSP()
     kspScalar.create(comm=PETSc.COMM_WORLD)
     pcScalar = kspScalar.getPC()
-    kspScalar.setType('preonly')
+    kspScalar.setType('richardson')
     pcScalar.setType('hypre')
-    # kspVector.max_it = 1
+    kspVector.max_it = 1
     kspScalar.setFromOptions()
 
     kspCGScalar = PETSc.KSP()
@@ -268,14 +268,14 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
 
     kspA = PETSc.KSP().create()
-    kspA.setType('richardson')
+    kspA.setType('cg')
     pcA = kspA.getPC()
     pcA.setType('sor')
     # pcA.setPythonContext(HiptmairPrecond.SGS(A))
     OptDB = PETSc.Options()
     OptDB['sor_omega'] = 1
     OptDB['sor_symmetric'] = ' '
-    OptDB['sor_its'] = 3
+    # OptDB['sor_its'] = 3
 
     kspA.max_it = 1
     kspA.setFromOptions()
