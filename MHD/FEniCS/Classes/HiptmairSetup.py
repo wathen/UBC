@@ -277,7 +277,7 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     OptDB['sor_symmetric'] = ' '
     # OptDB['sor_its'] = 3
 
-    kspA.max_it = 1
+    kspA.max_it = 3
     kspA.setFromOptions()
     kspA.setOperators(A,A)
 
