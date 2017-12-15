@@ -554,6 +554,18 @@ def M3D(case,Show="no",type="no",Mass=0):
             case +=1
             print "Case ",case-1,":\n"
             Print3D(u,v,w,p,"M")
+    if case == 8:
+        uu = sin(x)*exp(x+y+z)
+        uv = sin(y)*exp(x+y+z)
+        uw = sin(z)*exp(x+y+z)
+        u = diff(uw,y)-diff(uv,z)
+        v = diff(uu,z)-diff(uw,x)
+        w = diff(uv,x)-diff(uu,y)
+        p = x + y + z
+        if Show == "yes":
+            case +=1
+            print "Case ",case-1,":\n"
+            Print3D(u,v,w,p,"M")
     if u:
         f = 1
     else:
