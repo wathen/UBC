@@ -29,7 +29,7 @@ import HartmanChannel
 import ExactSol
 # import matplotlib.pyplot as plt
 #@profile
-m = 5
+m = 8
 
 set_log_active(False)
 errL2u = np.zeros((m-1, 1))
@@ -248,6 +248,11 @@ for xx in xrange(1, m):
     F = as_backend_type(F).mat()
     savePETScMat(F, "Matrix/F_"+str(int(level[xx-1][0]))+".mat", "F")
 
+    O = assemble(inner((grad(u)*u_k), v)*dx +
+                 (1./2)*div(u_k)*inner(u, v)*dx - (1./2)*inner(u_k, n)*inner(u, v)*ds)
+    O = as_backend_type(O).mat()
+    savePETScMat(O, "Matrix/O_"+str(int(level[xx-1][0]))+".mat", "O")
+
     A = assemble(inner(grad(v), grad(u))*dx)
     A = as_backend_type(A).mat()
     savePETScMat(A, "Matrix/A_"+str(int(level[xx-1][0]))+".mat", "A")
@@ -286,5 +291,5 @@ for xx in xrange(1, m):
 
 
 
-G = load(strcat('Matrix/G_',num2str(level)));
-G = G.('G');
+# G = load(?strcat('Matrix/G_',num2str(level)));
+# G = G.('G');
