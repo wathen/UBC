@@ -128,7 +128,7 @@ def HiptmairBCsetupBoundary(C, P, mesh):
     if dim == 3:
         EdgeBoundary = BoundaryEdge(mesh)
     else:
-        B = BoundaryMesh(Magnetic.mesh(),"exterior",False)
+        B = BoundaryMesh(mesh,"exterior",False)
         EdgeBoundary = numpy.sort(B.entity_map(1).array().astype("int","C"))
 
 
@@ -164,9 +164,9 @@ def HiptmairBCsetupBoundary(C, P, mesh):
         Px = P[0]
         Py = P[1]
         Pz = P[2]
-        # Px = Diagmagnetic*P[0]*Diaglagrange
-        # Py = Diagmagnetic*P[1]*Diaglagrange
-        # Pz = Diagmagnetic*P[2]*Diaglagrange
+        Px = Diagmagnetic*P[0]*Diaglagrange
+        Py = Diagmagnetic*P[1]*Diaglagrange
+        Pz = Diagmagnetic*P[2]*Diaglagrange
         end = toc()
         MO.StrTimePrint("BC applied to Prolongation, time: ",end)
         P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data)),PETSc.Mat().createAIJ(size=Pz.shape,csr=(Pz.indptr, Pz.indices, Pz.data))]
@@ -287,7 +287,7 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     kspA = PETSc.KSP().create()
     kspA.setType('richardson')
     pcA = kspA.getPC()
-    pcA.setType('icc')
+    pcA.setType('sor')
     # pcA.setPythonContext(HiptmairPrecond.SGS(A))
     OptDB = PETSc.Options()
     # OptDB['sor_omega'] = 1
