@@ -96,7 +96,7 @@ def MagneticSetup(mesh, Magnetic, Lagrange, u0, p0, CGtol,params):
 
     tic()
     ScalarLaplacian, b1 = assemble_system(inner(grad(p),grad(q))*dx,inner(p0,q)*dx,bcp, form_compiler_parameters=ffc_options)
-    VectorLaplacian, b2 = assemble_system((params[1]*inner(grad(p),grad(q))*dx+inner(p,q)*dx),inner(p0,q)*dx,bcp, form_compiler_parameters=ffc_options)
+    VectorLaplacian, b2 = assemble_system((params[0]*params[1]*inner(grad(p),grad(q))*dx+params[0]*params[1]*inner(p,q)*dx),inner(p0,q)*dx,bcp, form_compiler_parameters=ffc_options)
     del b1, b2
     print ("{:40}").format("Hiptmair Laplacians BC assembled, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 
@@ -114,7 +114,7 @@ def MagneticSetup(mesh, Magnetic, Lagrange, u0, p0, CGtol,params):
     print ("{:40}").format("Shifted Curl-Curl assembled, time: "), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 
     tic()
-    kspVector, kspScalar, kspCGScalar, diag = HiptmairSetup.HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, CurlCurlShift, CGtol)
+    kspVector, kspScalar, kspCGScalar, diag = HiptmairSetup.HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, CurlCurlShift, CGtol, G, mesh)
     del VectorLaplacian, ScalarLaplacian
     print ("{:40}").format("Hiptmair Setup time:"), " ==>  ",("{:4f}").format(toc()),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
 

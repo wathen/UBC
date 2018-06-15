@@ -161,9 +161,9 @@ def HiptmairBCsetupBoundary(C, P, mesh):
         P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data))]
     else:
         tic()
-        Px = P[0]
-        Py = P[1]
-        Pz = P[2]
+        # Px = P[0]
+        # Py = P[1]
+        # Pz = P[2]
         Px = Diagmagnetic*P[0]*Diaglagrange
         Py = Diagmagnetic*P[1]*Diaglagrange
         Pz = Diagmagnetic*P[2]*Diaglagrange
@@ -174,74 +174,12 @@ def HiptmairBCsetupBoundary(C, P, mesh):
     return  G, P
 
 
-def HiptmairBCsetup(C, P, mesh, Func):
-
-    ssss
-    tic()
-    W = Func[0]*Func[1]
-    def boundary(x, on_boundary):
-        return on_boundary
-    bcW = DirichletBC(W.sub(0), Expression(("1.0","1.0","1.0")), boundary)
-
-    bcuW = DirichletBC(W.sub(1), Expression(("1.0")), boundary)
-    # Wv,Wq=TestFunctions(W)
-    # Wu,Wp=TrialFunctions(W)
-
-
-    dim = mesh.geometry().dim()
-    tic()
-    if dim == 3:
-        EdgeBoundary = BoundaryEdge(mesh)
-    else:
-        B = BoundaryMesh(Magnetic.mesh(),"exterior",False)
-        EdgeBoundary = numpy.sort(B.entity_map(1).array().astype("int","C"))
-
-
-    B = BoundaryMesh(mesh,"exterior",False)
-    NodalBoundary = B.entity_map(0).array()#.astype("int","C")
-    onelagrange = numpy.ones(mesh.num_vertices())
-    onelagrange[NodalBoundary] = 0
-    Diaglagrange = spdiags(onelagrange,0,mesh.num_vertices(),mesh.num_vertices())
-
-    onemagnetiic = numpy.ones(mesh.num_edges())
-    onemagnetiic[EdgeBoundary.astype("int","C")] = 0
-    Diagmagnetic = spdiags(onemagnetiic,0,mesh.num_edges(),mesh.num_edges())
-
-
-    MO.StrTimePrint("Work out boundary matrices, time: ",toc())
-
-    tic()
-    # C = Diagmagnetic*C*Diaglagrange
-    C = C
-    G = PETSc.Mat().createAIJ(size=C.shape,csr=(C.indptr, C.indices, C.data))
-    MO.StrTimePrint("BC applied to gradient, time: ",toc())
-
-    if dim == 2:
-        tic()
-        # Px = Diagmagnetic*P[0]*Diaglagrange
-        Px = P[0]
-        # Py = Diagmagnetic*P[1]*Diaglagrange
-        Py = P[1]
-        MO.StrTimePrint("BC applied to Prolongation, time: ",toc())
-        P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data))]
-    else:
-        tic()
-        # Px = Diagmagnetic*P[0]*Diaglagrange
-        Px = P[0]
-        # Py = Diagmagnetic*P[1]*Diaglagrange
-        Py = P[1]
-        # Pz = Diagmagnetic*P[2]*Diaglagrange
-        Pz = P[2]
-        MO.StrTimePrint("BC applied to Prolongation, time: ",toc())
-        P = [PETSc.Mat().createAIJ(size=Px.shape,csr=(Px.indptr, Px.indices, Px.data)),PETSc.Mat().createAIJ(size=Py.shape,csr=(Py.indptr, Py.indices, Py.data)),PETSc.Mat().createAIJ(size=Pz.shape,csr=(Pz.indptr, Pz.indices, Pz.data))]
-
-    return  G, P
-
-
-def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol):
+def HiptmairKSPsetup(VectorLaplacian, ScalarLaplacian, A, tol, G, mesh):
     OptDB = PETSc.Options()
-    OptDB['pc_hypre_type'] = 'boomeramg'
-    OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
+    OptDB['pc_hypre_type'] = 'ams'
+    OptDB['pc_help'] = ''
+
+    # OptDB['pc_hypre_boomeramg_strong_threshold']  = 0.5
     # OptDB['pc_hypre_boomeramg_grid_sweeps_all']  = 1
     # OptDB['pc_hypre_boomeramg_cycle_type']  = "W"
 
@@ -285,14 +223,14 @@ def HiptmairApply(A, b, kspVector, kspScalar, G, P,tol):
     x = b.duplicate()
 
     kspA = PETSc.KSP().create()
-    kspA.setType('richardson')
+    kspA.setType('cg')
     pcA = kspA.getPC()
-    pcA.setType('sor')
+    pcA.setType('icc')
     # pcA.setPythonContext(HiptmairPrecond.SGS(A))
     OptDB = PETSc.Options()
-    # OptDB['sor_omega'] = 1
-    # OptDB['sor_symmetric'] = ' '
-    # OptDB['sor_its'] = 1
+    OptDB['pc_factor_mat_ordering_type'] = 'rcm'
+    OptDB['pc_factor_fill'] = 2
+    # OptDB['pc_factor_levels'] = 2
 
     kspA.max_it = 3
     kspA.setFromOptions()

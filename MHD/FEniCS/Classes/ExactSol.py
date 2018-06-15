@@ -120,10 +120,19 @@ def NS2D(case,Show="no",type = 'no'):
             print "Case ",case-1,":\n"
             Print2D(u,v,p,"NS")
     if case == 6:
-        u = y*(y-1)*x*(x-1)
-        v = y*(y-1)*x*(x-1)
-        p = y*(y-1)*x*(x-1)
-    if case == 7:
+        # uu = y*x*exp(x+y)
+        u = y**4
+        v = x**4
+        p = x**3
+        if Show == "yes":
+            case +=1
+            print "Case ",case-1,":\n"
+            Print2D(u,v,p,"NS")
+    if case ==7:
+        u = y*(y-1)*y*(y-1)
+        v = x*(x-1)*x*(x-1)
+        p = x
+    if case == 8:
         l = 0.54448373678246
         omega = (3./2)*np.pi
         # r, theta = symbols('r, theta')
@@ -156,11 +165,15 @@ def NS2D(case,Show="no",type = 'no'):
     else:
         print "No case selected"
         return
-    L1 = diff(u,x,x)+diff(u,y,y)
-    L2 = diff(v,x,x)+diff(v,y,y)
 
-    A1 = u*diff(u,x)+v*diff(u,y)
-    A2 = u*diff(v,x)+v*diff(v,y)
+    if abs(diff(u, x) + diff(v, y)) > 1e-6:
+        return
+
+    L1 = diff(u,x,x) + diff(u,y,y)
+    L2 = diff(v,x,x) + diff(v,y,y)
+
+    A1 = u*diff(u,x) + v*diff(u,y)
+    A2 = u*diff(v,x) + v*diff(v,y)
 
     P1 = diff(p,x)
     P2 = diff(p,y)
@@ -405,17 +418,23 @@ def M2D(case, Show="no",type="no", Mass = 0):
         u = diff(rho**(2./3)*sin((2./3)*phi),x)
         v = diff(rho**(2./3)*sin((2./3)*phi),y)
         p = diff(rho,z)
-    if u:
-        f = 1
-    else:
-        print "No case selected"
-        return
+    if case == 6:
+        u = y
+        v = x
+        p = x
+    # if u:
+    #     f = 1
+    # else:
+    #     print "No case selected"
+    #     return
 
+    if abs(diff(u, x) + diff(v, y)) > 1e-6:
+        return
     L1 = diff(v,x,y) - diff(u,y,y)
     L2 = diff(u,x,y) - diff(v,x,x)
-
     P1 = diff(p,x)
     P2 = diff(p,y)
+
     # print L1
     # print L2
     # class Vec(Expression):
@@ -440,8 +459,8 @@ def M2D(case, Show="no",type="no", Mass = 0):
 
     # u0 = Vec(u,v,x,y)
     # p0 = Scal(p,x,y)
-    u0 = Expression((ccode(u),ccode(v)), degree=4)
-    p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
+    u0 = Expression((ccode(u),ccode(v)), degree=6)
+    p0 = Expression(ccode(p).replace('M_PI','pi'), degree=6)
 
 
     # CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
@@ -455,8 +474,7 @@ def M2D(case, Show="no",type="no", Mass = 0):
     # print latex(w)
     # print latex(p)
     # if Show == 'no':
-    if Show == "no":
-        Print2D(u,v,p,"NS")
+    Print2D(u,v,p,"NS")
     if type == "MHD":
         if Mass == 0:
             return u,v,p,u0, p0, CurlCurl, gradPres
@@ -623,8 +641,9 @@ def MHD2D(NScase,Mcase, Show="no"):
 
     x = symbols('x[0]')
     y = symbols('x[1]')
-    u, v, p, u0, p0, Laplacian, Advection, gradPres = NS2D(NScase,Show,"MHD")
-    b,d,r,b0, r0, CurlCurl, gradR = M2D(Mcase,Show,"MHD")
+
+    u, v, p, u0, p0, Laplacian, Advection, gradPres = NS2D(NScase, Show, "MHD")
+    b, d, r, b0, r0, CurlCurl, gradR = M2D(Mcase, Show, "MHD")
 
     NS1 = -d*(diff(d,x)-diff(b,y))
     NS2 = b*(diff(d,x)-diff(b,y))
@@ -634,7 +653,7 @@ def MHD2D(NScase,Mcase, Show="no"):
     NS_Couple = Expression((ccode(NS1),ccode(NS2)), degree=4)
     M_Couple = Expression((ccode(M1),ccode(M2)), degree=4)
 
-    return u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple
+    return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
 
 """

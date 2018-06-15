@@ -65,7 +65,7 @@ def PandasFormat(table,field,format):
     return table
 
 
-def  PrintStr(string,indent,boarder,preLines="",postLines=""):
+def PrintStr(string,indent,boarder,preLines="",postLines=""):
     AppendedString  = ""
     for i in range(indent):
         AppendedString = " "+AppendedString
@@ -74,10 +74,10 @@ def  PrintStr(string,indent,boarder,preLines="",postLines=""):
     if indent < 2:
         Outerboarder = ""
         if indent == 1:
-            for i in range(len(string)+indent+1):
+            for i in range(int(np.ceil(len(string)/len(boarder)))+indent+1):
                 Outerboarder += boarder
         else:
-            for i in range(len(string)+indent):
+            for i in range(int(np.ceil(len(string)/len(boarder)))+indent):
                 Outerboarder += boarder
 
     else:
@@ -85,35 +85,35 @@ def  PrintStr(string,indent,boarder,preLines="",postLines=""):
         for i in range(indent-2):
             AppendedString = " "+AppendedString
         Outerboarder = AppendedString
-        for i in range(len(string)+4):
+        for i in range(int(np.ceil(len(string)/len(boarder)))+4):
             Outerboarder += boarder
     print preLines+Outerboarder
     print StringPrint
     print Outerboarder+postLines
 
-    def IndexSet(W):
-        print W
-        if str(W.__class__).find('list') == -1:
-            n = W.num_sub_spaces()
-            IS = [0]*n
-            Start = 0
-            End = W.sub(0).dim()
-            for i in range(n):
-                if i>0:
-                    Start += W.sub(i-1).dim()
-                    End += W.sub(i).dim()
-                IS[i] = PETSc.IS().createGeneral(range(Start,End))
-        else:
-            n = len(W)
-            IS = [0]*n
-            Start = 0
-            End = W[0].dim()
-            for i in range(n):
-                if i>0:
-                    Start += W[i-1].dim()
-                    End += W[i].dim()
-                IS[i] = PETSc.IS().createGeneral(range(Start,End))
-        return IS
+def IndexSet(W):
+    print W
+    if str(W.__class__).find('list') == -1:
+        n = W.num_sub_spaces()
+        IS = [0]*n
+        Start = 0
+        End = W.sub(0).dim()
+        for i in range(n):
+            if i>0:
+                Start += W.sub(i-1).dim()
+                End += W.sub(i).dim()
+            IS[i] = PETSc.IS().createGeneral(range(Start,End))
+    else:
+        n = len(W)
+        IS = [0]*n
+        Start = 0
+        End = W[0].dim()
+        for i in range(n):
+            if i>0:
+                Start += W[i-1].dim()
+                End += W[i].dim()
+            IS[i] = PETSc.IS().createGeneral(range(Start,End))
+    return IS
 
 
 
@@ -172,5 +172,5 @@ def PETScMultiDuplications(b,num):
 
 
 
-def StrTimePrint(String,EndTime):
-    print ("{:40}").format(String), " ==>  ",("{:4f}").format(EndTime),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
+def StrTimePrint(String, EndTime):
+    print ("{:60}").format(String), " ==>  ",("{:4f}").format(EndTime),  ("{:9}").format("   time: "), ("{:4}").format(time.strftime('%X %x %Z')[0:5])
