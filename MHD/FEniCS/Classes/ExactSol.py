@@ -112,8 +112,8 @@ def NS2D(case,Show="no",type = 'no'):
             Print2D(u,v,p,"NS")
     if case == 5:
         # uu = y*x*exp(x+y)
-        u = y**2
-        v = x**2
+        u = y#**2
+        v = x#**2
         p = x
         if Show == "yes":
             case +=1
@@ -160,7 +160,20 @@ def NS2D(case,Show="no",type = 'no'):
         u = u.subs(rho, sqrt(x*x + y*y))
         v = v.subs(rho, sqrt(x*x + y*y))
         p = p.subs(rho, sqrt(x*x + y*y))
-    if u:
+    if case == 9:
+        u = 1
+        v = 1
+        p = 1
+    if case == 10:
+        u = y*(y-1)*exp(y)
+        v = x*(x-1)*exp(x)
+        p = y*(y-1)*x*(x-1)*exp(x+y)
+    if case == 11:
+        uu = 100*x**2*(x-1)**2*y**2*(y-1)**2*cos(x)
+        u = diff(uu, y)
+        v = -diff(uu, x)
+        p = y*(y-1)*x*(x-1)*exp(x)
+    if u:   
         f = 1
     else:
         print "No case selected"
@@ -203,20 +216,21 @@ def NS2D(case,Show="no",type = 'no'):
 
     # u0 = Vec(u ,v, x, y)
     # p0 = Scal(p, x, y)
-    u0 = Expression((ccode(u),ccode(v)), degree=4)
-    p0 = Expression(ccode(p), degree=4)
+    u0 = Expression((ccode(u).replace('M_PI','pi'),ccode(v).replace('M_PI','pi')), degree=4)
+    p0 = Expression(ccode(p).replace('M_PI','pi'), degree=4)
     # Laplacian = Vec(L1, L2, x, y)
     # Advection = Vec(A1, A2, x, y)
     # gradPres = Vec(P1, P2, x, y)
-    Laplacian = Expression((ccode(L1),ccode(L2)), degree=4)
-    Advection = Expression((ccode(A1),ccode(A2)), degree=4)
-    gradPres = Expression((ccode(P1),ccode(P2)), degree=4)
+    Laplacian = Expression((ccode(L1).replace('M_PI','pi'),ccode(L2).replace('M_PI','pi')), degree=4)
+    Advection = Expression((ccode(A1).replace('M_PI','pi'),ccode(A2).replace('M_PI','pi')), degree=4)
+    gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi')), degree=4)
     if Show == "no":
         Print2D(u,v,p,"NS")
     if type == "MHD":
         return u, v, p, u0, p0, Laplacian, Advection, gradPres
     else:
         return u0, p0, Laplacian, Advection, gradPres
+    
 
 """
 ----------------------3D----------------------
@@ -321,6 +335,12 @@ def NS3D(case,Show="no",type="no"):
             case +=1
             print "case ",case-1,":\n"
             print3d(u,v,w,p,"ns")
+    if case == 10:
+        uu = 100*x**2*(x-1)**2*y**2*(y-1)**2*z**2*(z-1)**2*cos(x)
+        u = diff(uu, y) - diff(uu, z)
+        v = diff(uu, z) - diff(uu, x)
+        w = diff(uu, x) - diff(uu, y)
+        p = y*(y-1)*x*(x-1)*z*(z-1)*exp(x)
     if u:
         f = 1
     else:
@@ -386,9 +406,9 @@ def M2D(case, Show="no",type="no", Mass = 0):
             print "Case ",case-1,":\n"
             Print2D(u,v,p,"M")
     if case == 2:
-        u = y*(y-1)
-        v = x*(x-1)
-        p = y*(y-1)*x*(x-1)
+        u = y*(y-1)*sin(y)
+        v = x*(x-1)*cos(x)
+        p = y*(y-1)*x*(x-1)*sinh(x)
         if Show == "yes":
             case +=1
             print "Case ",case-1,":\n"
@@ -419,9 +439,23 @@ def M2D(case, Show="no",type="no", Mass = 0):
         v = diff(rho**(2./3)*sin((2./3)*phi),y)
         p = diff(rho,z)
     if case == 6:
+        u = 1.0
+        v = x
+        p = 1.0
+    if case == 7:
         u = y
         v = x
         p = x
+    if case == 8:
+        uu = sin(2*pi*x)*sin(2*pi*y)
+        u = diff(uu, y)
+        v = -diff(uu, x)
+        p = sin(2*pi*x)*sin(2*pi*y)
+    if case == 9:
+        uu = 100*x**2*(x-1)**2*y**2*(y-1)**2*sin(y)
+        u = diff(uu, y)
+        v = -diff(uu, x)
+        p = y*(y-1)*x*(x-1)*exp(x+y)
     # if u:
     #     f = 1
     # else:
@@ -429,6 +463,7 @@ def M2D(case, Show="no",type="no", Mass = 0):
     #     return
 
     if abs(diff(u, x) + diff(v, y)) > 1e-6:
+        print diff(u, x) + diff(v, y)
         return
     L1 = diff(v,x,y) - diff(u,y,y)
     L2 = diff(u,x,y) - diff(v,x,x)
@@ -459,22 +494,28 @@ def M2D(case, Show="no",type="no", Mass = 0):
 
     # u0 = Vec(u,v,x,y)
     # p0 = Scal(p,x,y)
-    u0 = Expression((ccode(u),ccode(v)), degree=6)
+    u0 = Expression((ccode(u).replace('M_PI','pi'),ccode(v).replace('M_PI','pi')), degree=6)
     p0 = Expression(ccode(p).replace('M_PI','pi'), degree=6)
 
 
     # CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
     # gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2)).replace('M_PI','pi'), degree=4)
     CurlMass = 1
-    CurlCurl = Expression((ccode(L1),ccode(L2)), degree=4)
+    CurlCurl = Expression((ccode(L1).replace('M_PI','pi'),ccode(L2).replace('M_PI','pi')), degree=4)
     gradPres = Expression((ccode(P1).replace('M_PI','pi'),ccode(P2).replace('M_PI','pi')), degree=4)
-    CurlMass = Expression((ccode(Mass*u+L1),ccode(Mass*v+L2)), degree=4)
+    CurlMass = Expression((ccode(Mass*u+L1).replace('M_PI','pi'),ccode(Mass*v+L2).replace('M_PI','pi')), degree=4)
     # print latex(u)
     # print latex(v)
     # print latex(w)
     # print latex(p)
     # if Show == 'no':
-    Print2D(u,v,p,"NS")
+    Print2D(u,v,p,"M")
+
+    #m = 21
+    #q = np.linspace(0, 1, m)
+    #for i in range(0, m):
+    #    print u0(q[i], .2)
+    #Xsss
     if type == "MHD":
         if Mass == 0:
             return u,v,p,u0, p0, CurlCurl, gradPres
@@ -584,6 +625,12 @@ def M3D(case,Show="no",type="no",Mass=0):
             case +=1
             print "Case ",case-1,":\n"
             Print3D(u,v,w,p,"M")
+    if case == 9:
+        uu = 100*x**2*(x-1)**2*y**2*(y-1)**2*z**2*(z-1)**2*sin(y)
+        u = diff(uu, y) - diff(uu, z)
+        v = diff(uu, z) - diff(uu, x)
+        w = diff(uu, x) - diff(uu, y)
+        p = y*(y-1)*x*(x-1)*z*(z-1)*exp(x + y + z)
     if u:
         f = 1
     else:
@@ -650,8 +697,8 @@ def MHD2D(NScase,Mcase, Show="no"):
 
     M1 = diff(u*d-v*b,y)
     M2 = -diff(u*d-v*b,x)
-    NS_Couple = Expression((ccode(NS1),ccode(NS2)), degree=4)
-    M_Couple = Expression((ccode(M1),ccode(M2)), degree=4)
+    NS_Couple = Expression((ccode(NS1).replace('M_PI','pi'),ccode(NS2).replace('M_PI','pi')), degree=4)
+    M_Couple = Expression((ccode(M1).replace('M_PI','pi'),ccode(M2).replace('M_PI','pi')), degree=4)
 
     return u0, p0, b0, r0, Laplacian, Advection, gradPres, CurlCurl, gradR, NS_Couple, M_Couple
 
@@ -685,8 +732,8 @@ def MHD3D(NScase,Mcase,Show="no"):
     M1 = n*e - d*p
     M2 = b*p - m*e
     M3 = m*d - n*b
-    NS_Couple = Expression((ccode(NS1),ccode(NS2),ccode(NS3)), degree=4)
-    M_Couple = Expression((ccode(M1),ccode(M2),ccode(M3)), degree=4)
+    NS_Couple = Expression((ccode(NS1).replace('M_PI','pi'),ccode(NS2).replace('M_PI','pi'),ccode(NS3).replace('M_PI','pi')), degree=4)
+    M_Couple = Expression((ccode(M1).replace('M_PI','pi'),ccode(M2).replace('M_PI','pi'),ccode(M3).replace('M_PI','pi')), degree=4)
 
     return u0, p0,b0, r0, Laplacian, Advection, gradPres,CurlCurl, gradR, NS_Couple, M_Couple
 
