@@ -5,7 +5,9 @@ from sys import platform
 if platform == "linux" or platform == "linux2":
     import petsc4py1 as petsc4py
 elif platform == "darwin":
-    import petsc4pyimport sys
+    import petsc4py
+
+import sys
 
 petsc4py.init(sys.argv)
 import petsc4py.PETSc as PETSc
