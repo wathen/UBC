@@ -285,9 +285,30 @@ for xx in xrange(1, m):
     savePETScMat(Ctilde, "Matrix/Ctilde_" +
                  str(int(level[xx-1][0]))+".mat", "Ctilde")
 
-
-
     savePETScMat(G, "Matrix/G_"+str(int(level[xx-1][0]))+".mat", "G")
+
+F = load(strcat('Matrix/F_',num2str(level)));
+F = F.('F');
+B = load(strcat('Matrix/B_',num2str(level)));
+B = B.('B');
+D = load(strcat('Matrix/D_',num2str(level)));
+D = D.('D');
+C = load(strcat('Matrix/C_',num2str(level)));
+C = -C.('C');
+M = load(strcat('Matrix/M_',num2str(level)));
+M = M.('M');
+L = load(strcat('Matrix/L_',num2str(level)));
+L = L.('L');
+X = load(strcat('Matrix/X_',num2str(level)));
+X = X.('X');
+Qs = load(strcat('Matrix/Qs_',num2str(level)));
+Qs = Qs.('Qs');
+Q = load(strcat('Matrix/Q_',num2str(level)));
+Q = Q.('Q');
+Fp = load(strcat('Matrix/Fp_',num2str(level)));
+Fp = Fp.('Fp');
+Mp = load(strcat('Matrix/Mp_',num2str(level)));
+Mp = Mp.('Mp');
 
 
 
