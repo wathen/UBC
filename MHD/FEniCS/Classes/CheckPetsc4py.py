@@ -4,13 +4,17 @@ from PETScIO import arrayToVec
 from sys import platform
 if platform == "linux" or platform == "linux2":
     import petsc4py1 as petsc4py
+    import sys
+
+    petsc4py.init(sys.argv)
+    import petsc4py1.PETSc as PETSc
 elif platform == "darwin":
-    import petsc4py
+    import petsc4py as petsc4py
+    import sys
 
-import sys
+    petsc4py.init(sys.argv)
+    import petsc4py.PETSc as PETSc
 
-petsc4py.init(sys.argv)
-import petsc4py.PETSc as PETSc
 import scipy.sparse as sp
 
 
