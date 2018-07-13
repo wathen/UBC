@@ -9,7 +9,14 @@ import errno as _errno
 import sys as _sys
 import numpy as _np
 
-from petsc4py import PETSc as _PETSc
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    from petsc4py1 import PETSc as _PETSc
+
+elif platform == "darwin":
+    from petsc4py import PETSc as _PETSc
+
+
 import fileinput as _fl
 
 def vecToArray(obj):
