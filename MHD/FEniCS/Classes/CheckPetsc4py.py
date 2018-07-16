@@ -1,19 +1,12 @@
 from dolfin import has_petsc4py, parameters, as_backend_type
 from PETScIO import arrayToVec
 
-from sys import platform
-if platform == "linux" or platform == "linux2":
-    import petsc4py1 as petsc4py
-    import sys
 
-    petsc4py.init(sys.argv)
-    import petsc4py1.PETSc as PETSc
-elif platform == "darwin":
-    import petsc4py as petsc4py
-    import sys
+import petsc4py as petsc4py
+import sys
 
-    petsc4py.init(sys.argv)
-    import petsc4py.PETSc as PETSc
+petsc4py.init(sys.argv)
+import petsc4py.PETSc as PETSc
 
 import scipy.sparse as sp
 
@@ -34,7 +27,7 @@ def Assemble(AA, bb=None):
             A = as_backend_type(AA).vec()
         if bb:
             b = as_backend_type(bb).vec()
-    else:
+    elif AA.__str__().find('Eigen') == -1::
         if AA.size(1) == AA.size(0):
             As = AA.sparray()
             As.eliminate_zeros()
